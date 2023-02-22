@@ -1,0 +1,83 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'trade-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item-sliding *ngIf='trade.contactId !== 0'>
+            <ion-item>
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder()" />
+                </ion-avatar>
+                <ion-label>
+                    <h2><b>{{trade.contact.fullName}}</b></h2>
+                    <p>{{trade.contact.mobile}}</p>
+                    <p *ngIf='trade.contact.address'>{{trade.contact.address}}</p>
+                </ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option color="primary" (click)='text()'>
+                    <ion-icon slot='start' name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call()'>
+                    <ion-icon slot='start' name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item *ngIf='trade.productId !== 0 && trade.product' text-wrap>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'><b>{{productName(trade.product.code, trade.product.title)}}</b></span>
+                <br>
+                <ion-text color="secondary">
+                    <ion-icon name="pricetag"></ion-icon>&nbsp;{{trade.product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </ion-text>
+                <br>
+                <span *ngIf='trade.isReceived'>{{ 'trade.sale' | translate}} {{trade.productCount}}
+                    {{trade.product.unit}}</span>
+                <span *ngIf='!trade.isReceived'>{{'trade.buy' | translate}} {{trade.productCount}}
+                    {{trade.product.unit}}</span>
+            </ion-label>
+            <ion-avatar slot='end' *ngIf="trade.product.avatarUrl">
+                <img [src]="trade.product.avatarUrl" />
+            </ion-avatar>
+        </ion-item>
+        <ion-item>
+            <ion-icon name="cash" slot='start'></ion-icon>
+            <ion-label>
+                <ion-text color="{{trade.isReceived ? 'secondary': 'danger'}}">{{trade.isReceived ? '+': '-'}}
+                    {{trade.value | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                <p>
+                    {{dateTimeFormat(trade.createdAt)}}
+                </p>
+            </ion-label>
+        </ion-item>
+        <ion-item *ngIf="categories.length > 0">
+            {{'trade-detail.categories' | translate}}:
+            <ion-buttons slot='end'>
+                <ion-button *ngFor="let category of categories" fill='outline'
+                    (click)='moveToCategory(category)'>
+                    {{category.tradeCategory.title}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item *ngIf='trade.note'>
+            <ion-label class='ion-text-wrap'>
+                {{trade.note}}
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

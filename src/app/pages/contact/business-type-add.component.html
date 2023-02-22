@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'contact-add.business-type' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'contact-add.business-type-title' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]='businessType.title'></ion-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

@@ -1,0 +1,42 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'money-account.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openContactAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' placeholder="{{'money-account.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list>
+        <ion-item-sliding *ngFor="let product of products" (click)='selectContact(product)'>
+            <ion-item>
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap; font-size: bold'>{{product.accountName}}</span>
+                    <br>
+                    <span color="secondary">{{product.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+                    <p *ngIf='product.bankName || product.bankAccountName || product.bankNumber'>
+                        <span *ngIf='product.bankName '>{{product.bankName}}<br></span>
+                        <span *ngIf='product.bankAccountName '>{{product.bankAccountName}}<br></span>
+                        <span *ngIf='product.bankNumber '>{{product.bankNumber}}</span>
+                    </p>
+                </ion-label>
+            </ion-item>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalProducts || originalProducts.length===0">
+            <div [innerHTML]="'money-account.no-money-account' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

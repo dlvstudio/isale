@@ -1,0 +1,114 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'staff-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)= 'save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='staff'>
+        <ion-item [hidden]='shop'>
+            <ion-label position='stacked' color='primary'>{{'staff-add.shop-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder='Vd: Shop ABC' [(ngModel)]='staff.shopName'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'staff-add.name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder='Vd: John London' [(ngModel)]='staff.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'staff-add.user-name' | translate}}</ion-label>
+            <ion-input clearInput type="tel" placeholder='Vd: 09123456789 or ABC@ABC.COM' [(ngModel)]='staff.userName'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'staff-add.store' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchStore()'
+                *ngIf="storeSelected && storeSelected.id > 0">
+                {{storeSelected.name}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchStore()' *ngIf="!storeSelected || storeSelected.id === 0">
+                {{'staff-add.select-store' | translate}}
+            </ion-text>
+            <ion-button *ngIf="storeSelected && storeSelected.id > 0" fill='outline' slot='end'
+                (click)='removeStore()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'staff-add.shift' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchShift()'
+                *ngIf="shiftSelected && shiftSelected.id > 0">
+                {{shiftSelected.name}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchShift()' *ngIf="!shiftSelected || shiftSelected.id === 0">
+                {{'staff-add.select-shift' | translate}}
+            </ion-text>
+            <ion-button *ngIf="shiftSelected && shiftSelected.id > 0" fill='outline' slot='end'
+                (click)='removeShift()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'staff-add.is-collaborator' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]="staff.isCollaborator"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.has-full-access' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.hasFullAccess'></ion-toggle>
+        </ion-item>
+        <ion-item [lines]='staff.canCreateOrder ? "none" : "inset"'>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-create-order' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canCreateOrder'></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf='staff.canCreateOrder'>
+            <ion-label class='ion-text-wrap'>{{'staff-add.hour-limit' | translate}}</ion-label>
+            <ion-input type='number' [(ngModel)]='staff.hourLimit' class="ion-text-right"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-update-delete-order' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canUpdateDeleteOrder'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-create-update-debt' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canCreateUpdateDebt'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-create-update-note' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canCreateUpdateNote'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-update-delete-product' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canUpdateDeleteProduct'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-view-product-cost-price' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canViewProductCostPrice'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-update-product-cost-price' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canUpdateProductCostPrice'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-create-new-transaction' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canCreateNewTransaction'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-update-delete-transaction' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canUpdateDeleteTransaction'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-manage-contacts' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canManageContacts'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>{{'staff-add.can-view-all-contacts' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='staff.canViewAllContacts'></ion-toggle>
+        </ion-item>
+    </ion-list>
+</ion-content>

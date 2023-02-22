@@ -1,0 +1,40 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'contact-add.edit-point-title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'contact.point' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]='contactPoint.point'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'contact.level' | translate}}</ion-text>
+            <ion-button slot='end' ion-text color='dark' (click)='showLevels()'
+                *ngIf="levelSelected && levelSelected.id > 0">
+                {{levelSelected.title}}
+            </ion-button>
+            <ion-button slot='end' (click)='showLevels()'
+                *ngIf="!levelSelected || levelSelected.id == 0">
+                {{'contact-add.select-level' | translate}}
+            </ion-button>
+            <ion-button slot='end' *ngIf="levelSelected && levelSelected.id > 0" fill='clear'
+                (click)='removeLevel()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+    </ion-list>
+</ion-content>

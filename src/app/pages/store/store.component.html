@@ -1,0 +1,64 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'store.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openStoreAdd()' [hidden]='staffService.isStaff()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'store.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list>
+        <ng-container *ngFor="let item of stores; let i = index" >
+            <ion-item (press)="presentActionSheet(item)" lines='none' style='--padding-top: 0; --inner-padding-top: 0; --inner-padding-bottom: 0; --min-height: 0;'>
+                <ion-label class='ion-text-wrap' (click)='selectStore(item.id)' style='padding: 0; margin: 0;'>
+                    {{limitText(item.name)}}
+                </ion-label>
+                <ion-button *ngIf='!store || store.id !== item.id' style='padding: 0; margin: 0;' slot='end' fill='clear' (click)='loginAsStore(item)'>
+                    <ion-icon name='enter' slot='start'></ion-icon>&nbsp;{{'store.login' | translate}}
+                </ion-button>
+            </ion-item>
+            <ion-item (press)="presentActionSheet(item)" style='--padding-bottom: 10px; --inner-padding-top: 0; --inner-padding-bottom: 10px; --min-height: 0;'>
+                <ion-label class='ion-text-wrap' (click)='selectStore(item.id)' style='padding: 0; margin: 0;'>
+                    <p>{{'shop-add.id' | translate}}: {{item.id}}</p>
+                    <p *ngIf='item.phone'>{{'shop-add.phone' | translate}}: {{item.phone}}</p>
+                    <p *ngIf='item.email'>{{'shop-add.email' | translate}}: {{item.email}}</p>
+                    <p *ngIf='item.address'>{{'shop-add.address' | translate}}: {{item.address}}</p>
+                    <p *ngIf='item.facebook'>{{'shop-add.facebook' | translate}}: {{item.facebook}}</p>
+                    <p *ngIf='item.bankName'>{{'shop-add.bank-name' | translate}}: {{item.bankName}}</p>
+                    <p *ngIf='item.bankAccountName'>{{'shop-add.bank-account-name' | translate}}:
+                        {{item.bankAccountName}}</p>
+                    <p *ngIf='item.bankAccountNumber'>{{'shop-add.bank-account-number' | translate}}:
+                        {{item.bankAccountNumber}}</p>
+                </ion-label>
+                <ion-thumbnail slot='end' *ngIf="item.iconUrl">
+                    <img [src]="item.iconUrl">
+                </ion-thumbnail>
+            </ion-item>
+        </ng-container>
+        <ion-item class='ion-text-wrap' *ngIf="!originalStores || originalStores.length===0">
+            <div [innerHTML]="'store.no-store' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openStoreAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

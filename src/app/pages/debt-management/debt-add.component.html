@@ -1,0 +1,115 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'debt-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-text color='primary'>{{'debt-add.contact' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchContact()'
+                *ngIf="contactSelected && contactSelected.id > 0">
+                {{contactSelected.fullName}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id == 0">
+                {{'debt-add.select-contact' | translate}}
+            </ion-text>
+            <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='outline' slot='end'
+                (click)='removeContact()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]='orderSelected && orderSelected.id != 0'>
+            <ion-text color='primary'>{{'debt-add.product' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchProduct()'
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productName(productSelected.code, productSelected.title)}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id == 0">
+                {{'debt-add.select-product' | translate}}
+            </ion-text>
+            <ion-button *ngIf="productSelected && productSelected.id > 0" fill='outline' slot='end'
+                (click)='removeProduct()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]='!orderSelected || orderSelected.id == 0'>
+            <ion-text color='primary'>{{'debt-add.order' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{orderSelected ? orderSelected.orderCode : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-item *ngIf="productSelected">
+            <ion-label color='primary'>{{'debt-add.is-purchase' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='debt.isPurchase' (ngModelChange)='changeIsPurchase()'></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="productSelected && debt.isPurchase">
+            <ion-label position='stacked' color='primary'>{{'debt-add.product-count' | translate}} <span
+                    *ngIf="productSelected.unit">({{productSelected.price | currency:currency.code:true:'1.0-2':translateService.currentLang}}/{{productSelected.unit}})</span>
+            </ion-label>
+            <money-input [clear]='true' placeholder="{{'debt-add.enter-product-count' | translate}}" [(moneyValue)]='debt.productCount' (moneyValueChange)='changeProductCount()'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'debt-add.money' | translate}} <span
+                    *ngIf="currency">({{currency.symbol_native}} - {{currency.code}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'debt-add.enter-money' | translate}}" [(moneyValue)]='debt.value'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'debt-add.debt-type' | translate}}</ion-label>
+            <ion-select [(ngModel)]="debt.debtType">
+                <ion-select-option [value]="0" *ngIf='page==="loans"'>{{'debt-add.you-borrowed' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="1" *ngIf='page==="loans"'>{{'debt-add.borrowed-you' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="2" *ngIf='page==="debts"'>{{'debt-add.you-owned' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="3" *ngIf='page==="debts"'>{{'debt-add.owned-you' | translate}}
+                </ion-select-option>
+            </ion-select>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-list-header>
+            <ion-label>
+                {{'debt-add.categories' | translate}}
+            </ion-label>
+            <ion-button fill='outline' (click)='showSearchCategory()'>
+                <ion-icon name="add"></ion-icon>
+                {{'debt-add.add' | translate}}
+            </ion-button>
+        </ion-list-header>
+        <ion-item *ngFor="let category of categories">
+            <span>{{category.tradeCategory.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeCategory(category)'>
+                {{'debt-add.remove' | translate}}
+                <ion-icon name="remove"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <date-item [(date)]='debt.createdAt' [label]='"debt-add.created-at" | translate' pickerId="debtAddCreatedAt"></date-item>
+        <date-item [(date)]='debt.maturityDate' [label]='"debt-add.maturity-date" | translate' pickerId="debtAddMaturityDate"></date-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'debt-add.interest-rate' | translate}} (%)</ion-label>
+            <ion-input clearInput type="number" placeholder="{{'debt-add.enter-interest-rate' | translate}}"
+                [(ngModel)]='debt.interestRate' (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>{{'debt-add.is-paid' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='debt.isPaid'></ion-toggle>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-list-header>
+            <ion-textarea type="text" placeholder="{{'debt-add.short-description' | translate}}" rows="6"
+                [(ngModel)]='debt.note'></ion-textarea>
+        </ion-list-header>
+    </ion-list>
+</ion-content>

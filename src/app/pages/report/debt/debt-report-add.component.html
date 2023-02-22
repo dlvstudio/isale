@@ -1,0 +1,212 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'debt-report-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label color='primary'>{{'debt-report-add.report-type' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.reportType" (ngModelChange)='changeReportType()'>
+                <ion-select-option [value]="0">{{'debt-report-add.type-for-customer' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'debt-report-add.type-for-category' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'debt-report-add.type-for-product' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'debt-report-add.debt-type' | translate}}</ion-label>
+            <ion-select [disabled]='true' [(ngModel)]="report.debtType">
+                <ion-select-option value="0">{{'debt-add.you-borrowed' | translate}}</ion-select-option>
+                <ion-select-option value="1">{{'debt-add.borrowed-you' | translate}}</ion-select-option>
+                <ion-select-option value="2">{{'debt-add.you-owned' | translate}}</ion-select-option>
+                <ion-select-option value="3">{{'debt-add.owned-you' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'report-category-add.report-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'report-category-add.enter-report-name' | translate}}" [(ngModel)]='report.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'report-category-add.date-range' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.dateType">
+                <ion-select-option [value]="0">{{'report-category.by-week' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.by-month' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'report-category.by-year' | translate}}</ion-select-option>
+                <ion-select-option [value]="3">{{'report-category.by-day' | translate}}</ion-select-option>
+                <ion-select-option [value]="5">{{'report-category.by-quarter' | translate}}</ion-select-option>
+                <ion-select-option [value]="4">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <date-item *ngIf='report.dateType === 4' [(date)]='report.dateFrom' [label]='"report-category-add.start-date" | translate' pickerId="reportDateFromPicker3"></date-item>
+        <date-item *ngIf='report.dateType === 4' [(date)]='report.dateTo' [label]='"report-category-add.end-date" | translate' pickerId="reportDateEndPicker3"></date-item>
+        <ion-item *ngIf="report.reportType == 0">
+            <ion-label color='primary'>{{'report-add.select-contact' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.customListType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item [hidden]="report.reportType != 0" *ngIf='report.customListType === 1'>
+            {{'report-add.list' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchContact()'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType != 0" *ngFor="let contact of selecteds">
+            <span>{{contact.fullName}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeSelectedContact(contact)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf="report.reportType == 0">
+            <ion-label color='primary'>{{'report-add.ignore-contact' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.ignore">
+                <ion-select-option [value]="0">{{'report-category-add.none' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.ignore === 1 && report.reportType == 0'>
+            {{'report-add.list' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchContact(false)'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType != 0" *ngFor="let contact of ignoreds">
+            <span>{{contact.fullName}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeIgnoredContact(contact)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf="report.reportType == 0">
+            <ion-label color='primary'>{{'report-add.gender' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.genderType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'contact-add.gender-male' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'contact-add.gender-female' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf="report.reportType == 0">
+            <ion-label color='primary'>{{'report-add.age-range' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.ageType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-add.by-year' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'report-add.by-age' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.ageType === 1 && report.reportType == 0'>
+            <ion-label color='primary'>{{'report-add.from-year' | translate}}</ion-label>
+            <ion-input clearInput type="number" placeholder="{{'report-add.enter-from-year' | translate}}" [(ngModel)]='report.ageFrom'></ion-input>
+        </ion-item>
+        <ion-item *ngIf='report.ageType === 1 && report.reportType == 0'>
+            <ion-label color='primary'>{{'report-add.to-year' | translate}}</ion-label>
+            <ion-input clearInput type="number" placeholder="{{'report-add.enter-to-year' | translate}}" [(ngModel)]='report.ageTo'></ion-input>
+        </ion-item>
+        <ion-item *ngIf='report.ageType === 2 && report.reportType == 0'>
+            <ion-label color='primary'>{{'report-add.from-age' | translate}}</ion-label>
+            <ion-input clearInput type="number" placeholder="{{'report-add.enter-from-age' | translate}}" [(ngModel)]='report.ageFrom'></ion-input>
+        </ion-item>
+        <ion-item *ngIf='report.ageType === 2 && report.reportType == 0'>
+            <ion-label color='primary'>{{'report-add.to-age' | translate}}</ion-label>
+            <ion-input clearInput type="number" placeholder="{{'report-add.enter-to-year' | translate}}" [(ngModel)]='report.ageTo'></ion-input>
+        </ion-item>
+        <!-- For Category -->
+        <ion-item *ngIf="report.reportType === 1">
+            <ion-label color='primary'>{{'report-category-add.select-category' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.customListType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.customListType === 1 && report.reportType === 1'>
+            {{'report-category-add.list-category' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchCategory()'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-category-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType !== 1" *ngFor="let category of selecteds">
+            <span>{{category.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeSelectedCategory(category)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-category-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf="report.reportType === 1">
+            <ion-label color='primary'>{{'report-category-add.ignored-categories' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.ignore">
+                <ion-select-option [value]="0">{{'report-category-add.none' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.ignore === 1 && report.reportType === 1'>
+            {{'report-category-add.list-category' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchCategory(false)'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-category-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType !== 1" *ngFor="let category of ignoreds">
+            <span>{{category.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeIgnoredCategory(category)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-category-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <!-- For Product -->
+        <ion-item *ngIf="report.reportType === 2">
+            <ion-label color='primary'>{{'report-product-add.select-product' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.customListType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.customListType === 1 && report.reportType === 2'>
+            {{'report-add.list' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchProduct()'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType !== 2" *ngFor="let product of selecteds">
+            <span>{{product.code}}-{{product.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeSelectedProduct(product)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf="report.reportType === 2">
+            <ion-label color='primary'>{{'report-product-add.ignore-product' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.ignore">
+                <ion-select-option [value]="0">{{'report-category-add.none' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.ignore === 1 && report.reportType === 2'>
+            {{'report-add.list' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchProduct(false)'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]="report.reportType !== 2" *ngFor="let product of ignoreds">
+            <span>{{product.code}}-{{product.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeIgnoredProduct(product)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+    </ion-list>
+</ion-content>

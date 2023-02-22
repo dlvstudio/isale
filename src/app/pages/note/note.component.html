@@ -1,0 +1,79 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'note.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openNoteAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' placeholder="{{'note.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <div style='padding-left: 10px; padding-right: 10px; padding-bottom: 10px;'>
+        <ion-segment [(ngModel)]="noteFilter" (ngModelChange)='filter()'>
+            <ion-segment-button value="recent">
+                <ion-icon name="time"></ion-icon>
+                {{'note.filterRecent' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="important">
+                <ion-icon name="star"></ion-icon>
+                {{'note.filterImportant' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="frequency">
+                <ion-icon name="bookmark"></ion-icon>
+                {{'note.filterFrequently' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+    </div>
+    <ion-list>
+        <ng-container *ngFor="let note of notes">
+            <ion-item *ngIf='note.contactId !== 0' (press)="presentActionSheet(note)" (click)='selectNote(note.id)'>
+                <ion-thumbnail slot='start' *ngIf="note.avatarUrl">
+                    <img [src]="note.avatarUrl" />
+                </ion-thumbnail>
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap;'>{{limitText(note.content)}}</span>
+                    <p>{{note.contact.fullName}}</p>
+                    <p>
+                        {{dateFormat(note.modifiedAt)}}
+                    </p>
+                </ion-label>
+                <p slot='end'>
+                    <ion-avatar slot='end'>
+                        <img [src]="contactImageOrPlaceholder(note.contact)" />
+                    </ion-avatar>
+                    <ion-icon name="bookmark" *ngIf='note.frequency'></ion-icon>
+                    <ion-icon name="star" *ngIf='note.important'></ion-icon>
+                </p>
+            </ion-item>
+            <ion-item *ngIf='note.contactId === 0' (press)="presentActionSheet(note)" (click)='selectNote(note.id)'>
+                <ion-avatar slot='start' *ngIf="note.avatarUrl">
+                    <img [src]="note.avatarUrl" />
+                </ion-avatar>
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap;'>{{limitText(note.content)}}</span>
+                    <p>
+                        {{dateFormat(note.modifiedAt)}}
+                    </p>
+                </ion-label>
+                <ion-icon name="bookmark" *ngIf='note.frequency' slot='end'></ion-icon>
+                <ion-icon name="star" *ngIf='note.important' slot='end'></ion-icon>
+            </ion-item>
+        </ng-container>
+        <ion-item class='ion-text-wrap' *ngIf="!originalNotes || originalNotes.length===0">
+            <div [innerHTML]="'note.no-note' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openNoteAdd()'><ion-icon name="add"></ion-icon></ion-fab-button> 
+    </ion-fab>
+</ion-content>

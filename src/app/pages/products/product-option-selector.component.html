@@ -1,0 +1,114 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'product-option-selector.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='ok()'>
+                <ion-icon name="checkmark"></ion-icon>&nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <div class="ion-padding">
+        <ion-text color='danger'><strong><i>* {{'product-type.suggestion' | translate}}</i></strong></ion-text>
+    </div>
+    <ion-item text-wrap *ngIf='mainProduct' lines='none'>
+        <ion-text [color]='mainProduct.count > 0 ? "primary": "normal"' style='padding-top: 8px; padding-bottom: 8px;'
+            [style.fontWeight]='mainProduct.count > 0 ? "bold": "normal"'>
+            {{productName(mainProduct.code, mainProduct.title)}}
+            |
+            {{mainProduct.count}}
+            {{mainProduct.unit}} | {{mainProduct.total | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+            <br *ngIf='mainProduct.attributes && mainProduct.attributes.length'>
+            <ion-text *ngIf='mainProduct.attributes && mainProduct.attributes.length' style='font-size: 0.8em'>
+                {{getAttributesString(mainProduct)}}
+            </ion-text>
+        </ion-text>
+        <ion-avatar slot='end' *ngIf="mainProduct.avatarUrl">
+            <img [src]="mainProduct.avatarUrl">
+        </ion-avatar>
+        <ion-buttons slot='end'>
+            <ion-button fill='clear' (click)='addAttributes()'>
+                <ion-icon slot='icon-only' name='options'></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-segment [(ngModel)]="tab" (ngModelChange)='tabChanged()'>
+        <ion-segment-button value="all">
+            {{'product-selector.filter-all' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="selected">
+            <ion-text [style.fontWeight]='selectedProducts && selectedProducts.length ? "bold": "normal"'>
+                {{'product-selector.filter-selected' | translate}} <ion-text color='danger'>
+                    ({{selectedProducts ? selectedProducts.length : 0}})</ion-text>
+            </ion-text>
+        </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar autofocus='true' #barcodeInput *ngIf='tab === "all"' debounce="700" (ionClear)='clearSearch()'
+        (ionChange)='search()' placeholder="{{'product-selector.filter-by-words' | translate}}" [(ngModel)]='searchKey'
+        (ngModelChange)="barcodeChanged()">
+    </ion-searchbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list [hidden]='tab === "all"'>
+        <ion-item *ngFor="let product of selectedProducts" text-wrap>
+            <ion-text [color]='product.count > 0 ? "primary": "normal"' style='padding-top: 8px; padding-bottom: 8px;'
+                [style.fontWeight]='product.count > 0 ? "bold": "normal"' (click)='increase(product)'>
+                {{productName(product.code, product.title)}}
+                |
+                {{product.count}}
+                {{product.unit}} | {{product.total | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                <br>
+                <span style='font-size: 0.7em'>{{'product-selector.quantity-left' | translate}}:
+                    {{product.quantity - product.count > 0 ? (product.quantity - product.count) : 0}}
+                    {{product.unit}}</span>
+            </ion-text>
+            <ion-avatar slot='end' *ngIf="product.avatarUrl">
+                <img [src]="product.avatarUrl">
+            </ion-avatar>
+            <ion-buttons slot='end'>
+                <ion-button fill='clear' (click)='decrease(product)'>
+                    <ion-icon slot='icon-only' name='remove'></ion-icon>
+                </ion-button>
+                <ion-button fill='clear' (click)='increase(product)'>
+                    <ion-icon slot='icon-only' name='add'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+    <ion-list [hidden]='tab === "selected"'>
+        <ion-item *ngFor="let product of products" text-wrap>
+            <ion-text [color]='product.count > 0 ? "primary": "normal"' style='padding-top: 8px; padding-bottom: 8px;'
+                [style.fontWeight]='product.count > 0 ? "bold": "normal"' (click)='increase(product)'>
+                {{productName(product.code, product.title)}}
+                |
+                {{product.count}}
+                {{product.unit}} | {{product.total | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                <br>
+                <span style='font-size: 0.7em'>{{'product-selector.quantity-left' | translate}}:
+                    {{product.quantity - product.count > 0 ? (product.quantity - product.count) : 0}}
+                    {{product.unit}}</span>
+            </ion-text>
+            <ion-avatar slot='end' *ngIf="product.avatarUrl">
+                <img [src]="product.avatarUrl">
+            </ion-avatar>
+            <ion-buttons slot='end'>
+                <ion-button fill='clear' (click)='decrease(product)'>
+                    <ion-icon slot='icon-only' size="large" name='remove'></ion-icon>
+                </ion-button>
+                <ion-button fill='clear' (click)='increase(product)'>
+                    <ion-icon slot='icon-only' size="large" name='add'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item text-wrap *ngIf="!originalProducts || originalProducts.length===0">
+            <div [innerHTML]="'product-selector.no-product' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

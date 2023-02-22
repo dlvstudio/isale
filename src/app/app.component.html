@@ -1,0 +1,28 @@
+<ion-app>
+    <ion-menu side="start" menuId="first" contentId="main-content" type="overlay">
+        <ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px;' : ''">
+            <ion-list id="inbox-list">
+                <ion-item-divider>
+                    <ion-label>
+                      &nbsp;
+                    </ion-label>
+                  </ion-item-divider>
+                <ion-menu-toggle *ngFor="let item of pages">
+                    <ion-item (click)='openPage(item)'>
+                        <ion-icon slot="start" [name]="item.icon" *ngIf="!item.fa"></ion-icon>
+                        <fa-icon slot="start" *ngIf="item.fa" [icon]="item.icon" size="lg"></fa-icon>
+                        <ion-label>{{ item.title }}</ion-label>
+                    </ion-item>
+                </ion-menu-toggle>
+                <ion-menu-toggle>
+                    <ion-item *ngIf='staffService.staffsToSelect && staffService.staffsToSelect.length'
+                        (click)='selectStaffs()'>
+                        <ion-icon slot="start" name="log-out"></ion-icon>
+                        <ion-label>{{ 'action.login-to-shops' | translate}}</ion-label>
+                    </ion-item>
+                </ion-menu-toggle>
+            </ion-list>
+        </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

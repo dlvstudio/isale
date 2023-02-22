@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="first"></ion-menu-button>
+      <ion-button color="primary" (click)='navCtrl.home()'>
+          <ion-icon name="home"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{'logout.title' | translate}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="primary" (click)='close()'>
+        <ion-icon slot="start" name="close"></ion-icon>
+        &nbsp;{{'common.cancel' | translate}}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+  <div class='ion-padding'>
+    <p>{{'logout.are-you-sure' | translate}}</p>
+    <ion-button color="primary" expand='block' (click)='logout()'>{{'common.agree' | translate}}</ion-button>
+  </div>
+</ion-content>

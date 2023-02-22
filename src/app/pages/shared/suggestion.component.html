@@ -1,0 +1,14 @@
+<ion-list class='ion-no-padding' *ngIf='moneyValueString'>
+    <ion-item button (click)='select(formatMoney(getMoneyValueStringToNumber(moneyValueString) * 1000000))'>
+        {{formatMoney(getMoneyValueStringToNumber(moneyValueString) * 1000000)}}
+    </ion-item>
+    <ion-item button (click)='select(formatMoney(getMoneyValueStringToNumber(moneyValueString) * 100000))'>
+        {{formatMoney(getMoneyValueStringToNumber(moneyValueString) * 100000)}}
+    </ion-item>
+    <ion-item button (click)='select(formatMoney(getMoneyValueStringToNumber(moneyValueString) * 1000))'>
+        {{formatMoney(getMoneyValueStringToNumber(moneyValueString) * 1000)}}
+    </ion-item>
+    <ion-item button (click)='select(formatMoney(getMoneyValueStringToNumber(moneyValueString) * 100))'>
+        {{formatMoney(getMoneyValueStringToNumber(moneyValueString) * 100)}}
+    </ion-item>
+</ion-list>

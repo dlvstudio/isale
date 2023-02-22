@@ -1,0 +1,50 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'trade.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='addReport()'>
+                <ion-icon name="stats"></ion-icon>
+            </ion-button>
+            <ion-button (click)='openTradeAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentOtherActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'trade.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class="ion-padding" style="padding-top: 0; padding-bottom: 0;">
+        <period-range (onPeriodChanged)="onPeriodChanged($event)" page='trade'></period-range>
+    </div>
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}}
+                    {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [trade]='trade' [currency]='currency'
+            (onPress)="presentActionSheet(trade)" (onClick)='selectTrade(trade.id)' [showContact]='true'></trade-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalTrades || originalTrades.length===0">
+            <div [innerHTML]="'trade.no-trade' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openTradeAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

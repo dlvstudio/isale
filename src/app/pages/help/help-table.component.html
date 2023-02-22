@@ -1,0 +1,81 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'help-table.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <h2>{{'help-table.agenda' | translate}}:</h2>
+    <ol>
+        <li>
+            {{'help-table.add-new-table' | translate}}
+        </li>
+        <li>
+            {{'help-table.list-tables' | translate}}
+        </li>
+        <li>
+            {{'help-table.add-order-for-table' | translate}}
+        </li>
+        <li>
+            {{'help-table.swap-table' | translate}}
+        </li>
+        <li>
+            {{'help-table.finish-table-order' | translate}}
+        </li>
+    </ol>
+    <h3>1. {{'help-table.add-new-table' | translate}}:</h3>
+    <ion-label>{{'help-table.from-home-click-button-manage-tables' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-1.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-table.click-on-plus-button' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-2.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+      margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-table.fill-table-info' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-3.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+      margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+
+    <h3>2. {{'help-table.list-tables' | translate}}:</h3>
+    <ion-label>{{'help-table.list-tables-description' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-4.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>3. {{'help-table.add-order-for-table' | translate}}:</h3>
+    <ion-label>{{'help-table.click-on-name-or-receipt-icon' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-5.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-table.check-table-status-add-product' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-6.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>4. {{'help-table.swap-table' | translate}}:</h3>
+    <ion-label>{{'help-table.click-on-name-or-receipt-icon' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-7.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-table.click-on-swap-button' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-8.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-table.select-table-to-change' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-9.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>5. {{'help-table.finish-table-order' | translate}}:</h3>
+    <ion-label>{{'help-table.click-on-finish-button' | translate}}</ion-label>
+    <ion-img src='./assets/help/table/table-10.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>{{'help-table.finish' | translate}}.</h3>
+
+    <p>{{'ticket-add.send-ticket-note' | translate}}</p>
+    <ion-button color="secondary" (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+</ion-content>

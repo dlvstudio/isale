@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "701553846711",
+    "firebase_url": "https://isale-c66e7.firebaseio.com",
+    "project_id": "isale-c66e7",
+    "storage_bucket": "isale-c66e7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701553846711:android:6f84eead87bf8f808c2032",
+        "android_client_info": {
+          "package_name": "com.dlv.isale"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701553846711-a4ntgmdda71n4olnj47qui187o0tod8m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwnjjX1W5vSJzD3HiSMtsBGOYmsXptLsE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701553846711-a4ntgmdda71n4olnj47qui187o0tod8m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

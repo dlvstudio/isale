@@ -1,0 +1,257 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'category-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <b style='white-space: pre-wrap;'>{{'category-detail.category' | translate}}: {{category.title}}</b>
+                <br>
+                {{'category-add.order-index' | translate}}: {{category.orderIndex}} -
+                {{dateTimeFormat(category.modifiedAt)}}
+            </ion-label>
+            <ion-buttons>
+                <ion-button color='primary' (click)='showSearchProduct()'>
+                    <ion-icon name='add'></ion-icon>{{'category-detail.add-products' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+    <ion-segment [(ngModel)]="tab">
+        <ion-segment-button value="product" class="ion-text-wrap">
+            {{'category-detail.product' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="trade" class="ion-text-wrap">
+            {{'contact-detail.trade' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="debt" class="ion-text-wrap">
+            {{'contact-detail.debt-loan' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="discounts" class="ion-text-wrap">
+            {{'contact.discounts' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' *ngIf='tab==="trade"'
+        placeholder="{{'trade.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearchDebt()' (ionChange)='searchDebt()' *ngIf='tab==="debt"'
+        placeholder="{{'debt.search' | translate}}" [(ngModel)]='searchDebtKey'></ion-searchbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearchProduct()' (ionChange)='searchProduct()'
+        *ngIf='tab==="product"' placeholder="{{'product.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list *ngIf='tab==="product"'>
+        <ng-container *ngIf='isMobile'>
+            <ion-item *ngIf='selectMode'>
+                <ion-checkbox slot='start' color="primary" [(ngModel)]='isSelectAll' (ngModelChange)='selectAll()'>
+                </ion-checkbox>
+                <ion-buttons>
+                    <ion-button color='danger' (click)='multiDelete()'>
+                        {{'product-detail.delete-multi' | translate}} <ion-icon name='trash' slot='end'></ion-icon>
+                    </ion-button>
+                    <ion-button (click)='exitSelectMode()'>
+                        {{'product-detail.exit-select-mode' | translate}} <ion-icon name='exit-outline' slot='end'>
+                        </ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item *ngFor="let product of products" (click)='selectProduct(product.id)'
+                (press)='presentProductActionSheet(product)'>
+                <ion-checkbox color="primary" slot='start' *ngIf='selectMode' [(ngModel)]='product.isSelected'>
+                </ion-checkbox>
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap; font-weight: bold'>
+                        {{limitText(productName(product.code, product.title))}}
+                    </span>
+                    <br>
+                    <ion-text>
+                        {{'product-detail.product-unit-price' | translate}}:
+                        {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-text>
+                    <span *ngIf='product.costPrice'> - {{'product-add.cost-price' | translate}}: {{product.costPrice
+                        | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+                    <span><span *ngIf='product.costPrice'><br></span><span *ngIf='!product.costPrice'> -
+                        </span>{{'product-detail.product-quantity' | translate}}: {{product.count}}
+                        {{product.unit}}</span>
+                    <span *ngIf='product.expiredAt'>
+                        <br>
+                        <ion-text>
+                            <ion-icon name="calendar"></ion-icon>
+                            &nbsp;{{'product-add.expired-date' | translate}}:
+                            {{dateFormat(product.expiredAt)}}
+                        </ion-text>
+                    </span>
+                </ion-label>
+                <ion-thumbnail slot='end' *ngIf="product.avatarUrl">
+                    <img [src]="product.avatarUrl">
+                </ion-thumbnail>
+            </ion-item>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && products && products.length'>
+            <ion-row>
+                <ion-col size='4' class="ion-no-padding">
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-buttons>
+                            <ion-button color='primary' (click)='showSelect()' fill='clear'>
+                                <ion-icon slot='start' name='list-outline'></ion-icon>
+                                {{'product-detail.multi-select' | translate}}
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngIf='selectMode'>
+                <ion-col>
+                    <ion-buttons>
+                        <ion-button color='danger' (click)='multiDelete()'>
+                            {{'product-detail.delete-multi' | translate}} <ion-icon name='trash' slot='end'></ion-icon>
+                        </ion-button>
+                        <ion-button (click)='exitSelectMode()'>
+                            {{'product-detail.exit-select-mode' | translate}} <ion-icon name='exit-outline' slot='end'>
+                            </ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col class="ion-no-padding" size='4'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-checkbox slot='start' *ngIf='selectMode' color="primary" [(ngModel)]='isSelectAll'
+                            (ngModelChange)='selectAll()'>
+                        </ion-checkbox>
+                        <strong>{{'product-add.product-title' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <strong>{{'product-add.price' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <strong>{{'product-add.cost-price' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='1'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <strong>{{'product-add.count' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='1'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <strong>{{'product-add.unit' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <strong>{{'product-detail.photo' | translate}}</strong>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let product of products; let i = index" style='border-bottom: 1px solid #ccc;'
+                [style.cursor]="'pointer'" (press)="presentProductActionSheet(product)"
+                (click)='selectProduct(product.id)'>
+                <ion-col class="ion-no-padding" size='4'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-checkbox *ngIf='selectMode' color="primary" slot='start' [(ngModel)]='product.isSelected'>
+                        </ion-checkbox>
+                        {{limitText(productName(product.code, product.title))}}
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        {{product.costPrice | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='1'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        {{!store ? product.count : (product.storeQuantity ? product.storeQuantity : 0)}}
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='1'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        {{product.unit}}
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" size='2'>
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-thumbnail class='ion-item-right' *ngIf="product.avatarUrl" size='small'>
+                            <img [src]="product.avatarUrl">
+                        </ion-thumbnail>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-list>
+    <ion-list *ngIf='tab==="trade"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <ion-text *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}
+                    <br>
+                </ion-text>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}}
+                    {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon slot='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [trade]='trade' [currency]='currency'
+            (onPress)="presentTradeActionSheet(trade)" (onClick)='selectTrade(trade.id)'></trade-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="debt"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <ion-text *ngIf="dateDebtFrom != '' || dateDebtTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateDebtFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateDebtTo)}}
+                    <br>
+                </ion-text>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{totalDebt >=0 ? 'secondary': 'danger'}}">{{totalDebt >=0 ? '+': ''}}
+                    {{totalDebt | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForDebt()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <debt-item *ngFor="let debt of debts" [debt]='debt' [currency]='currency'
+            (onPress)="presentDebtActionSheet(debt)" (onClick)='selectDebt(debt.id)'></debt-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="discounts"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerDiscounts && customerDiscounts.length ? customerDiscounts.length :
+                    0}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addDiscount()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-discount-item *ngFor="let customerDiscount of customerDiscounts" [showContact]='true'
+            [showProduct]='true' [customerDiscount]='customerDiscount' [currency]='currency'
+            (onClick)='selectCustomerDiscount(customerDiscount.id)' [showCategory]='false'></customer-discount-item>
+        <div class="ion-padding" *ngIf='!customerDiscounts || !customerDiscounts.length'>{{'contact-detail.no-discounts'
+            | translate}}</div>
+    </ion-list>
+</ion-content>

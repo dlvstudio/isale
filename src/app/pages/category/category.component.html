@@ -1,0 +1,51 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'trade-category.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='addReport()' color="primary">
+                <ion-icon name="stats"></ion-icon>
+            </ion-button>
+            <ion-button (click)='openCategoryAdd()' [hidden]='staffService.isStaff()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'trade-category.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list>
+        <ion-item *ngFor="let category of categories; let i = index" (press)="presentActionSheet(category)">
+            <ion-button [disabled]='i === 0' size='small' fill='clear' (click)='up(i)'
+                style="--padding-end: 0; --padding-start: 0;">
+                <ion-icon name="caret-up"></ion-icon>
+            </ion-button>
+            <ion-button [disabled]='i === (categories.length - 1)' size='small' fill='clear' (click)='down(i)'
+                style="--padding-end: 10px; --padding-start: 0;">
+                <ion-icon name="caret-down"></ion-icon>
+            </ion-button>
+            <ion-label class='ion-text-wrap' (click)='selectCategory(category.id)'>
+                <span style='white-space: pre-wrap;'>{{limitText(category.title)}}</span>
+                <p>
+                    {{'category-add.order-index' | translate}}: {{i+1}} - {{dateFormat(category.modifiedAt)}}
+                </p>
+            </ion-label>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalCategories || originalCategories.length===0">
+            <div [innerHTML]="'trade-category.no-category' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openCategoryAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>&nbsp;
+    </ion-fab>
+</ion-content>

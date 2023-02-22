@@ -1,0 +1,39 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'contact-add.business-type' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openAdd()'>
+                <ion-icon name="add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <ion-list>
+        <ion-item *ngFor="let item of items">
+            <ion-label (click)='select(item)'>
+                <h2>{{item.title}}</h2>
+            </ion-label>
+            <ion-buttons slot="end">
+                <ion-button (click)='edit(item)'>
+                    <ion-icon name="pencil" slot="icon-only"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalItems || originalItems.length===0">
+            <div [innerHTML]="'contact-add.no-business-type' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

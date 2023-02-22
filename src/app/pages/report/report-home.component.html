@@ -1,0 +1,95 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'report.title-all' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item (click)="selectTimelyReport()">
+            <ion-icon slot='start' name="calendar"></ion-icon>
+            <ion-label class='ion-text-wrap'>
+                <span>{{'report-detail.timely-report-title' | translate}}</span>
+                <span *ngIf='timelyReport'>
+                    <br>
+                    <span style='white-space: pre-wrap;'>{{limitText(timelyReport.name)}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(timelyReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(timelyReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(timelyReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item (click)="selectCustomerReport()">
+            <ion-icon slot='start' name="people"></ion-icon>
+            <ion-label class='ion-text-wrap'>
+                <span>{{'report.title' | translate}}</span>
+                <span *ngIf='report'>
+                    <br>
+                    <span style='white-space: pre-wrap;'>{{limitText(report.name)}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(report)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(report)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(report)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item (click)="selectProductReport()">
+            <ion-icon slot='start' name="cart"></ion-icon>
+            <ion-label class='ion-text-wrap'>
+                <span>{{'report-product.title' | translate}}</span>
+                <span *ngIf='productReport'>
+                    <br>
+                    <span style='white-space: pre-wrap;'>{{limitText(productReport.name)}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(productReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getProductFilter(productReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getProductFilter(productReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item (click)="selectCategoryReport()">
+            <ion-icon slot='start' name="folder"></ion-icon>
+            <ion-label class='ion-text-wrap'>
+                <span>{{'report-category.title' | translate}}</span>
+                <span *ngIf='categoryReport'>
+                    <br>
+                    <span style='white-space: pre-wrap;'>{{limitText(categoryReport.name)}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(categoryReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getCategoryFilter(categoryReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getCategoryFilter(categoryReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'product-attribute-add.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button size="large" color="success" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-attribute-add.product-attribute-title' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'product-attribute-add.enter-title' | translate}}" [(ngModel)]='productAttribute.title'>
+            </ion-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

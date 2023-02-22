@@ -1,0 +1,52 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'money-account-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-add.account-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'money-account-add.enter-account-name' | translate}}"
+                [(ngModel)]='account.accountName'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-add.total' | translate}}</ion-label>
+            <money-input [clear]=true placeholder="{{'money-account-add.enter-total' | translate}}"
+                [(moneyValue)]='account.total'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>{{'money-account-add.default' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='account.isDefault'></ion-toggle>
+        </ion-item>
+        <ion-item-divider color="secondary">
+            <ion-label>
+                {{'money-account-add.bank-info' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-add.bank-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'money-account-add.enter-bank-name' | translate}}" [(ngModel)]='account.bankName'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-add.bank-account-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'money-account-add.enter-bank-account-name' | translate}}" [(ngModel)]='account.bankAccountName'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-add.bank-number' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'money-account-add.enter-bank-number' | translate}}" [(ngModel)]='account.bankNumber'></ion-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

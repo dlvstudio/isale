@@ -1,0 +1,98 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'customer-price-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()' *ngIf='!isNew'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item lines='none' *ngIf='!staffSelected && !contactSelected'>
+            <ion-label color='primary'>{{'customer-price-add.is-collaborator-price' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]="customerPrice.isCollaboratorPrice"></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf='!staffSelected && !contactSelected'>
+            <p style='font-size: 0.8em'>
+                *{{'customer-price-add.collaborator-price-description' | translate}}
+            </p>
+        </ion-item>
+        <ion-item *ngIf='!customerPrice.isCollaboratorPrice && !contactSelected' lines='none'>
+            <ion-text color='primary'>{{'customer-price-add.staff' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchStaff()' *ngIf="staffSelected && staffSelected.id > 0">
+                {{staffSelected.name}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchStaff()' *ngIf="!staffSelected || staffSelected.id == 0">
+                {{'customer-price-add.select-staff' | translate}}
+            </ion-text>
+            <ion-button *ngIf="staffSelected && staffSelected.id > 0" fill='outline' slot='end'
+                (click)='removeStaff()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='!customerPrice.isCollaboratorPrice && !contactSelected'>
+            <p style='font-size: 0.8em'>
+                *{{'customer-price-add.staff-price-description' | translate}}
+            </p>
+        </ion-item>
+        <ion-item *ngIf='!customerPrice.isCollaboratorPrice && !staffSelected' lines='none'>
+            <ion-text color='primary'>{{'customer-price-add.contact' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchContact()'
+                *ngIf="contactSelected && contactSelected.id > 0">
+                {{contactSelected.fullName}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id == 0">
+                {{'customer-price-add.select-contact' | translate}}
+            </ion-text>
+            <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='outline' slot='end'
+                (click)='removeContact()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='!customerPrice.isCollaboratorPrice && !staffSelected'>
+            <p style='font-size: 0.8em'>
+                *{{'customer-price-add.contact-price-description' | translate}}
+            </p>
+        </ion-item>
+        <ion-item [lines]='productSelected ? "none": "inset"'>
+            <ion-text color='primary'>{{'customer-price-add.product' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchProduct()' class="ion-text-wrap"
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productName(productSelected.code, productSelected.title)}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id == 0" class="ion-text-wrap">
+                {{'customer-price-add.select-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="productSelected && productSelected.id > 0" fill='outline' (click)='removeProduct()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+                <ion-button fill='outline' (click)='scan()'>
+                    <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item *ngIf='productSelected'>
+            <ion-label class="ion-text-wrap">{{'customer-price-add.original-price' | translate}}:
+                {{productSelected.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'customer-price-add.price' | translate}} <span
+                    *ngIf="currency">({{currency}})</span>
+            </ion-label>
+            <money-input [clear]='true' placeholder="{{'customer-price-add.enter-price' | translate}}"
+                [(moneyValue)]='customerPrice.price'>
+            </money-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

@@ -1,0 +1,49 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.title-reply-config' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)='edit(0)'>
+                <ion-icon name="add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'fb-page.search-reply-config' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <p style="padding-left: 15px; padding-right: 15px; font-style: italic;">
+        {{'fb-page.reply-config-description' |
+        translate}}</p>
+    <ion-list>
+        <ion-item *ngFor="let config of configs">
+            <ion-label class='ion-text-wrap' (click)="edit(config.id)">
+                <span *ngIf="config.pageName"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{config.pageName}}<br></span>
+                <span *ngIf="!config.pageName" style='white-space: pre-wrap; font-weight: bold; '>{{'fb-page.all-page' |
+                    translate}}<br></span>
+                <span *ngIf="config.postId" style='white-space: pre-wrap; font-weight: bold; '>{{'fb-page.post-id' |
+                    translate}}: {{config.postId}}<br></span>
+                <span style='white-space: pre-wrap; '>{{'fb-page.reply-template' | translate}}:
+                    <i>{{config.comment}}</i><br></span>
+                <p *ngIf="config.applyOnPostComment">
+                    <ion-text color="secondary">{{'fb-page.apply-on-post-comment' | translate}}</ion-text>
+                </p>
+                <p *ngIf="config.applyOnLiveStream">
+                    <ion-text color="secondary">{{'fb-page.apply-on-livestream' | translate}}</ion-text>
+                </p>
+                <p *ngIf="config.replyTemplate">
+                    <ion-text color="tertiary">{{'fb-page.reply-template-for-auto-order' | translate}}:
+                        <i>{{config.replyTemplate}}</i></ion-text>
+                </p>
+            </ion-label>
+            <ion-toggle slot="end" [(ngModel)]="config.isActive" (ngModelChange)="updateActive(config)"></ion-toggle>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originals || originals.length===0">
+            <div [innerHTML]="'fb-page.no-reply-config' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

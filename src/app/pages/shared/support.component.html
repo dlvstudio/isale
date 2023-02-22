@@ -1,0 +1,39 @@
+<div style='padding: 5px; border: 1px solid #D3679D; border-radius: 10px; margin-top: 10px;' *ngIf='!isHide || neverHide'>
+    <ion-item class="ion-no-padding" lines='none'
+        style='padding-top: 10px !important; min-height: 0 !important; --min-height: 0 !important;'
+        (click)='callPhone("+84869366606")'>
+        <ion-label style='margin: 0 !important; padding: 0 !important;'>
+            <h2>
+                <strong>{{'common.contact' | translate}}:</strong>
+            </h2>
+        </ion-label>
+        <ion-button *ngIf='!neverHide' slot='end' size='small' fill='clear' (click)='hideSupport()'><ion-icon name='close' slot="icon-only"></ion-icon></ion-button>
+    </ion-item>
+    <p><i>{{'ticket-add.send-ticket-note' | translate}}</i></p>
+    <ion-button color='danger' (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+    <ion-grid>
+        <ion-row>
+            <ion-col style='padding: 0 !important; margin: 0 !important;'>
+                <ion-item class="ion-no-padding" style='padding-top: 0px !important; cursor: pointer;'
+                    (click)='callPhone("+84869366606")'>
+                    <ion-icon name='call' slot='start' color='tertiary'></ion-icon>
+                    <ion-label class='ion-text-wrap'>
+                        {{'common.hotline' | translate}}: (+84) 0869.366.606
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+            <ion-col style='padding: 0 !important; margin: 0 !important;'>
+                <ion-item class="ion-no-padding" style='padding-top: 0px !important; cursor: pointer;'
+                    (click)='sendEmail("dlv.isale.app@gmail.com")'>
+                    <ion-icon name='mail' slot='start' color='danger'></ion-icon>
+                    <ion-label class='ion-text-wrap' color='danger'>
+                        {{'common.email' | translate}}: dlv.isale.app@gmail.com
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</div>

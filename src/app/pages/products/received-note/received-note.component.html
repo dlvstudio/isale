@@ -1,0 +1,138 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'received-note.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='importNote()'>
+                    <fa-icon icon="file-excel" size="lg"></fa-icon>&nbsp;
+                    {{'received-note.import-note-from-excel' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(0)'>
+                    <ion-icon slot='start' name="document"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-summary' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(1)'>
+                    <ion-icon slot='start' name="newspaper"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-detail' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' placeholder="{{'received-note.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <period-range (onPeriodChanged)="onPeriodChanged($event)"></period-range>
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}}
+                    {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+        </ion-item>
+        <ng-container *ngIf='isMobile'>
+            <received-note-list-item *ngFor="let note of notes" [note]='note' [currency]='currency'
+                (onPress)="presentActionSheet(note)" (onClick)='select(note.id)' [showContact]='true'>
+            </received-note-list-item>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && notes && notes.length'>
+            <ion-row>
+                <ion-col>
+                    <strong>{{'received-note-add.code' | translate}}</strong>
+                </ion-col>
+                <ion-col>
+                    <strong>{{'received-note-add.total' | translate}}</strong>
+                </ion-col>
+                <ion-col>
+                    <strong>{{'received-note.provider' | translate}}</strong>
+                </ion-col>
+                <ion-col>
+                    <strong>{{'received-note-add.product' | translate}}</strong>
+                </ion-col>
+                <ion-col>
+                    <strong>{{'received-note.staff' | translate}}</strong>
+                </ion-col>
+                <ion-col>
+                    <strong>{{'received-note.created-at' | translate}}</strong>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let note of notes; let i = index" style='border-bottom: 1px solid #ccc;'
+                [style.cursor]="'pointer'" (press)="presentActionSheet(note)" (click)='select(note.id)'>
+                <ion-col>#{{note.id}}</ion-col>
+                <ion-col>{{note.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                <ion-col>
+                    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact'>
+                        <img [src]="contactImageOrPlaceholder(note.contact)" />
+                    </ion-avatar>
+                    <ion-label>
+                        <p *ngIf='note.contactId && note.contactId != 0 && note.contact'>
+                            {{note.contact.fullName}}</p>
+                        <p *ngIf='note.contactId == 0 && note.contactName'>{{note.contactName}}</p>
+                        <p *ngIf='note.contactId == 0 && note.contactPhone'>{{note.contactPhone}}</p>
+                    </ion-label>
+                </ion-col>
+                <ion-col>
+                    <span *ngFor="let item of note.items| slice:0:2; let i = index">
+                        <ion-text style="font-size: 0.8em;">
+                            {{i+1}}.<span *ngIf='item.productCode'>{{item.productCode}}-</span>{{item.productName}} |
+                            {{item.quantity}} {{item.unit}} | {{item.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            <span *ngIf='item.amountForeign'>
+                                | {{item.amountForeign}}&nbsp;<span
+                                    *ngIf='note.foreignCurrency'>({{note.foreignCurrency}})</span>
+                            </span>
+                        </ion-text>
+                        <br>
+                    </span>
+                    <span *ngIf='note.items.length >= 3'>
+                        <ion-text style="font-size: 0.8em;">...</ion-text>
+                    </span>
+                </ion-col>
+                <ion-col class='ion-text-wrap'>
+                    <p *ngIf='note.staffId && note.staffId != 0 && note.staff && !staffService.isStaff()'>
+                        {{note.staff.name}}<span *ngIf='note.store'> - {{note.store.name}}</span>
+                    </p>
+                    <p *ngIf='!(note.staffId && note.staffId != 0 && note.staff && !staffService.isStaff()) && note.store'>
+                        <span *ngIf='note.store'>{{note.store.name}}</span>
+                    </p>
+                </ion-col>
+                <ion-col>{{dateFormat(note.createdAt)}}</ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item class='ion-text-wrap' *ngIf="!originalNotes || originalNotes.length===0">
+            <div [innerHTML]="'received-note.no-received-note' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

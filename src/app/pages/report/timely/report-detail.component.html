@@ -1,0 +1,82 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'report-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='enableChart()'>
+                <ion-icon name="stats-chart"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <ion-text style='padding-top: 5px;'>
+                    <span>
+                        {{dateType}} ({{'common.from' | translate}} {{dateFrom}} {{'common.to' | translate}} {{dateTo}})
+                    </span>
+                </ion-text>
+                <br>
+                <p style='padding-top: 5px;' *ngIf="filter">
+                    <span>
+                        {{'common.filter' | translate}}: {{filter}}
+                    </span>
+                </p>
+                <p style='padding-top: 5px;'>
+                    <ion-text color="{{totalValue >= 0 ? 'secondary': 'danger'}}">
+                        {{'common.total' | translate}}: {{totalValue >= 0 ? '+': ''}}{{totalValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-text>
+                    / {{totalDate}} {{'report-detail.dates' | translate}}.
+                </p>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-button [disabled]='isLoadingChart' fill='outline' (click)='previousMoment()'>
+                <ion-icon name="chevron-back"></ion-icon>&nbsp; {{'report-detail.pre' | translate}}
+            </ion-button>
+            <ion-button [disabled]='isLoadingChart' fill='outline' (click)='nextMoment()'>
+                {{'report-detail.next' | translate}}&nbsp; <ion-icon name="chevron-forward"></ion-icon>
+            </ion-button>
+            <ion-button fill='outline' (click)='viewTrend()'>
+                <ion-icon name="trending-up"></ion-icon> {{'report-detail.view-trend' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf="isInChartMode">
+            <ion-label>{{'common.chart' | translate}}</ion-label>
+            <ion-select [(ngModel)]="barChartType">
+                <ion-select-option value="bar">{{'common.bar' | translate}}</ion-select-option>
+                <ion-select-option value="pie">{{'common.pie' | translate}}</ion-select-option>
+                <ion-select-option value="line">{{'common.line' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <div [hidden]="!isInChartMode">
+            <img [hidden]='!isCapturing' [src]='chartImg'>
+            <canvas *ngIf="!isLoadingChart" #chart baseChart
+                [hidden]='isCapturing'         
+                [datasets]="barChartData"
+                [labels]="barChartLabels"
+                [options]="barChartOptions"
+                [legend]="barChartLegend"
+                [type]="barChartType">
+            </canvas>
+        </div>
+        <ion-item-sliding *ngFor="let report of timelyReports">
+            <ion-item (click)='selectReport(report)'>
+                <ion-label class='ion-text-wrap'>
+                    <ion-text color="{{report.value >= 0 ? 'secondary': 'danger'}}">{{report.value >= 0 ? '+': ''}}{{report.value | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    <p>{{report.dateId}}</p>
+                </ion-label>
+            </ion-item>
+        </ion-item-sliding>
+    </ion-list>    
+</ion-content>

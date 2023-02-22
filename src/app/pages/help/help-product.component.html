@@ -1,0 +1,85 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'help-product.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <h2>{{'help-product.agenda' | translate}}:</h2>
+    <ol>
+        <li>
+            {{'help-product.open-products-page' | translate}}
+        </li>
+        <li>
+            {{'help-product.fill-product-info' | translate}}
+        </li>
+        <li>
+            {{'help-product.add-attributes' | translate}}
+        </li>
+        <li>
+            {{'help-product.copy-attributes' | translate}}
+        </li>
+        <li>
+            {{'help-product.save-product' | translate}}
+        </li>
+        <li>
+            {{'help-product.mark-product-is-added-option' | translate}}
+        </li>
+    </ol>
+    <h3>1. {{'help-product.open-products-page' | translate}}:</h3>
+    <ion-label>{{'help-product.from-home-click-button-pages' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-1.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-product.click-on-plus-button' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-2.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>2. {{'help-product.fill-product-info' | translate}}:</h3>
+    <ion-label>{{'help-product.fill-all-required-info' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-3.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>3. {{'help-product.add-attributes' | translate}}:</h3>
+    <ion-label>{{'help-product.click-button-attributes' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-4.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-product.click-on-plus-button' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-5.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-product.fill-attribute-and-save' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-6.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-product.click-save' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-7.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>4. {{'help-product.copy-attributes' | translate}}:</h3>
+    <ion-label>{{'help-product.click-button-coppy-attributes' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-8.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>5. {{'help-product.save-product' | translate}}:</h3>
+    <ion-label>{{'help-product.click-on-save-continue-and-close' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-9.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-product.search-to-verify' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-10.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <h3>6. {{'help-product.mark-product-is-added-option' | translate}}:</h3>
+    <ion-label>{{'help-product.click-toggle-to-mark' | translate}}</ion-label>
+    <ion-img src='./assets/help/san-pham/san-pham-11.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <h3>{{'help-product.finish' | translate}}.</h3>
+    <p>{{'ticket-add.send-ticket-note' | translate}}</p>
+    <ion-button color="secondary" (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+</ion-content>

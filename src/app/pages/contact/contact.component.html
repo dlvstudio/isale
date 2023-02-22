@@ -1,0 +1,230 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'contact.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)='openContactAdd()'>
+                <ion-icon name="person-add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding'>
+        <ion-grid *ngIf="!staffService.isStaff() || staffService.selectedStaff.hasFullAccess">
+            <ion-row>
+                <ion-col class="ion-no-padding" style='padding-right: 0px; padding-left: 9px;'>
+                    <ion-item lines='none' (click)="importContacts()" class="ion-no-padding"
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 100px; cursor: pointer; '>
+                        <ion-label class='ion-text-wrap ion-text-center' style='padding-left: 5px; margin-right: 0;'>
+                            <ion-icon name="document-attach" color='danger' style='font-size: 30px;'></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' style="font-size: 0.8em;">{{'contact.import-from-excel' |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" style='padding-right: 0px; padding-left: 9px;'>
+                    <ion-item lines='none' (click)="exportContacts()" class="ion-no-padding"
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 100px; cursor: pointer; '>
+                        <ion-label class='ion-text-wrap ion-text-center' style='padding-left: 5px; margin-right: 0;'>
+                            <fa-icon slot="start" icon="file-excel" style='font-size: 25px; color: #3880ff'></fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' style="font-size: 0.8em;">{{'contact.export-to-excel' |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col class="ion-no-padding" style='padding-right: 0px; padding-left: 9px;'>
+                    <ion-item lines='none' (click)="import()" class="ion-no-padding"
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 100px; cursor: pointer; '>
+                        <ion-label class='ion-text-wrap ion-text-center' style='padding-left: 5px; margin-right: 0;'>
+                            <ion-icon name="cloud-upload" color='success' [style.fontSize]="'33px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' style="font-size: 0.8em;">{{'contact-add.import-title' |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item class="ion-no-padding" lines='none'>
+            <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+                placeholder="{{'contact.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+            <ion-button slot='end' fill='clear' (click)='showFilter()'
+                *ngIf='!staffService.isStaff() || staffService.selectedStaff.hasFullAccess'>
+                <ion-icon slot='icon-only' name="funnel-outline"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='isShowFilter' class="ion-no-padding" lines='none'>
+            <ion-grid>
+                <ion-row>
+                    <ion-col size="4" size-md
+                        *ngIf=" (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess || staffService.selectedStaff.canViewAllContacts)">
+                        <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text>
+                        <br>
+                        <ion-button ion-text color='dark' (click)='showSearchStaff()'
+                            *ngIf="selectedStaff && selectedStaff.id > 0">
+                            {{selectedStaff.name}}
+                        </ion-button>
+                        <ion-button size='small' (click)='showSearchStaff()'
+                            *ngIf="!selectedStaff || selectedStaff.id === 0">
+                            {{'order-add.select-collaborator' | translate}}
+                        </ion-button>
+                        <ion-button size='small' *ngIf="selectedStaff && selectedStaff.id > 0" fill='clear'
+                            (click)='removeStaff()'>
+                            <ion-icon slot='icon-only' name="close"></ion-icon>
+                        </ion-button>
+                    </ion-col>
+                    <ion-col size="4" size-md>
+                        <ion-text color='primary'>{{'contact-add.business-type' | translate}}</ion-text>
+                        <br>
+                        <ion-button ion-text color='dark' (click)='showBusinessTypes()'
+                            *ngIf="businessTypeSelected && businessTypeSelected.id > 0">
+                            {{businessTypeSelected.title}}
+                        </ion-button>
+                        <ion-button size='small' (click)='showBusinessTypes()'
+                            *ngIf="!businessTypeSelected || businessTypeSelected.id === 0">
+                            {{'contact-add.select-business-type' | translate}}
+                        </ion-button>
+                        <ion-button size='small' *ngIf="businessTypeSelected && businessTypeSelected.id > 0"
+                            fill='clear' (click)='removeBusinessType()'>
+                            <ion-icon slot='icon-only' name="close"></ion-icon>
+                        </ion-button>
+                    </ion-col>
+                    <ion-col size="4" size-md>
+                        <ion-text color='primary'>{{'contact-add.sales-line' | translate}}</ion-text>
+                        <br>
+                        <ion-button color='dark' (click)='showSalesLines()'
+                            *ngIf="salesLineSelected && salesLineSelected.id > 0">
+                            {{salesLineSelected.title}}
+                        </ion-button>
+                        <ion-button size='small' (click)='showSalesLines()'
+                            *ngIf="!salesLineSelected || salesLineSelected.id === 0">
+                            {{'contact-add.select-sales-line' | translate}}
+                        </ion-button>
+                        <ion-button size='small' *ngIf="salesLineSelected && salesLineSelected.id > 0" fill='clear'
+                            (click)='removeSalesLine()'>
+                            <ion-icon slot='icon-only' name="close"></ion-icon>
+                        </ion-button>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+        <ion-segment [(ngModel)]="importantFilter" (ngModelChange)='filterByImportant()'>
+            <ion-segment-button value="all">
+                <ion-icon name="people"></ion-icon>
+                {{'contact.filterAll' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="important">
+                <ion-icon name="star"></ion-icon>
+                {{'contact.filterImportant' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="recent">
+                <ion-icon name="time"></ion-icon>
+                {{'contact.filterRecent' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+    </div>
+    <ion-grid>
+        <ion-row style='border-bottom: 1px solid #ccc'>
+            <ion-col [size]='isShowPaging && contacts && contacts.length ? 8 : 12'>
+                <ion-item class='ion-text-wrap ion-no-padding' lines='none'>
+                    {{'common.total' | translate}}: {{contacts && contacts.length ? contacts.length : 0}}
+                    {{'contact.contact(s)' | translate}}
+                </ion-item>
+            </ion-col>
+            <ion-col size='4' class="ion-text-right" *ngIf='isShowPaging && contacts && contacts.length'>
+                <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                    1}}
+                </ion-label>
+                <br>
+                <ion-buttons class="ion-float-right">
+                    <ion-button fill='solid' (click)='previousPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                    </ion-button>
+                    <ion-button fill='solid' (click)='nextPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list>
+        <ion-item-sliding *ngFor="let contact of contacts | slice:start:(end+1)" (click)='selectContact(contact.id)'>
+            <ion-item (press)="presentContactActionSheet(contact)">
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder(contact)" />
+                </ion-avatar>
+                <ion-label class='ion-text-wrap'>
+                    <h2>{{contact.fullName}} <span *ngIf='contact.code'> | {{contact.code}}</span></h2>
+                    <p>{{contact.mobile}}</p>
+                    <p *ngIf='contact.level'>
+                        {{'contact.level' | translate}}: {{contact.level.title}}
+                    </p>
+                    <p *ngIf='contact.point'>
+                        {{'contact.point' | translate}}: {{contact.point}} {{'point-add.point' | translate}}
+                    </p>
+                    <p *ngIf='contact.address'>{{contact.address}}</p>
+                    <p *ngIf='contact.staff'>
+                        <ion-icon name="person-outline" slot='start'></ion-icon>
+                        {{'contact-add.staff' | translate}}: {{contact.staff.name}}
+                    </p>
+                    <p *ngIf='contact.businessType'>
+                        {{'contact-add.business-type-short' | translate}}: {{contact.businessType.title}}
+                    </p>
+                    <p *ngIf='contact.salesLine'>
+                        {{'contact-add.sales-line' | translate}}: {{contact.salesLine.title}}
+                    </p>
+                    <p *ngIf='importantFilter === "recent"' class='ion-text-wrap'
+                        style='font-size: 0.8em'>
+                        <ion-icon *ngIf="contact.lastAction" name="{{actionIcon(contact.lastAction)}}"></ion-icon>
+                        <span *ngIf="contact.lastAction">&nbsp;</span>
+                        <ion-text>{{dateFormat(contact.lastActive)}}</ion-text>
+                    </p>
+                </ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option color="primary" (click)='text(contact)'>
+                    <ion-icon slot="start" name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call(contact)'>
+                    <ion-icon slot="start" name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalContacts || originalContacts.length===0">
+            <div [innerHTML]="'contact.no-contact' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-item *ngIf='isShowPaging && contacts && contacts.length' class="ion-no-padding" lines='none'>
+        <ion-label slot='end' class="ion-text-right">{{'common.page' | translate}} {{currentPage +
+            1}}
+        </ion-label>
+        <ion-buttons slot="end" class="ion-float-right">
+            <ion-button fill='solid' (click)='previousPage()' size='small'>
+                <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+            </ion-button>
+            <ion-button fill='solid' (click)='nextPage()' size='small'>
+                <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="start" slot="fixed">
+        <ion-fab-button (click)='openContactAddOptions()'>
+            <ion-icon name="person-add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

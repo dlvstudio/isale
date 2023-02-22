@@ -1,0 +1,137 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'customer-discount-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()' *ngIf='!isNew'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item lines='none' *ngIf='!staffSelected && !contactSelected'>
+            <ion-label color='primary'>{{'customer-discount-add.is-collaborator-discount' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]="customerDiscount.isCollaboratorPrice"></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf='!staffSelected && !contactSelected'>
+            <p style='font-size: 0.8em'>
+                *{{'customer-discount-add.collaborator-discount-description' | translate}}
+            </p>
+        </ion-item>
+        <ion-item *ngIf='!customerDiscount.isCollaboratorPrice && !contactSelected' lines='none'>
+            <ion-text color='primary'>{{'customer-discount-add.staff' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchStaff()' *ngIf="staffSelected && staffSelected.id > 0">
+                {{staffSelected.name}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchStaff()' *ngIf="!staffSelected || staffSelected.id == 0">
+                {{'customer-discount-add.select-staff' | translate}}
+            </ion-text>
+            <ion-button *ngIf="staffSelected && staffSelected.id > 0" fill='outline' slot='end' (click)='removeStaff()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='!customerDiscount.isCollaboratorPrice && !contactSelected'>
+            <p style='font-size: 0.8em'>
+                *{{'customer-discount-add.staff-discount-description' | translate}}
+            </p>
+        </ion-item>
+        <ion-item *ngIf='!customerDiscount.isCollaboratorPrice && !staffSelected'>
+            <ion-text color='primary'>{{'customer-discount-add.contact' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchContact()'
+                *ngIf="contactSelected && contactSelected.id > 0">
+                {{contactSelected.fullName}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id == 0">
+                {{'customer-discount-add.select-contact' | translate}}
+            </ion-text>
+            <ion-button *ngIf="contactSelected && contactSelected.id > 0 && isNew" fill='outline' slot='end'
+                (click)='removeContact()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item lines='none' *ngIf='!categorySelected'>
+            <ion-text color='primary'>{{'customer-discount-add.product' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchProduct()' class="ion-text-wrap"
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productName(productSelected.code, productSelected.title)}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id == 0"
+                class="ion-text-wrap">
+                {{'customer-discount-add.select-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="productSelected && productSelected.id > 0" fill='outline' (click)='removeProduct()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+                <ion-button fill='outline' (click)='scan()' *ngIf='isNew'>
+                    <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item *ngIf='productSelected' lines='none'>
+            <ion-label class="ion-text-wrap">{{'customer-discount-add.original-price' | translate}}:
+                {{productSelected.price | currency:currency.code:"symbol":'1.0-2':translateService.currentLang}}
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' *ngIf='!productSelected'>
+            <ion-text color='primary'>{{'customer-discount-add.category' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' class="ion-text-wrap" *ngIf="categorySelected && categorySelected.id > 0" (click)='showSearchCategory()' >
+                {{categorySelected.title}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchCategory()' *ngIf="!categorySelected || categorySelected.id == 0"
+                class="ion-text-wrap">
+                {{'customer-discount-add.select-category' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="categorySelected && categorySelected.id > 0" fill='outline' (click)='removeCategory()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'customer-discount-add.discount-type' | translate}}
+            </ion-label>
+            <ion-select [(ngModel)]="customerDiscount.type">
+                <ion-select-option [value]="0">{{'customer-discount-add.discount-type-money' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="1">{{'customer-discount-add.discount-type-percent' | translate}}
+                </ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'customer-discount-add.discount' | translate}}
+                <span *ngIf="currency && customerDiscount.type === 0">({{currency.symbol_native}} -
+                    {{currency.code}})</span>
+                <span *ngIf="customerDiscount.type === 1">(%)</span>
+            </ion-label>
+            <money-input *ngIf='customerDiscount.type === 0' [clear]='true'
+                placeholder="{{'customer-discount-add.enter-discount' | translate}}"
+                [(moneyValue)]='customerDiscount.discountValue'>
+            </money-input>
+            <ion-input *ngIf='customerDiscount.type === 1' clearInput type="number"
+                placeholder="{{'customer-discount-add.enter-discount-percent' | translate}}"
+                [(ngModel)]='customerDiscount.discountValue' (focus)='selectAll($event)'>
+            </ion-input>
+        </ion-item>
+        <ion-item *ngIf='productSelected'>
+            <ion-label position='stacked' color='primary'>
+                {{'customer-discount-add.quantity-condition' | translate}}
+            </ion-label>
+            <ion-input clearInput type="number"
+                placeholder="{{'customer-discount-add.enter-quantity-condition' | translate}}"
+                [(ngModel)]='customerDiscount.conditionQuantity' (focus)='selectAll($event)'>
+            </ion-input>
+            <p style='font-size: 0.8em'>
+                *{{'customer-discount-add.quantity-condition-description' | translate}}
+            </p>
+        </ion-item>
+    </ion-list>
+</ion-content>

@@ -1,0 +1,41 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'product-barcode-add.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button size="large" color="success" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-barcode-add.enter-barcode' | translate}}</ion-label>
+            <ion-input clearInput autofocus #barcodeInput type="text"
+                placeholder="{{'product-barcode-add.enter-barcode-placeholder' | translate}}" [(ngModel)]='productBarcode.barcode'
+                (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-button (click)='scan()'>
+                <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+            </ion-button>
+            <ion-button (click)='autoGenBarcode()' color="secondary">
+                <ion-icon name="barcode"></ion-icon> {{'product.auto-gen-barcode' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='units && units.length'>
+            <ion-label>{{'product-add.unit' | translate}}</ion-label>
+            <ion-select placeholder="{{'product-add.enter-unit' | translate}}" [(ngModel)]='productBarcode.unit'>
+              <ion-select-option [value]="null" >{{'product-add.no-select-unit' | translate}}</ion-select-option>
+              <ion-select-option *ngFor='let unit of units' [value]="unit.unit" >{{unit.unit}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+    </ion-list>
+</ion-content>

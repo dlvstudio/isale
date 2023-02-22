@@ -1,0 +1,42 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'report-category.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openReportAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' placeholder="{{'report-category.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list>
+        <ion-item-sliding *ngFor="let report of reports" (click)='selectReport(report.id)'>
+            <ion-item text-wrap (press)="presentActionSheet(report)">
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap;'>{{limitText(report.name)}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(report)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(report)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(report)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;'>
+                        {{dateFormat(report.modifiedAt)}}
+                    </p>
+                </ion-label>
+            </ion-item>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalReports || originalReports.length===0">
+            <div [innerHTML]="'report-category.no-report' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

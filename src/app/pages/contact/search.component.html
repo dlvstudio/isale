@@ -1,0 +1,129 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'search-contact.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openContactAdd()'>
+                <ion-icon name="person-add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-item class="ion-no-padding" lines='none'>
+        <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+            placeholder="{{'contact.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+        <ion-button slot='end' fill='clear' (click)='showFilter()'>
+            <ion-icon slot='icon-only' name="funnel-outline"></ion-icon>
+        </ion-button>
+    </ion-item>
+    <ion-item *ngIf='isShowFilter' class="ion-no-padding" lines='none'>
+        <ion-grid>
+            <ion-row>
+                <ion-col size="4" size-md *ngIf=" (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess || staffService.selectedStaff.canViewAllContacts)">
+                    <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text>
+                    <br>
+                    <ion-button ion-text color='dark' (click)='showSearchStaff()'
+                        *ngIf="selectedStaff && selectedStaff.id > 0">
+                        {{selectedStaff.name}}
+                    </ion-button>
+                    <ion-button size='small' (click)='showSearchStaff()'
+                        *ngIf="!selectedStaff || selectedStaff.id == 0">
+                        {{'order-add.select-collaborator' | translate}}
+                    </ion-button>
+                    <ion-button size='small' *ngIf="selectedStaff && selectedStaff.id > 0" fill='clear'
+                        (click)='removeStaff()'>
+                        <ion-icon slot='icon-only' name="close"></ion-icon>
+                    </ion-button>
+                </ion-col>
+                <ion-col size="4" size-md>
+                    <ion-text color='primary'>{{'contact-add.business-type' | translate}}</ion-text>
+                    <br>
+                    <ion-button ion-text color='dark' (click)='showBusinessTypes()'
+                        *ngIf="businessTypeSelected && businessTypeSelected.id > 0">
+                        {{businessTypeSelected.title}}
+                    </ion-button>
+                    <ion-button size='small' (click)='showBusinessTypes()'
+                        *ngIf="!businessTypeSelected || businessTypeSelected.id == 0">
+                        {{'contact-add.select-business-type' | translate}}
+                    </ion-button>
+                    <ion-button size='small' *ngIf="businessTypeSelected && businessTypeSelected.id > 0" fill='clear'
+                        (click)='removeBusinessType()'>
+                        <ion-icon slot='icon-only' name="close"></ion-icon>
+                    </ion-button>
+                </ion-col>
+                <ion-col size="4" size-md>
+                    <ion-text color='primary'>{{'contact-add.sales-line' | translate}}</ion-text>
+                    <br>
+                    <ion-button color='dark' (click)='showSalesLines()'
+                        *ngIf="salesLineSelected && salesLineSelected.id > 0">
+                        {{salesLineSelected.title}}
+                    </ion-button>
+                    <ion-button size='small' (click)='showSalesLines()'
+                        *ngIf="!salesLineSelected || salesLineSelected.id == 0">
+                        {{'contact-add.select-sales-line' | translate}}
+                    </ion-button>
+                    <ion-button size='small' *ngIf="salesLineSelected && salesLineSelected.id > 0" fill='clear'
+                        (click)='removeSalesLine()'>
+                        <ion-icon slot='icon-only' name="close"></ion-icon>
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-item>
+    <ion-segment [(ngModel)]="importantFilter" (ngModelChange)='filterByImportant()'>
+        <ion-segment-button value="all">
+            <ion-icon name="people"></ion-icon>
+            {{'contact.filterAll' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="important">
+            <ion-icon name="star"></ion-icon>
+            {{'contact.filterImportant' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="recent">
+            <ion-icon name="time"></ion-icon>
+            {{'contact.filterRecent' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-list>
+        <ion-item-sliding *ngFor="let contact of contacts" (click)='selectContact(contact)'>
+            <ion-item>
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder(contact)" />
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{contact.fullName}}<span *ngIf='contact.code'> | {{contact.code}}</span></h2>
+                    <p>{{contact.mobile}}</p>
+                    <p *ngIf='contact.address'>{{contact.address}}</p>
+                    <p *ngIf='contact.staff'>
+                        <ion-icon name="person-outline" slot='start'></ion-icon>
+                        {{'contact-add.staff' | translate}}: {{contact.staff.name}}
+                    </p>
+                    <p *ngIf='contact.businessType'>
+                        {{'contact-add.business-type-short' | translate}}: {{contact.businessType.title}}
+                    </p>
+                    <p *ngIf='contact.salesLine'>
+                        {{'contact-add.sales-line' | translate}}: {{contact.salesLine.title}}
+                    </p>
+                    <p slot='end' *ngIf='importantFilter === "recent"' class='ion-text-wrap'>
+                        <ion-icon *ngIf="contact.lastAction" name="{{actionIcon(contact.lastAction)}}"></ion-icon>
+                        <span *ngIf="contact.lastAction">&nbsp;</span>
+                        <ion-text>{{dateFormat(contact.lastActive)}}</ion-text>
+                    </p>
+                </ion-label>
+            </ion-item>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalContacts || originalContacts.length===0">
+            <div [innerHTML]="'contact.no-contact' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

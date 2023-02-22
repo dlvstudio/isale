@@ -1,0 +1,120 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'search-product.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openProductAdd()' [hidden]='!staffService.canAddUpdateProduct()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-searchbar autofocus='true' debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'product.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-grid>
+            <ion-row>
+                <ion-col size='6' class="ion-no-padding">
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-select placeholder="{{'product.select-option' |
+                        translate}}" [(ngModel)]='listOption' style='max-width: 100% !important;'
+                            (ngModelChange)='changeListOption()'>
+                            <ion-select-option value="all">{{'product.list-option-all' |
+                                translate}}</ion-select-option>
+                            <ion-select-option value="expiry">{{'product.list-option-expiry' |
+                                translate}}</ion-select-option>
+                            <ion-select-option value="quantity">{{'product.list-option-quantiy' |
+                                translate}}</ion-select-option>
+                        </ion-select>
+                    </ion-item>
+                </ion-col>
+                <ion-col size='6' class="ion-no-padding">
+                    <ion-item *ngIf='isShowPaging && products && products.length' lines='none' class="ion-no-padding">
+                        <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                            1}}
+                        </ion-label>
+                        <ion-buttons slot='end'>
+                            <ion-button fill='solid' (click)='previousPage()'>
+                                <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                            </ion-button>
+                            <ion-button fill='solid' (click)='nextPage()'>
+                                <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item text-wrap *ngFor="let product of products | slice:start:(end+1)" (click)='selectProduct(product)'>
+            <ion-label>
+                <span style='white-space: pre-wrap; font-size: bold'>
+                    <b>{{productName(product.code, product.title)}}</b>
+                </span>
+                <br>
+                <span color="secondary">
+                    <ion-icon name="pricetag"></ion-icon>&nbsp;{{product.price |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </span>
+                <span> - {{!store ? product.count : (product.storeQuantity ? product.storeQuantity : 0)}} {{product.unit}}</span>
+            </ion-label>
+            <ion-avatar slot='end' *ngIf="product.avatarUrl">
+                <img [src]="product.avatarUrl">
+            </ion-avatar>
+        </ion-item>
+        <ion-item text-wrap *ngIf="!originalProducts || originalProducts.length===0">
+            <div [innerHTML]="'product.no-product' | translate">
+            </div>
+        </ion-item>
+        <ion-grid>
+            <ion-row>
+                <ion-col size='6' class="ion-no-padding">
+                    <ion-item lines='none' class="ion-no-padding">
+                        <ion-select placeholder="{{'product.select-option' |
+                        translate}}" [(ngModel)]='listOption' style='max-width: 100% !important;'
+                            (ngModelChange)='changeListOption()'>
+                            <ion-select-option value="all">{{'product.list-option-all' |
+                                translate}}</ion-select-option>
+                            <ion-select-option value="expiry">{{'product.list-option-expiry' |
+                                translate}}</ion-select-option>
+                            <ion-select-option value="quantity">{{'product.list-option-quantiy' |
+                                translate}}</ion-select-option>
+                        </ion-select>
+                    </ion-item>
+                </ion-col>
+                <ion-col size='6' class="ion-no-padding">
+                    <ion-item *ngIf='isShowPaging && products && products.length' lines='none' class="ion-no-padding">
+                        <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                            1}}
+                        </ion-label>
+                        <ion-buttons slot='end'>
+                            <ion-button fill='solid' (click)='previousPage()'>
+                                <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                            </ion-button>
+                            <ion-button fill='solid' (click)='nextPage()'>
+                                <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-list>
+</ion-content>

@@ -1,0 +1,61 @@
+<div id='print-page' style="padding: 5px;">
+    <table *ngIf='shop' style='width: 100%; border: 0px;'>
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td *ngIf='shop.iconUrl' style='padding: 10px;'>
+                <img [src]='shop.iconUrl' style='max-width: 100px;' />
+            </td>
+            <td style='padding: 10px; text-align: center; vertical-align: text-top;'>
+                <span *ngIf='shop && shop.name'><b>{{shop.name}}</b><br></span>
+                <span *ngIf='shop && shop.phone'>{{'shop-add.phone' | translate}}: {{shop.phone}}<br></span>
+                <span *ngIf='shop && shop.email'>{{'shop-add.email' | translate}}: {{shop.email}}<br></span>
+                <span *ngIf='shop && shop.facebook'>{{'shop-add.facebook' | translate}}: {{shop.facebook}}<br></span>
+                <span *ngIf='shop && shop.address'>{{'shop-add.address' | translate}}: {{shop.address}}<br></span>
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center;">
+        <h2 style='font-size: 18px;'>{{'received-note-detail.received-note-print-title' | translate}}</h2>
+    </div>
+    <b style='font-size: 16px;'>{{'received-note-detail.code' | translate}}: #{{receivedNote.id}}</b>
+    <br>
+    <span>{{'order-print.date' | translate}}: {{dateFormat(receivedNote.createdAt)}}</span>
+    <br>
+    <span>{{'received-note-detail.contact-info' | translate}}: {{noteCustomer}}</span>
+    <hr class="hr">
+    <table style='width: 100%;'>
+        <thead>
+            <td nowrap><b>{{'received-note-print.product-name' | translate}}</b></td>
+            <td nowrap><b>{{'received-note-print.product-unit' | translate}}</b></td>
+            <td style='text-align: right'><b>{{'received-note-print.product-unit-price' | translate}}</b></td>
+            <td style='text-align: right'><b>{{'received-note-print.product-count' | translate}}</b></td>
+            <td style='text-align: right'><b>{{'received-note-print.product-discount' | translate}}</b></td>
+            <td style='text-align: right'><b>{{'received-note-print.product-total' | translate}}</b></td>
+            <td style='text-align: right'><b>{{'received-note-print.product-note' | translate}}</b></td>
+        </thead>
+        <tbody>
+            <tr *ngFor='let item of receivedNote.items; let i = index'>
+                <td nowrap>{{i+1}}. {{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}</td>
+                <td nowrap>{{item.unit}}</td>
+                <td style='text-align: right'>{{item.costPrice | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</td>
+                <td style='text-align: right'>{{item.quantity}}</td>
+                <td style='text-align: right'>{{item.discount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</td>
+                <td style='text-align: right'>{{item.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</td>
+                <td style='text-align: right'>{{item.note}}</td>
+            <tr>
+            <tr>
+                <td nowrap><b>{{'order-detail.total-amount' | translate}}</b></td>
+                <td style='text-align: right' colspan="5">{{totalProductsAmount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</td>
+                <td style='text-align: right'>&nbsp;</td>
+            <tr>
+        </tbody>
+    </table>
+    <hr class="hr">
+    <span>{{'received-note-add.discount' | translate}}: -{{receivedNote.discountOnTotal | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><br>
+    <span>{{'received-note-add.net-value' | translate}}: {{receivedNote.netValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><br>
+    <span>{{'received-note-add.tax' | translate}}: +{{receivedNote.tax | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><br>
+    <span>{{'received-note-add.shipping-fee' | translate}}: +{{receivedNote.shippingFee | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><br>
+    <b>{{'received-note-add.total' | translate}}: {{receivedNote.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</b>
+    <hr class="hr">
+    <span>{{'received-note-add.paid' | translate}}: {{receivedNote.paid | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><br>
+    <span>{{'received-note-add.total-foreign' | translate}}: {{receivedNote.totalForeign}}&nbsp;<span *ngIf='receivedNote.foreignCurrency'>({{receivedNote.foreignCurrency}})</span></span>
+</div>

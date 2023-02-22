@@ -1,0 +1,302 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'product-detail.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (staff == null || (staff.hasFullAccess && !staff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap; font-weight: bold'>{{productName(product.code,
+                    product.title)}}</span>
+                <br>
+                <ng-container *ngIf='!product.units || !product.units.length'>
+                    <ion-text>
+                        {{'product-detail.product-unit-price' | translate}}:
+                        {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-text>
+                    <span *ngIf='product.costPrice'> - {{'product-add.cost-price' | translate}}: <span *ngIf='canViewProductCostPrice'>{{product.costPrice
+                        | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><span *ngIf='!canViewProductCostPrice'>***</span></span>
+                    <span><span *ngIf='product.costPrice && canViewProductCostPrice'><br></span><span *ngIf='!product.costPrice'> -
+                        </span>{{'product-detail.product-quantity' | translate}}: {{!store ? product.count :
+                        (product.storeQuantity ? product.storeQuantity : 0)}}
+                        {{product.unit}}</span>
+                </ng-container>
+                <ng-container *ngIf='product.units && product.units.length'>
+                    <span>{{'product-add.unit' | translate}}: {{product.unit}}</span>&nbsp;-&nbsp;
+                    <ion-text>
+                        {{'product-detail.product-unit-price' | translate}}:
+                        {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-text>
+                    <span *ngIf='product.costPrice'> - {{'product-add.cost-price' | translate}}: <span *ngIf='canViewProductCostPrice'>{{product.costPrice
+                        | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span><span *ngIf='!canViewProductCostPrice'>***</span></span>
+                    <span><span *ngIf='product.costPrice && canViewProductCostPrice'><br></span><span *ngIf='!product.costPrice'> -
+                        </span>{{'product-detail.product-quantity' | translate}}: {{!store ? product.count :
+                        (product.storeQuantity ? product.storeQuantity : 0)}}</span>
+                </ng-container>
+                <span *ngIf='product.expiredAt'>
+                    <br>
+                    <ion-text>
+                        <ion-icon name="calendar"></ion-icon>
+                        &nbsp;{{'product-add.expired-date' | translate}}:
+                        {{dateFormat(product.expiredAt)}}
+                    </ion-text>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ng-container *ngIf='product && product.units && product.units.length'>
+            <ion-item *ngFor='let unit of product.units' lines='none' style='--min-height: 0'>
+                <ion-label class='ion-text-wrap' style='margin: 5px 0 0 0;'>
+                    <span>{{'product-add.unit' | translate}}: {{unit.unit}}</span>&nbsp;-&nbsp;
+                    <span>
+                        {{'product-detail.product-unit-price' | translate}}:
+                        {{unit.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </span> 
+                    <span *ngIf="unit.costPrice && canViewProductCostPrice">
+                         - {{'product-add.cost-price' | translate}}:
+                        {{unit.costPrice | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </span>
+                    <span> - {{'product-add.unit-exchange' | translate}}: {{unit.exchange}}</span>
+                </ion-label>
+            </ion-item>
+        </ng-container>
+        <ion-item>
+            <ion-button size='small' color="primary" (click)='viewTypes()'>
+                <ion-icon name='options'></ion-icon>&nbsp;
+                {{'product-add.types' | translate}}
+            </ion-button>
+            <ion-button (click)='addOtherBarcode()' color="success">
+                <ion-icon name="add-outline"></ion-icon> {{'product.add-other-barcode' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item-divider color="light" [hidden]='!barcode64base'>
+            {{'product-detail.barcode' | translate}}
+            <ion-button fill='clear' color="primary" slot='end' (click)='printBarcode()'>
+                <ion-icon slot="icon-only" name="print"></ion-icon>
+            </ion-button>
+        </ion-item-divider>
+        <ion-item [hidden]='!product.barcode && !barcode64base' style='text-align: center;' lines='none'>
+            <ion-label>
+                <canvas #barcode id="barcode"></canvas>
+            </ion-label>
+        </ion-item>
+        <ion-item *ngIf='categories && categories.length' lines='none'
+            style='--min-height: 0; --padding-bottom: 0; --padding-top: 0; --padding-start: 10px;'>
+            <ion-label position='stacked'>
+                {{'product-detail.categories' | translate}}:
+            </ion-label>
+        </ion-item>
+        <ion-grid *ngIf='categories && categories.length'>
+            <ion-row>
+                <ion-col *ngFor="let category of categories" size-xs='6' size-sm='6' size-md='3' size-lg='2'>
+                    <ion-text color='primary' class="ion-text-wrap" (click)='gotoCat(category.tradeCategory.id)'>
+                        {{category.tradeCategory.title}}
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-list>
+    <ion-segment [value]='"product-note"' [(ngModel)]="tab" [scrollable]='true' class="ion-text-wrap">
+        <ion-segment-button value="product-note" class="ion-text-wrap">
+            {{'product-detail.product-note' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="attributes" *ngIf='productAttributes && productAttributes.length'
+            class="ion-text-wrap">
+            {{'product-detail.attributes' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="photo" class="ion-text-wrap">
+            {{'product-detail.photo' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="combo" *ngIf='product.items && product.items.length' class="ion-text-wrap">
+            {{'product-detail.combo-products' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="materials" *ngIf='product.materials && product.materials.length' class="ion-text-wrap">
+            {{'product-detail.materials' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="prices" class="ion-text-wrap" *ngIf="staff == null || staff.hasFullAccess">
+            {{'contact.prices' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="discounts" class="ion-text-wrap" *ngIf="staff == null || staff.hasFullAccess">
+            {{'contact.discounts' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-grid [hidden]="tab != 'photo'">
+        <ion-row *ngFor="let row of arr; let i = index">
+            <ion-col style="max-width: 150px;" *ngFor="let picture of row; let j = index">
+                <img [src]="picture" (click)='showImage(i*3 + j)' style="max-width: 120px;" />
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list *ngIf='tab==="product-note"'>
+        <ion-item>
+            <ion-label *ngIf="dateNoteFrom != '' || dateNoteTo != ''" class="ion-text-wrap">
+                <ion-text>
+                    {{'common.from' | translate}} {{dateFormat(dateNoteFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateNoteTo)}}
+                </ion-text>
+                <p>
+                    {{'common.total' | translate}}:&nbsp;
+                    <ion-text color="{{totalNoteAmount >=0 ? 'secondary': 'danger'}}">{{totalNoteAmount >=0 ? '+': ''}}
+                        {{totalNoteAmount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                </p>
+            </ion-label>
+            <ion-button fill='clear' color="primary" (click)='selectDateRangeForNote()' slot='end'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='filteredStaff' lines='none'>
+            <ion-label color='primary'>{{'order-add.collaborator-info' | translate}}</ion-label>
+            <ion-text color='dark'>
+                {{filteredStaff.name}}
+            </ion-text>
+        </ion-item>
+        <product-note-item *ngFor="let note of productNotes" [showProduct]='false' [note]='note' [currency]='currency'
+            (onClick)='selectNote(note)'></product-note-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="attributes" && productAttributes && productAttributes.length'>
+        <ion-item *ngFor="let attribute of productAttributes">
+            {{attribute.title}}
+        </ion-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="trade"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <ion-text *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}
+                    <br>
+                </ion-text> {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}} {{total |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}} / {{totalProduct}}
+                    {{product.unit}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [showProduct]='false' [trade]='trade' [currency]='currency'
+            (onClick)='selectTrade(trade.id)'></trade-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="debt"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <ion-text *ngIf="dateDebtFrom != '' || dateDebtTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateDebtFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateDebtTo)}}
+                    <br>
+                </ion-text> {{'common.total' | translate}}:&nbsp;
+                <ion-text color="danger">{{totalDebt | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForDebt()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <debt-item *ngFor="let debt of debts" [showProduct]='false' [debt]='debt' [currency]='currency'
+            (onClick)='selectDebt(debt.id)'></debt-item>
+    </ion-list>
+    <ng-container *ngIf='tab==="combo"'>
+        <ng-container *ngFor="let item of product.items; let i = index">
+            <ion-item lines='inset'>
+                <ion-text style='padding-top: 8px; padding-bottom: 8px;'
+                    [style.fontWeight]='item.isExpand ? "bold": "normal"'>
+                    {{i+1}}. {{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}
+                    |
+                    {{item.count}}
+                    {{item.unit}}
+                    <ion-text style='font-size: 0.8em; padding-bottom: 5px;' [style.fontWeight]='"normal"'
+                        class="ion-text-wrap">
+                        <ng-container *ngIf='item.attributes && item.attributes.length'>
+                            <br>
+                            {{getAttributesString(item)}}
+                        </ng-container>
+                        <ng-container *ngFor='let option of item.options'>
+                            <br>
+                            {{productName(option.code, option.title)}}
+                            |
+                            {{option.count}}
+                            {{option.unit}}
+                        </ng-container>
+                    </ion-text>
+                </ion-text>
+            </ion-item>
+        </ng-container>
+    </ng-container>
+    <ng-container *ngIf='tab==="materials"'>
+        <ng-container *ngFor="let item of product.materials; let i = index">
+            <ion-item lines='inset'>
+                <ion-text style='padding-top: 8px; padding-bottom: 8px;'>
+                    {{i+1}}. {{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}
+                    |
+                    {{item.count}}
+                    {{item.unit}}
+                    <ion-text style='font-size: 0.8em; padding-bottom: 5px;' [style.fontWeight]='"normal"'
+                        class="ion-text-wrap">
+                        <ng-container *ngFor='let option of item.options'>
+                            <br>
+                            {{productName(option.code, option.title)}}
+                            |
+                            {{option.count}}
+                            {{option.unit}}
+                        </ng-container>
+                    </ion-text>
+                </ion-text>
+            </ion-item>
+        </ng-container>
+    </ng-container>
+    <ion-list *ngIf='tab==="prices"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerPrices && customerPrices.length ? customerPrices.length : 0}}
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addPrice()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-price-item *ngFor="let customerPrice of customerPrices" [showContact]='true' [showProduct]='false'
+            [customerPrice]='customerPrice' [currency]='currency' (onClick)='selectCustomerPrice(customerPrice.id)'>
+        </customer-price-item>
+        <div class="ion-padding" *ngIf='!customerPrices || !customerPrices.length'>{{'contact-detail.no-prices' |
+            translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="discounts"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerDiscounts && customerDiscounts.length ? customerDiscounts.length :
+                    0}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addDiscount()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-discount-item *ngFor="let customerDiscount of customerDiscounts" [showContact]='true'
+            [showProduct]='false' [customerDiscount]='customerDiscount' [currency]='currency'
+            (onClick)='selectCustomerDiscount(customerDiscount.id)'></customer-discount-item>
+        <div class="ion-padding" *ngIf='!customerDiscounts || !customerDiscounts.length'>{{'contact-detail.no-discounts'
+            | translate}}</div>
+    </ion-list>
+</ion-content>

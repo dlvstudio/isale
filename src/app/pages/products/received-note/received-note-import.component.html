@@ -1,0 +1,41 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'received-note-import.title' | translate}}</ion-title>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding'>
+        <p>{{'received-note-import.template-note' | translate}}</p>
+        <ion-button expand='block' fill='outline' (click)='downloadTemplate()' color='secondary'>
+            <ion-icon slot='start' name="download"></ion-icon>&nbsp;
+            {{'received-note-import.download-template' | translate}}
+        </ion-button>
+        <p [innerHTML]="'received-note-import.note' | translate"></p>
+        <label color='primary' for="files"
+            style="border-radius: 10px; display: block; border: 1px solid #387ef5; text-transform: uppercase; text-align: center;">
+            <div style="color: #387ef5; height: 45px; display: flex;
+            align-items : center;
+            justify-content: center;
+            ">
+                <ion-icon name="cloud-upload" color='primary' style="zoom:1.5;"></ion-icon>
+                &nbsp;
+                <span *ngIf='!fileToUpload'>{{'received-note-import.upload-received-note' | translate}}</span>
+                <span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>
+            </div>
+        </label>
+        <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" #fileUploadInput id="files" style="width: 0; height: 0; font-size: 0;"
+            (change)="rememberFile($event)"/>
+    </div>
+</ion-content>

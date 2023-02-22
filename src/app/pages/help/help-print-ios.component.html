@@ -1,0 +1,31 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'help-print-ios.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <p>{{'help-print-ios.description' | translate}}</p>
+    <h3>{{'help-print-ios.use-share-order-function' | translate}}:</h3>
+    <ion-label>{{'help-print-ios.go-to-app-store-search-print-app' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-7.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-ios.choose-the-share-order-function' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-5.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-ios.select-the-app-on-share-dialog' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/share-print.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>{{'help-print-ios.finish' | translate}}.</h3>
+
+    <p>{{'ticket-add.send-ticket-note' | translate}}</p>
+    <ion-button color="secondary" (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+</ion-content>

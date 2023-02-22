@@ -1,0 +1,27 @@
+<ion-item (press)="press()" (click)='click()'>
+    <ion-label class='ion-text-wrap'>
+        <ion-text color="{{(trade.isReceived ? 1 : -1) * trade.value >= 0 ? 'secondary': 'danger'}}">{{trade.isReceived && trade.value > 0 ? '+': (trade.isReceived ? '' : '-')}}{{trade.value | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        <br>
+        <ion-text style='white-space: pre-wrap;'>{{limitText(trade.note)}}</ion-text>
+        <p *ngIf='trade.contactId && trade.contactId != 0 && trade.contact && showContact'>{{trade.contact.fullName}}</p>
+        <p *ngIf='trade.productId && trade.productId != 0 && trade.product && showProduct' style='white-space: pre-wrap;'><b>{{productName(trade.product.code, trade.product.title)}}</b></p>
+        <p *ngIf='trade.productId && trade.productId != 0 && trade.product && trade.isPurchase && !trade.isReceived'>
+            {{'trade.buy' | translate}} {{trade.productCount}} {{trade.product.unit ? '(' + trade.product.unit + ')' : '' }}
+        </p>
+        <p *ngIf='trade.productId && trade.productId != 0 && trade.product && trade.isPurchase && trade.isReceived'>
+            {{'trade.sale' | translate}} {{trade.productCount}} {{trade.product.unit ? '(' + trade.product.unit + ')' : '' }}
+        </p>
+        <p>
+            {{dateFormat(trade.createdAt)}}
+        </p>
+        <p *ngIf='trade.staffId && trade.staffId != 0 && trade.staff && !isStaff'> 
+            <i style="font-size: 11px;">{{'trade.staff' | translate}} {{trade.staff.name}}</i>
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='trade.contactId && trade.contactId != 0 && trade.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(trade.contact)" />
+    </ion-avatar>
+    <ion-avatar slot='end' *ngIf='trade.productId && trade.productId != 0 && trade.product && trade.product.avatarUrl && showProduct'>
+        <img [src]="trade.product.avatarUrl" />
+    </ion-avatar>
+</ion-item>

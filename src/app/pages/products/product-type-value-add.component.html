@@ -1,0 +1,43 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'product-type-value-add.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button size="large" color="success" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-type-value-add.product-type-title' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'product-type-value-add.enter-title' | translate}}" [(ngModel)]='productTypeValue.title'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-type-value-add.price' | translate}} <span
+                    *ngIf="currency">({{currency}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'product-type-value-add.enter-price' | translate}}"
+                [(moneyValue)]='productTypeValue.price'></money-input>
+            <p>{{'product-type-value-add.price-description' | translate}}</p>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-type-value-add.is-added-to-price' | translate}}</ion-label>
+            <ion-toggle color="primary" [(ngModel)]='productTypeValue.isAddedToPrice'></ion-toggle>
+            <p>{{'product-type-value-add.is-added-to-price-description' | translate}}</p>
+        </ion-item>
+        
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-type-value-add.select-only' | translate}}</ion-label>
+            <ion-toggle color="primary" [(ngModel)]='productTypeValue.selectOnly'></ion-toggle>
+            <p>{{'product-type-value-add.select-only-description' | translate}}</p>
+        </ion-item>
+    </ion-list>
+</ion-content>

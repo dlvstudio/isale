@@ -1,0 +1,81 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.title-reply-config-add' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+            <ion-button color="danger" (click)='delete()' *ngIf="config && config.id">
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.is-active' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]='config.isActive'></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.auto-order-template' | translate}}
+            </ion-label>
+            <ion-select [(ngModel)]='config.comment' placeholder="{{'fb-page.auto-order-template' | translate}}" (ngModelChange)="changeTemplate()">
+                <ion-select-option *ngFor="let template of templates" class="ion-text-wrap"
+                    [value]="template">{{template}}</ion-select-option>
+            </ion-select>
+            <div *ngIf="example">
+                <i style="font-size: 0.8em;">{{'fb-page.example' | translate}}: {{example}}</i>
+            </div>
+            <p style="font-size: 0.8em;" [innerHTML]="'fb-page.auto-order-template-description' | translate"></p>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary'>{{'fb-page.select-page' | translate}}</ion-label>
+            <ion-button color='dark' (click)='showSearchPages()' *ngIf="selectedPage && selectedPage.id > 0">
+                {{strip(selectedPage.name, 38)}}
+            </ion-button>
+            <ion-button (click)='showSearchPages()' *ngIf="!selectedPage || selectedPage.id === 0">
+                {{'fb-page.select-page' | translate}}
+            </ion-button>
+            <ion-button slot="end" *ngIf="selectedPage && selectedPage.id > 0" fill='clear' (click)='removePage()'>
+                <ion-icon slot='icon-only' name="trash"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <p style="font-size: 0.8em;" [innerHTML]="'fb-page.select-page-description' | translate"></p>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.apply-on-post-comment' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]='config.applyOnPostComment'></ion-toggle>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.apply-on-message' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]='config.applyOnMessage'></ion-toggle>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.apply-on-livestream' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]='config.applyOnLiveStream'></ion-toggle>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'fb-page.reply-template-for-auto-order' | translate}}
+            </ion-label>
+            <ion-input clearInput type="text" placeholder="{{'fb-page.reply-template' | translate}}"
+                [(ngModel)]='config.replyTemplate'></ion-input>
+            <p style="font-size: 0.8em;" [innerHTML]="'fb-page.reply-template-description' | translate"></p>
+        </ion-item>
+    </ion-list>
+</ion-content>

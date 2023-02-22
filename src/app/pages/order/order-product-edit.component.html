@@ -1,0 +1,71 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'order-add.product-edit' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='ok()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding'>
+        <ion-text>
+            {{product.productCode ? product.productCode.toUpperCase() + '-' : ''}}{{product.productName}} | {{product.count}}
+            {{product.unit}} | {{product.total | currency:currency.code:'symbol':'1.0-2':translateService.currentLang}}
+        </ion-text>
+    </div>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'order-add.product-count' | translate}} <span
+                        *ngIf="product.unit">({{product.price | currency:currency.code:'symbol':'1.0-2':translateService.currentLang}}/{{product.unit}})</span>
+                </ion-label>
+                <ion-input clearInput type="number" placeholder="{{'order-add.enter-product-count' | translate}}"
+                    [(ngModel)]='product.count' (ngModelChange)='reCalc()' (focus)='selectAll($event)'>
+                </ion-input>
+                <ion-buttons>
+                    <ion-button expand='block' fill='solid' (click)='decrease()'>
+                        <ion-icon slot='icon-only' name='remove'></ion-icon>
+                    </ion-button>
+                    <ion-button expand='block' fill='solid' (click)='increase()'>
+                        <ion-icon slot='icon-only' name='add'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'order-add.product-discount' | translate}}
+                    ({{currency ? currency.code: ''}})</ion-label>
+                <ion-input clearInput type="number" placeholder="{{'order-add.enter-product-discount' | translate}}"
+                    [(ngModel)]='product.discount' (ngModelChange)='reCalc()' (focus)='selectAll($event)'>
+                </ion-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'order-add.product-total' | translate}}
+                    ({{currency.code}})
+                </ion-label>
+                <ion-input clearInput type="number" placeholder="{{'order-add.enter-product-total' | translate}}"
+                    [(ngModel)]='product.total' (focus)='selectAll($event)'>
+                </ion-input>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand="full" color="primary" (click)='ok()'>{{'order-add.product-edit-ok' | translate}}</ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand="full" color="secondary" (click)='dismiss()'>{{'order-add.product-edit-cancel' | translate}}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

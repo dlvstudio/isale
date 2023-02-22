@@ -1,0 +1,83 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'staff.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openStaffAdd()'>
+                <ion-icon name="person-add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-button (click)='searchShift()' expand="full">
+        {{'shift.title' | translate}}&nbsp;
+        <ion-icon name="time"></ion-icon>
+    </ion-button>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'staff.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-grid>
+        <ion-row style='border: 1px solid #f4f5f8'>
+            <ion-col class="ion-no-padding" style='padding-left: 5px;'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-text color='primary'>{{'staff-add.shift' | translate}}</ion-text>&nbsp;
+                    <ion-select [(ngModel)]="shiftFilter" (ngModelChange)='resetFilter()'
+                        style='--padding-top: 0; --padding-bottom: 0;'>
+                        <ion-select-option [value]="-1" class="ion-text-wrap">{{'staff-add.all-shift' | translate}}
+                        </ion-select-option>
+                        <ion-select-option *ngFor="let shift of shifts"  [value]="shift.id" class="ion-text-wrap">{{shift.name}}
+                        </ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </ion-col>
+            <ion-col class="ion-no-padding" style='padding-left: 5px;'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-text color='primary'>{{'staff-add.store' | translate}}</ion-text>&nbsp;
+                    <ion-select [(ngModel)]="storeFilter" (ngModelChange)='resetFilter()'
+                        style='--padding-top: 0; --padding-bottom: 0;'>
+                        <ion-select-option [value]="-1" class="ion-text-wrap">{{'staff-add.all-store' | translate}}
+                        </ion-select-option>
+                        <ion-select-option *ngFor="let store of stores"  [value]="store.id" class="ion-text-wrap">{{store.name}}
+                        </ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list>
+        <ion-item-sliding *ngFor="let staff of staffs" (click)='selectStaff(staff.id)'>
+            <ion-item>
+                <ion-label>
+                    <h2>{{staff.name}}</h2>
+                    <p>{{staff.userName}}</p>
+                    <p *ngIf='staff.store'>{{'staff-add.store' | translate}}: {{staff.store.name}}</p>
+                    <p *ngIf='staff.shift'>{{'staff-add.shift' | translate}}: {{staff.shift.name}}</p>
+                </ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-button color="primary" (click)='text(staff)'>
+                    <ion-icon name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-button>
+                <ion-button color="secondary" (click)='call(staff)'>
+                    <ion-icon name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-button>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalStaffs || originalStaffs.length===0">
+            <div [innerHTML]="'staff.no-staff' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openStaffAddOptions()'>
+            <ion-icon name="person-add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

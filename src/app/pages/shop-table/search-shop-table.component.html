@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+        &nbsp;{{'common.cancel' | translate}}
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{'table.search-title' | translate}}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+  <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' placeholder="{{'table.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+  <ion-list>
+      <ion-item *ngFor="let table of tables" (click)='selectTable(table)'>
+        <ion-label class='ion-text-wrap'>
+          <span style='white-space: pre-wrap;'>{{limitText(table.name)}}</span>
+          <span style='white-space: pre-wrap;' *ngIf='table.position'> - {{limitText(table.position)}}</span>
+        </ion-label>
+      </ion-item>
+    <ion-item class='ion-text-wrap' *ngIf="!originalTables || originalTables.length===0">
+      <div [innerHTML]="'table.no-table' | translate">
+      </div>
+    </ion-item>
+  </ion-list>
+</ion-content>

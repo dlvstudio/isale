@@ -1,0 +1,11 @@
+<ion-item>
+    <ion-text color='primary'>{{label}}</ion-text>
+    <date-picker slot='end' *ngIf="date" [(date)]="date" [pickerId]="pickerId" (dateChange)="dateChanged()" [min]='minDate' [max]='maxDate'>
+    </date-picker>
+    <ion-text slot='end' (click)='showDatePopup()' *ngIf="!date">
+        {{'common.select-date' | translate}}
+    </ion-text>
+    <ion-button slot='end' *ngIf="date" fill='outline' (click)='removeDate()'>
+        <ion-icon slot='icon-only' name="close"></ion-icon>
+    </ion-button>
+</ion-item>

@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+        &nbsp;{{'common.cancel' | translate}}
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{'store.search-title' | translate}}
+    </ion-title>
+    <ion-buttons slot='end'>
+      <ion-button (click)='openStoreAdd()' [hidden]='staffService.isStaff()'>
+        <ion-icon name="add-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+  <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+    placeholder="{{'store.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+  <ion-list>
+    <ion-item *ngIf='mainStore' (click)='selectMainStore()'>
+      <ion-label class='ion-text-wrap'>
+        <ion-text color='primary'>{{limitText(mainStore.name)}} - {{'store.main-shop' | translate}}</ion-text>
+        <p>{{'shop-add.id' | translate}}: {{mainStore.id}}</p>
+        <p *ngIf='mainStore.phone'>{{'shop-add.phone' | translate}}: {{mainStore.phone}}</p>
+        <p *ngIf='mainStore.email'>{{'shop-add.email' | translate}}: {{mainStore.email}}</p>
+        <p *ngIf='mainStore.address'>{{'shop-add.address' | translate}}: {{mainStore.address}}</p>
+      </ion-label>
+    </ion-item>
+    <ion-item *ngFor="let store of stores" (click)='selectStore(store)'>
+      <ion-label class='ion-text-wrap'>
+        {{limitText(store.name)}}
+        <p>{{'shop-add.id' | translate}}: {{store.id}}</p>
+        <p *ngIf='store.phone'>{{'shop-add.phone' | translate}}: {{store.phone}}</p>
+        <p *ngIf='store.email'>{{'shop-add.email' | translate}}: {{store.email}}</p>
+        <p *ngIf='store.address'>{{'shop-add.address' | translate}}: {{store.address}}</p>
+      </ion-label>
+    </ion-item>
+    <ion-item class='ion-text-wrap' *ngIf="!originalStores || originalStores.length===0">
+      <div [innerHTML]="'store.no-store' | translate">
+      </div>
+    </ion-item>
+  </ion-list>
+</ion-content>

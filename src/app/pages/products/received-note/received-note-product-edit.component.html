@@ -1,0 +1,161 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'received-note-add.product-edit' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='ok()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid>
+        <ion-row *ngIf='product.barcode'>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'order-add.enter-barcode' | translate}}
+                </ion-label>
+                <ion-input [disabled]='true' clearInput type="text" placeholder="{{'order-add.enter-barcode-placeholder' | translate}}"
+                    [(ngModel)]='product.barcode'></ion-input>
+            </ion-col>
+            <ion-col *ngIf='!product.productId' class="ion-text-wrap">
+                <ion-text color='warning' style='font-size: 0.8em;'><i>{{'received-note-add.adding-new-product-alert' | translate}}</i></ion-text>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf='product.productId'>
+            <ion-col>
+                <ion-label>
+                    <strong>
+                        <span *ngIf='product.productCode'>{{product.productCode}}-</span>{{product.productName}}
+                    </strong>
+                </ion-label>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf='!product.productId'>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-code' | translate}}
+                </ion-label>
+                <ion-input clearInput type="text" placeholder="{{'received-note-add.enter-product-code' | translate}}"
+                    [(ngModel)]='product.productCode'></ion-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-name' | translate}}
+                </ion-label>
+                <ion-input clearInput type="text" placeholder="{{'received-note-add.enter-product-name' | translate}}"
+                    [(ngModel)]='product.productName'></ion-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-unit' | translate}}
+                </ion-label>
+                <ion-input clearInput type="text" placeholder="{{'received-note-add.enter-product-unit' | translate}}"
+                    [(ngModel)]='product.unit'></ion-input>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-unit-price' | translate}}
+                    <span *ngIf="product.unit">({{product.costPrice |
+                        currency:currency.code:true:'1.0-2':translateService.currentLang}}/{{product.unit}})</span>
+                </ion-label>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-unit-price' | translate}}"
+                    [(moneyValue)]='product.costPrice' (moneyValueChange)='reCalc()'>
+                </money-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-count' | translate}}
+                    <span *ngIf="product.unit">({{product.price |
+                        currency:currency.code:true:'1.0-2':translateService.currentLang}}/{{product.unit}})</span>
+                </ion-label>
+                <ion-input clearInput type="number"
+                    placeholder="{{'received-note-add.enter-product-count' | translate}}" [(ngModel)]='product.quantity'
+                    (ngModelChange)='reCalc()' (focus)='selectAll($event)'>
+                </ion-input>
+                <ion-buttons>
+                    <ion-button expand='block' fill='solid' (click)='decrease()'>
+                        <ion-icon slot='icon-only' name='chevron-down-circle'></ion-icon>
+                    </ion-button>
+                    <ion-button expand='block' fill='solid' (click)='increase()'>
+                        <ion-icon slot='icon-only' name='chevron-up-circle'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-discount' | translate}}
+                    ({{currency ? currency.code: ''}})</ion-label>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-discount' | translate}}"
+                    [(moneyValue)]='product.discount' (moneyValueChange)='reCalc()'>
+                </money-input>
+                <ion-text (click)='openProductDiscountPercent()' class="ion-text-nowrap"
+                    style='margin-left: 3px; margin-top: 3px; font-size: 0.7em; background-color: #3880ff; color: white; padding: 3px; border-radius: 5px; font-weight: bold;'
+                    [style.backgroundColor]='product.discountPercent ? "#3880ff" : "#ccc"'>
+                    {{product.discountPercent ? (product.discountPercent).toFixed(0) + '%' : '%'}}
+                </ion-text>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.product-total' | translate}}
+                    ({{currency.code}})
+                </ion-label>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-total' | translate}}"
+                    [(moneyValue)]='product.amount'>
+                </money-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>
+                    {{'received-note-add.product-foreign-unit-price' | translate}}
+                    <span *ngIf='foreignCurrency'>({{foreignCurrency}})</span>
+                </ion-label>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-foreign-unit-price' | translate}}"
+                    [(moneyValue)]='product.unitPriceForeign' (moneyValueChange)='reCalc()'>
+                </money-input>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>
+                    {{'received-note-add.product-total-foreign' | translate}}
+                    <span *ngIf='foreignCurrency'>({{foreignCurrency}})</span>
+                </ion-label>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-total-foreign' | translate}}"
+                    [(moneyValue)]='product.amountForeign'>
+                </money-input>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'received-note-add.sale-price' | translate}}</ion-label>
+                <p style='font-size: 0.8em;'><i>{{'received-note-add.sale-price-description' | translate}}</i></p>
+                <money-input [clear]='true' placeholder="{{'received-note-add.enter-product-sale-price' | translate}}"
+                    [(moneyValue)]='product.unitPrice'>
+                </money-input>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='
+                ' color='primary'>{{'received-note-add.product-note' | translate}}
+                </ion-label>
+                <ion-input clearInput type="text" placeholder="{{'received-note-add.enter-product-note' | translate}}"
+                    [(ngModel)]='product.note' (focus)='selectAll($event)'></ion-input>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand="full" color="primary" (click)='ok()'>{{'order-add.product-edit-ok' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand="full" color="secondary" (click)='dismiss()'>
+                    {{'order-add.product-edit-cancel' | translate}}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

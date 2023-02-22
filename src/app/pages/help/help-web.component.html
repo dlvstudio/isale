@@ -1,0 +1,70 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'help-web.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <h2>{{'help-web.agenda' | translate}}:</h2>
+    <ol>
+        <li>
+            {{'help-web.config-when-add' | translate}}
+        </li>
+        <li>
+            {{'help-web.config-when-edit' | translate}}
+        </li>
+        <li>
+            {{'help-web.add-categories' | translate}}
+        </li>
+        <li>
+            {{'help-web.add-product-to-categories' | translate}}
+        </li>
+    </ol>
+    <h3>1. {{'help-web.config-when-add' | translate}}:</h3>
+    <ion-label>{{'help-web.sections-on-web' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-3.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-web.select-toggles-while-adding' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-1.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+      margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+
+    <h3>2. {{'help-web.config-when-edit' | translate}}:</h3>
+    <ion-label>{{'help-web.select-toggles-while-editing' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-2.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>3. {{'help-web.add-categories' | translate}}:</h3>
+    <ion-label>{{'help-web.categories-menu' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-4.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-web.add-category' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-5.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-img src='./assets/help/web/web-6.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+    margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>4. {{'help-web.add-product-to-categories' | translate}}:</h3>
+    <ion-label>{{'help-web.edit-or-add-select-categories' | translate}}</ion-label>
+    <ion-img src='./assets/help/web/web-7.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-img src='./assets/help/web/web-8.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-img src='./assets/help/web/web-9.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>{{'help-web.finish' | translate}}.</h3>
+
+    <p>{{'ticket-add.send-ticket-note' | translate}}</p>
+    <ion-button color="secondary" (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+</ion-content>

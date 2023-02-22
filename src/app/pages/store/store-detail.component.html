@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'store-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='store'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <b style='white-space: pre-wrap;'>{{store.name}}</b>
+                <br>
+                {{dateTimeFormat(store.modifiedAt)}}
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

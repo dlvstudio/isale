@@ -1,0 +1,21 @@
+<ion-item (press)="press()" (click)='click()'>
+    <ion-label class='ion-text-wrap'>
+        {{'customer-price-add.price' | translate}}: <ion-text color="primary">{{customerPrice.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        <br>
+        <ion-text *ngIf='!customerPrice.isCollaboratorPrice && customerPrice.collaboratorId && customerPrice.collaboratorId != 0 && customerPrice.staff'>{{'customer-price-add.staff' | translate}}: {{customerPrice.staff.name}}<br></ion-text>
+        <ion-text *ngIf='!customerPrice.isCollaboratorPrice && customerPrice.contactId && customerPrice.contactId != 0 && customerPrice.contact && showContact'>{{'customer-price-add.contact' | translate}}: {{customerPrice.contact.fullName}}<br></ion-text>
+        <ion-text *ngIf='customerPrice.productId && customerPrice.productId != 0 && customerPrice.product && showProduct' style='white-space: pre-wrap;'><b>{{productName(customerPrice.product.code, customerPrice.product.title)}}</b></ion-text>
+        <p *ngIf="customerPrice.isCollaboratorPrice">
+            {{'customer-price-add.collaborator-price' | translate}}
+        </p>
+        <p *ngIf="customerPrice.createdAt">
+            {{'customer-price-add.created-at' | translate}}: {{dateFormat(customerPrice.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='customerPrice.contactId && customerPrice.contactId != 0 && customerPrice.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(customerPrice.contact)" />
+    </ion-avatar>
+    <ion-avatar slot='end' *ngIf='customerPrice.productId && customerPrice.productId != 0 && customerPrice.product && customerPrice.product.avatarUrl && showProduct'>
+        <img [src]="customerPrice.product.avatarUrl" />
+    </ion-avatar>
+</ion-item>

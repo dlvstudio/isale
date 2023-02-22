@@ -1,0 +1,59 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-label class='ion-text-start' style="font-weight: bold">
+            {{'product-attribute.title' | translate}}
+        </ion-label>
+        <ion-buttons slot='end'>
+            <ion-button size="large" color="primary" (click)='openProductAttributeAdd()'
+                [hidden]='!staffService.canAddUpdateProduct()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+            <ion-button size="large" color="primary" (click)='copy()'>
+                <ion-icon name="copy"></ion-icon>
+            </ion-button>
+            <ion-button size="large" color="primary" (click)='save()' *ngIf='productId === 0'>
+                <ion-icon name="checkmark"></ion-icon>&nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'product-attribute.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <div class="ion-padding">
+        <ion-text color='danger'><strong><i>* {{'product-type.recommend' | translate}}</i></strong></ion-text>
+    </div>
+    <ion-list>
+        <ion-item text-wrap *ngFor="let product of productAttributes; let i = index">
+            <ion-label (click)='selectProduct(product)'>
+                <span style='white-space: pre-wrap;'>
+                    {{productName(null, product.title)}}
+                </span>
+            </ion-label>
+            <ion-buttons slot='end' [hidden]='!staffService.canAddUpdateProduct()'>
+                <ion-button size="large" color="primary" (click)='removeProductAttribute(product, i)'>
+                    <ion-icon name="close-circle"></ion-icon>
+                </ion-button>
+                <ion-button size="large" color="primary" (click)='selectProduct(product)'>
+                    <ion-icon name="create"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item text-wrap *ngIf="!originalProductAttributes || originalProductAttributes.length===0">
+            <div [innerHTML]="'product-attribute.no-product-attribute' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed" [hidden]='!staffService.canAddUpdateProduct()'>
+        <ion-fab-button (click)='openProductAttributeAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

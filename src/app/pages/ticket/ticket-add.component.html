@@ -1,0 +1,30 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'ticket-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'ticket-add.email' | translate}}</ion-label>
+            <ion-input clearInput type="email" placeholder="{{'ticket-add.email' | translate}}" [(ngModel)]='ticket.email' (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'ticket-add.subject' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'ticket-add.subject' | translate}}" [(ngModel)]='ticket.subject' (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'ticket-add.content' | translate}}</ion-label>
+            <ion-textarea type="text" placeholder="{{'ticket-add.content' | translate}}" rows="5" [(ngModel)]='ticket.content' (focus)='selectAll($event)'></ion-textarea>
+        </ion-item>
+    </ion-list>
+</ion-content>

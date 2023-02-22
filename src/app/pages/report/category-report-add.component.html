@@ -1,0 +1,73 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'report-category-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label color='primary'>{{'report-category-add.date-range' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.dateType">
+                <ion-select-option [value]="0">{{'report-category.by-week' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.by-month' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'report-category.by-year' | translate}}</ion-select-option>
+                <ion-select-option [value]="3">{{'report-category.by-day' | translate}}</ion-select-option>
+                <ion-select-option [value]="5">{{'report-category.by-quarter' | translate}}</ion-select-option>
+                <ion-select-option [value]="4">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <date-item *ngIf='report.dateType === 4' [(date)]='report.dateFrom' [label]='"report-category-add.start-date" | translate' pickerId="reportDateFromPicker"></date-item>
+        <date-item *ngIf='report.dateType === 4' [(date)]='report.dateTo' [label]='"report-category-add.end-date" | translate' pickerId="reportDateEndPicker"></date-item>
+        <ion-item>
+            <ion-label color='primary'>{{'report-category-add.select-category' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.categoryListType">
+                <ion-select-option [value]="0">{{'report-category-add.all' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.categoryListType === 1'>
+            {{'report-category-add.list-category' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchCategory()'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-category-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngFor="let category of selectedCategories">
+            <span>{{category.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeSelectedCategory(category)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-category-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'report-category-add.ignored-categories' | translate}}</ion-label>
+            <ion-select [(ngModel)]="report.ignoreCategory">
+                <ion-select-option [value]="0">{{'report-category-add.none' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'report-category.custom' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='report.ignoreCategory === 1'>
+            {{'report-category-add.list-category' | translate}}:
+            <ion-button fill='outline' slot='end' (click)='showSearchCategory(false)'>
+                <ion-icon name="add"></ion-icon>
+                {{'report-category-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngFor="let category of ignoredCategories">
+            <span>{{category.title}}</span>
+            <ion-button fill='outline' slot='end' (click)='removeIgnoredCategory(category)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'report-category-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+    </ion-list>
+</ion-content>

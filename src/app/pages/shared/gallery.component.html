@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      {{'gallery.title' | translate}}
+    </ion-title>
+    <ion-buttons slot='start'>
+      <ion-button (click)="remove()" *ngIf="canDelete">
+        <ion-icon slot='icon-only' name="trash"></ion-icon>
+      </ion-button>
+      <ion-button (click)="dismiss()">
+        <ion-icon slot='icon-only' name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-slides pager='false' #mySlider *ngIf='images && images.length'>
+        <ion-slide *ngFor="let image of images">
+            <img [src]="image" style="max-width: 100%; max-height: 500px;"/>
+        </ion-slide>
+    </ion-slides>
+</ion-content>

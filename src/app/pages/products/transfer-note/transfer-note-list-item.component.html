@@ -1,0 +1,43 @@
+<ion-item (press)="press()" (click)='click()'>
+    <ion-label class='ion-text-wrap'>
+        <span>#{{note.id}}</span><span *ngIf='note.exportStore'> - {{'transfer-note-add.export-store' | translate}}: {{note.exportStore.name}}</span><span *ngIf='note.importStore'> - {{'transfer-note-add.import-store' | translate}}: {{note.importStore.name}}</span>
+        <br>
+        <p *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>{{note.contact.fullName}}</p>
+        <p *ngIf='note.contactId == 0 && showContact && note.contactName'>{{note.contactName}}</p>
+        <p *ngIf='note.contactId == 0 && showContact && note.contactPhone'>{{note.contactPhone}}</p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+        <p> 
+            <span *ngFor="let item of note.items| slice:0:2; let i = index">
+                <ion-text>
+                    <span *ngIf='item.productCode'>{{i + 1}}. {{item.productCode}}-</span>{{item.productName}}
+                    <span style='font-size: 0.9em;'>
+                        <br>
+                        {{'transfer-note-add.product-export-count' | translate}}: {{item.actualExport}} -
+                        {{'transfer-note-add.product-import-count' | translate}}: {{item.actualImport}} -
+                        {{'transfer-note-add.product-unit' | translate}}: {{item.unit}}
+                        <br>
+                        {{'transfer-note-add.product-unit-price' | translate}}: {{item.unitPrice |
+                        currency:currency:"symbol":'1.0-2':translateService.currentLang}} - {{'transfer-note-add.product-total' | translate}}:
+                        {{item.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </span>
+                </ion-text>
+                <p *ngIf='item.note'>{{item.note}}</p>
+                <br>
+            </span>
+            <span  *ngIf='note.items.length >= 3'>
+                <ion-text style="font-size: 12px;">...</ion-text>
+            </span>
+        </p>
+        <p *ngIf='note.staffId && note.staffId != 0 && note.staff && !isStaff'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.staff.name}}<span *ngIf='note.store'> - {{note.store.name}}</span></i>
+        </p>
+        <p *ngIf='!(note.staffId && note.staffId != 0 && note.staff && !isStaff) && note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)" />
+    </ion-avatar>
+</ion-item>

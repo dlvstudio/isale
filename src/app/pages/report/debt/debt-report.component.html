@@ -1,0 +1,99 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'debt-report.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item  (click)='selectYouBorrowedReport()'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'debt-add.you-borrowed' | translate}}</span>
+                <span *ngIf='youBorrowedReport'>
+                    <br>
+                    <span *ngIf="youBorrowedReport.reportType === 0" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-customer' | translate}}</span>
+                    <span *ngIf="youBorrowedReport.reportType === 1" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-category' | translate}}</span>
+                    <span *ngIf="youBorrowedReport.reportType === 2" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-product' | translate}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(youBorrowedReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(youBorrowedReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(youBorrowedReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item (click)='selectBorrowedYouReport()'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'debt-add.borrowed-you' | translate}}</span>
+                <span *ngIf='borrowedYouReport'>
+                    <br>
+                    <span *ngIf="borrowedYouReport.reportType === 0" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-customer' | translate}}</span>
+                    <span *ngIf="borrowedYouReport.reportType === 1" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-category' | translate}}</span>
+                    <span *ngIf="borrowedYouReport.reportType === 2" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-product' | translate}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(borrowedYouReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(borrowedYouReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(borrowedYouReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item (click)='selectYouOwnedReport()'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'debt-add.you-owned' | translate}}</span>
+                <span *ngIf='youOwnedReport'>
+                    <br>
+                    <span *ngIf="youOwnedReport.reportType === 0" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-customer' | translate}}</span>
+                    <span *ngIf="youOwnedReport.reportType === 1" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-category' | translate}}</span>
+                    <span *ngIf="youOwnedReport.reportType === 2" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-product' | translate}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(youOwnedReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(youOwnedReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(youOwnedReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ion-item text-wrap (click)='selectOwnedYouReport()'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'debt-add.owned-you' | translate}}</span>
+                <span *ngIf='ownedYouReport'>
+                    <br>
+                    <span *ngIf="ownedYouReport.reportType === 0" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-customer' | translate}}</span>
+                    <span *ngIf="ownedYouReport.reportType === 1" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-category' | translate}}</span>
+                    <span *ngIf="ownedYouReport.reportType === 2" style='white-space: pre-wrap;'>{{'debt-report-add.type-for-product' | translate}}</span>
+                    <p style='padding-top: 5px;'>
+                        <span>
+                            {{getDateType(ownedYouReport)}}
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;' *ngIf="getFilter(ownedYouReport)">
+                        <span>
+                            {{'common.filter' | translate}}: {{getFilter(ownedYouReport)}}
+                        </span>
+                    </p>
+                </span>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

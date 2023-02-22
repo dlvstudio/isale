@@ -1,0 +1,134 @@
+<ion-item (press)="press()" (click)='click()' *ngIf='note.orderId && note.order'>
+    <ion-label class='ion-text-wrap'>
+        <h2>
+            <ion-text color="primary">{{'order-add.order' | translate}} #{{note.order.orderCode}} | +{{note.amount |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        </h2>
+        <h3>
+            <ion-text>
+                {{note.productName}} | -{{note.quantity}} {{note.unit}}
+            </ion-text>
+        </h3>
+        <ion-text style='white-space: pre-wrap;'>{{limitText(note.note)}}</ion-text>
+        <p *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>{{note.contact.fullName}}</p>
+        <p *ngIf='note && note.staff'>
+            <i style="font-size: 11px;">{{'trade.staff' | translate}} {{note.staff.name}}</i>
+        </p>
+        <p *ngIf='note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)">
+    </ion-avatar>
+</ion-item>
+<ion-item (press)="press()" (click)='click()' *ngIf='note.receivedNoteId'>
+    <ion-label class='ion-text-wrap'>
+        <h2>
+            <ion-text color="secondary">{{'received-note-add.received-note' | translate}} #{{note.receivedNoteId}} |
+                -{{note.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        </h2>
+        <h3>
+            <ion-text *ngIf='note.productCode'>{{note.productCode}}-</ion-text>{{note.productName}} | +{{note.quantity}}
+            {{note.unit}}
+            <ion-text *ngIf='note.amountForeign'>
+                | {{note.amountForeign}}&nbsp;<ion-text *ngIf='note.receivedNote && note.receivedNote.foreignCurrency'>
+                    ({{note.receivedNote.foreignCurrency}})</ion-text>
+            </ion-text>
+        </h3>
+        <ion-text *ngIf='note.note' style='white-space: pre-wrap;'>{{limitText(note.note)}}</ion-text>
+        <p *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>{{note.contact.fullName}}</p>
+        <p *ngIf='note.unitPrice'>
+            <span style='font-size: 0.85em;'>{{'received-note-add.cost-price' | translate}}: {{note.unitPrice |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+        </p>
+        <p *ngIf='note.receivedDate'>
+            <span style='font-size: 0.85em;'>{{'received-note-add.received-date' | translate}}:
+                {{dateFormat(note.receivedDate)}}</span>
+        </p>
+        <p *ngIf='note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)">
+    </ion-avatar>
+</ion-item>
+<ion-item (press)="press()" (click)='click()' *ngIf='note.transferNoteId'>
+    <ion-label class='ion-text-wrap'>
+        <h2>
+            <ion-text color="success">{{'transfer-note-add.transfer-note' | translate}} #{{note.transferNoteId}} |
+                {{note.amount > 0 ? '+': ''}}{{note.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        </h2>
+        <h3>
+            <ion-text *ngIf='note.productCode'>{{note.productCode}}-</ion-text>{{note.productName}} | <span
+                *ngIf='note.quantity > 0'>+</span>{{note.quantity}} {{note.unit}}
+        </h3>
+        <ion-text *ngIf='note.note' style='white-space: pre-wrap;'>{{limitText(note.note)}}</ion-text>
+        <p *ngIf='note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)">
+    </ion-avatar>
+</ion-item>
+<ion-item (press)="press()" (click)='click()' *ngIf='note.tradeId && note.trade'>
+    <ion-label class='ion-text-wrap'>
+        <ion-text color="{{ note.amount > 0 ? 'primary' : 'secondary'}}">{{'product-note.trade' | translate}}
+            #{{note.tradeId}} | {{note.amount > 0 ? '+': ''}}{{note.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}} ABC
+        </ion-text>
+        <p>
+            <ion-text *ngIf='note.amount > 0'>{{'trade.sale' | translate}} -</ion-text>
+            <ion-text *ngIf='note.amount <= 0'>{{'trade.buy' | translate}} -</ion-text>
+            <ion-text *ngIf='note.productCode'>{{note.productCode}}-</ion-text>{{note.productName}} | {{note.amount > 0
+            ? '-': '+'}}{{note.quantity}} {{note.unit}}
+            <ion-text *ngIf='note.amountForeign'>
+                | {{note.amountForeign}}&nbsp;<ion-text *ngIf='note.receivedNote && note.receivedNote.foreignCurrency'>
+                    ({{note.receivedNote.foreignCurrency}})</ion-text>
+            </ion-text>
+        </p>
+        <p *ngIf='note.note'>{{note.note}}</p>
+        <br>
+        <ion-text style='white-space: pre-wrap;'>{{limitText(note.note)}}</ion-text>
+        <p *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>{{note.contact.fullName}}</p>
+        <p *ngIf='note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)">
+    </ion-avatar>
+</ion-item>
+<ion-item (press)="press()" (click)='click()' *ngIf='!note.orderId && !note.tradeId && !note.receivedNoteId && !note.transferNoteId'>
+    <ion-label class='ion-text-wrap'>
+        <h3>
+            <ion-text>
+                {{note.productName}} | <span *ngIf='note.quantity > 0'>+</span>{{note.quantity}} {{note.unit}}
+            </ion-text>
+        </h3>
+        <ion-text style='white-space: pre-wrap;'>{{limitText(note.note)}}</ion-text>
+        <p *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>{{note.contact.fullName}}</p>
+        <p *ngIf='note.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{note.store.name}}</i>
+        </p>
+        <p>
+            {{dateFormat(note.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='note.contactId && note.contactId != 0 && note.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(note.contact)">
+    </ion-avatar>
+</ion-item>

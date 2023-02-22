@@ -1,0 +1,221 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'online-order.title' | translate}}</ion-title>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'order.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <div style='padding-left: 10px; padding-right: 10px;'>
+        <period-range (onPeriodChanged)="onPeriodChanged($event)" page='order' [modeLink]='true'></period-range>
+    </div>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-grid>
+            <ion-row style='border-bottom: 1px solid #ccc'>
+                <ion-col [size]='isShowPaging && orders && orders.length ? 8 : 12'>
+                    <ion-item class='ion-text-wrap ion-no-padding' lines='none'>
+                        <ion-label color="primary">
+                            {{'common.total' | translate}}: {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            <p>
+                                <ion-text color='dark'>  
+                                    {{orders && orders.length ? orders.length : 0}} {{'order.order(s)' | translate}}
+                                </ion-text> 
+                            </p>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col size='4' class="ion-text-right" *ngIf='isShowPaging && orders && orders.length'>
+                    <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                        1}}
+                    </ion-label>
+                    <br>
+                    <ion-buttons class="ion-float-right">
+                        <ion-button fill='solid' (click)='previousPage()' size='small'>
+                            <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                        </ion-button>
+                        <ion-button fill='solid' (click)='nextPage()' size='small'>
+                            <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ng-container *ngIf='isMobile'>
+            <online-order-list-item *ngFor="let order of orders | slice:start:(end+1)" [order]='order' [currency]='currency' (onClick)='selectOrder(order.id)' [showContact]='true'>
+            </online-order-list-item>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && orders && orders.length' class='ion-padding'>
+            <ion-row style='border-bottom: 1px solid #ccc;'>
+                <ion-col><strong>{{'order-add.order-code' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order-add.total' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order-add.contact-info' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order-add.product' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order-add.note' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'trade.staff' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order-add.shipping' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'order.created-at' | translate}}</strong></ion-col>
+            </ion-row>
+            <ion-row *ngFor="let order of orders | slice:start:(end+1); let i = index"
+                style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                (click)='selectOrder(order.id)'>
+                <ion-col>{{order.orderCode}}</ion-col>
+                <ion-col>{{order.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                <ion-col>
+                    <p *ngIf='order.contactId && order.contactId != 0 && order.contact'>
+                        {{order.contact.fullName}}</p>
+                    <p *ngIf='!order.contactId && order.contactName'>{{order.contactName}}</p>
+                    <p *ngIf='!order.contactId && order.contactPhone'>{{order.contactPhone}}</p>
+                </ion-col>
+                <ion-col>
+                    <span *ngFor="let item of order.items| slice:0:2; let i = index ">
+                        <ion-text style='font-size: 0.8em'>
+                            {{i+1}}.{{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}
+                            |
+                            {{item.count}} {{item.unit}} | {{item.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            <p *ngIf='item.note' style="font-size: 0.8em; margin: 3px 0 0 0;">
+                                {{limitText(item.note)}}
+                            </p>
+                            <ng-container *ngIf='item.items && item.items.length'>
+                                <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                                    <strong>{{'order-add.combo-products' | translate}}</strong>
+                                </p>
+                                <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                                    {{productName(option.productCode, option.productName)}}
+                                    |
+                                    {{option.count}}
+                                    {{option.unit}} &#215; {{option.price |
+                                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                </p>
+                            </ng-container>
+                            <ng-container *ngIf='item.typeOptions && item.typeOptions.length'>
+                                <ng-container *ngFor='let op of item.typeOptions'>
+                                    <ng-container *ngFor='let val of op.values'>
+                                        <p style='padding: 0; margin: 0'>
+                                            <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                                {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215;
+                                                    {{val.price |
+                                                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+                                                | <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                                currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                            </ion-text>
+                                        </p>
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+                            <ng-container *ngIf='item.options && item.options.length'>
+                                <ng-container *ngFor='let option of item.options| slice:0:2;'>
+                                    <p style='padding: 0; margin: 0'>
+                                        <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                            {{option.code ? option.code.toUpperCase() + '-' : ''}}{{option.title}}
+                                            |
+                                            {{option.count}}
+                                            {{option.unit}} | {{option.total |
+                                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                        </ion-text>
+                                    </p>
+                                </ng-container>
+                                <ng-container *ngIf='item.options.length >= 3'>
+                                    <p style='padding: 0; margin: 0'>
+                                        <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                            ...
+                                        </ion-text>
+                                    </p>
+                                </ng-container>
+                            </ng-container>
+                        </ion-text>
+                        <br>
+                    </span>
+                    <span *ngIf='order.items.length >= 3'>
+                        <ion-text style="font-size: 0.8em;">...</ion-text>
+                    </span>
+                </ion-col>
+                <ion-col class='ion-text-wrap'>
+                    <span *ngIf='order.note' style="font-size: 0.8em;">
+                        {{limitText(order.note)}}
+                    </span>
+                </ion-col>
+                <ion-col class='ion-text-wrap'>
+                    <p *ngIf='order.staffId && order.staffId != 0 && order.staff && !staffService.isStaff()'>
+                        {{order.staff.name}}<span *ngIf='order.store'> - {{order.store.name}}</span>
+                    </p>
+                    <p *ngIf='!(order.staffId && order.staffId != 0 && order.staff && !staffService.isStaff()) && order.store'>
+                        <span *ngIf='order.store'>{{order.store.name}}</span>
+                    </p>
+                </ion-col>
+                <ion-col style='font-size: 0.8em'>
+                    <p style='padding: 0; margin: 0;' *ngIf='order.hasShipInfo && order.billOfLadingCode'>
+                        {{'order-add.bill-of-lading-code' | translate}}: <br>{{order.billOfLadingCode}}
+                    </p>
+                    <p style='padding: 0; margin: 0;' *ngIf='order.hasShipInfo && order.shippingPartner'>
+                        {{'order-add.shipping-partner' | translate}}: <br>{{order.shippingPartner}}
+                    </p>
+                    <p style='padding: 0; margin: 0;' *ngIf='order.hasShipInfo && order.shipperName'>
+                        {{'order-add.shipper-name' | translate}}: <br>{{order.shipperName}}
+                    </p>
+                    <p style='padding: 0; margin: 0;' *ngIf='order.hasShipInfo && order.shipperPhone'>
+                        {{'order-add.shipper-phone' | translate}}: <br>{{order.shipperPhone}}
+                    </p>
+                    <p style='padding: 0; margin: 0;' *ngIf='order.hasShipInfo && order.deliveryAddress'>
+                        {{'order-add.delivery-address' | translate}}: <br>{{order.deliveryAddress}}
+                    </p>
+                </ion-col>
+                <ion-col class='ion-text-wrap'>
+                    <ion-text color='dark' *ngIf='order.status == 0'>
+                        {{'order-detail.status-draft' | translate}}</ion-text>
+                    <ion-text color='secondary' *ngIf='order.status == 1'>
+                        {{'order-detail.status-inprogress' | translate}}</ion-text>
+                    <ion-text color='secondary' *ngIf='order.status == 2'>
+                        {{'order-detail.status-shipping' | translate}}</ion-text>
+                    <ion-text color='primary' *ngIf='order.status == 3'>
+                        {{'order-detail.status-done' | translate}}</ion-text>
+                    <ion-text color='danger' *ngIf='order.status == 4'>
+                        {{'order-detail.status-cancel' | translate}}</ion-text>
+                    <ion-text color='danger' *ngIf='order.status == 5'>
+                        {{'order-detail.status-has-debt' | translate}}</ion-text>
+                    <ion-text color='danger' *ngIf='order.status == 6'>
+                        {{'order-detail.status-shipping-has-debt' | translate}}</ion-text>
+                    <ion-text color='secondary' *ngIf='order.status == 7'>
+                        {{'order-detail.status-deposit' | translate}}</ion-text>
+                    -
+                    {{dateFormat(order.createdAt)}}
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item text-wrap *ngIf="!originalOrders || originalOrders.length===0" lines='none'
+            style="padding-top: 10px;">
+            <div [innerHTML]="'online-order.no-order' | translate">
+            </div>
+        </ion-item>
+        <ion-item *ngIf='isShowPaging && orders && orders.length' class="ion-no-padding" lines='none'>
+            <ion-label slot='end' class="ion-text-right">{{'common.page' | translate}} {{currentPage +
+                1}}
+            </ion-label>
+            <ion-buttons slot="end" class="ion-float-right">
+                <ion-button fill='solid' (click)='previousPage()' size='small'>
+                    <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                </ion-button>
+                <ion-button fill='solid' (click)='nextPage()' size='small'>
+                    <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+</ion-content>

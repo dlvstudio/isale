@@ -1,0 +1,34 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'fb-page.search-page' | translate}}
+        </ion-title>
+    </ion-toolbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' [(ngModel)]='searchKey'></ion-searchbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item *ngFor="let page of items" (click)='select(page)'>
+            <ion-thumbnail>
+                <ion-img [src]="'http://graph.facebook.com/' + page.pageId + '/picture?type=square'"></ion-img>
+            </ion-thumbnail>
+            <ion-label class='ion-text-wrap' style="padding-left: 5px;">
+                <span style='white-space: pre-wrap; '>{{page.name}}</span>
+                <p>
+                    <ion-text color="secondary">{{'fb-page.page-id' | translate}}: {{page.pageId}}</ion-text>
+                </p>
+            </ion-label>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalItems || originalItems.length===0">
+            <div [innerHTML]="'fb-page.no-connected-page' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

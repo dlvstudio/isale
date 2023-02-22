@@ -1,0 +1,60 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.notifications' | translate}}</ion-title>
+        <ion-buttons slot="end" *ngIf="originals && originals.length">
+            <ion-button (click)="selectMulti()">
+                <ion-icon slot="icon-only" name="list"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'fb-page.search' | translate}}" [(ngModel)]='searchKey' *ngIf="originals && originals.length"></ion-searchbar>
+    <ion-item lines="none" *ngIf="multiSelect && originals && originals.length" style="margin: 5px; ">
+        <ion-checkbox [(ngModel)]="selectedAll" slot="start" (ngModelChange)="changeSelectedAll()">
+        </ion-checkbox>
+        <ion-label>{{'fb-page.select-all-noti' | translate}}</ion-label>
+        <ion-buttons slot="end">
+            <ion-button color="danger" (click)="deleteMultiNoti()">
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item-sliding *ngFor="let message of messages">
+            <ion-item lines="none" [color]="message.isRead ? 'light' : 'tertiary'"
+                style="margin: 5px; border-radius: 10px;" (click)="selectMessage(message)">
+                <ion-checkbox [(ngModel)]="message.selected" slot="start" *ngIf="multiSelect">
+                </ion-checkbox>
+                <ion-icon name="logo-facebook"></ion-icon>
+                <ion-label style="margin-left: 5px;">
+                    <span *ngIf="message.fromUserName">
+                        <i style="font-size: 0.8em">{{message.fromUserName}}</i>
+                        <br>
+                    </span>
+                    <span *ngIf="message.isComment"><i style="font-size: 0.8em">{{'fb-page.comment' | translate}}:</i> {{message.comment}}</span>
+                    <span *ngIf="!message.isComment"><i style="font-size: 0.8em">{{'fb-page.chat' | translate}}:</i> {{message.message}}</span>
+                    <p style="font-size: 0.65em;">
+                        {{dateFormat(message.timestamp)}}
+                    </p>
+                </ion-label>
+                <ion-avatar slot="end">
+                    <ion-img [src]="'https://graph.facebook.com/' + message.pageId + '/picture?type=square'"></ion-img>
+                </ion-avatar>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option (click)="deleteNoti(message)" color="danger">
+                    <ion-icon slot="icon-only" name="trash"></ion-icon>
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originals || originals.length===0">
+            <div [innerHTML]="'fb-page.no-notification' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

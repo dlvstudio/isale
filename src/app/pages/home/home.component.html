@@ -1,0 +1,475 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'home.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='setFontSize()'>
+                <ion-icon name='text-outline' slot='icon-only'></ion-icon>
+            </ion-button>
+            <ion-button (click)='showNotifies()' id="notification-button" style="position: relative; width: 42px; top:1px; right: 1px; overflow: visible !important;">
+                <ion-icon name="notifications"></ion-icon>
+                <ion-badge *ngIf="hasRecentNoti" id="notifications-badge" color="danger" style="background-color: red; position: absolute; top: 0; right: 0px; font-size: 0.6em; --padding-start: 0; --padding-end: 0; --padding-top: 0; --padding-bottom: 0">&nbsp;</ion-badge>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div [hidden]='loading || !hasSelectedStaff'>
+        <ion-item lines='none' color='danger' style='--min-height: 0;' *ngIf='proPlanExpiredAlert'>
+            <ion-label class="ion-text-wrap">
+                {{proPlanExpiredAlert}}
+            </ion-label>
+            <ion-button color='success' size='default' (click)='requestProPlan()'>
+                {{'home.extend-pro-plan' | translate}}
+                <ion-icon slot="end" name="basket"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <p style='padding-left: 15px; padding-right: 15px'>
+            <tip></tip>
+        </p>
+        <ion-segment [(ngModel)]="tab" class="ion-text-wrap ">
+            <ion-segment-button value="selling" class="ion-text-wrap">
+                {{'home.tab-selling' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="inventory" class="ion-text-wrap">
+                {{'home.tab-inventory' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+        <ion-grid>
+            <ion-row>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='newOrder()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0; '>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="basket" color='danger' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.make-order' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='scanForOrder()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="barcode" color='success' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.new-order-scan-barcode' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='viewOrders()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <fa-icon slot="start" icon="store" [style.fontSize]="fontSizeSmall ? '20px' : '28px'"
+                                style='color: #3880ff'></fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-orders' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canUpdateDeleteProduct || selectedStaff.canCreateUpdateNote)'>
+                    <ion-item lines='none' (click)='viewProducts()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="cart" color='warning' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-products' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateUpdateNote)'>
+                    <ion-item lines='none' (click)='viewReceivedNotes()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="clipboard" color='tertiary'
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-receiveds' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='viewOnlineOrders()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="cloud" style="color: #6C3483"
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'online-order.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateUpdateNote)'>
+                    <ion-item lines='none' (click)='viewTransferNotes()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <fa-icon slot="start" icon="truck" size="lg"
+                                [style.fontSize]="fontSizeSmall ? '20px' : '28px'" style=' color: #f88962'>
+                            </fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-transfer-notes' |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateUpdateDebt)'>
+                    <ion-item lines='none' (click)='viewDebts()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <fa-icon slot="start" icon="hand-holding-usd" size="lg"
+                                [style.fontSize]="fontSizeSmall ? '20px' : '28px'" style="color: #E74C3C"></fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-debts' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateNewTransaction || selectedStaff.canUpdateDeleteTransaction || selectedStaff.canCreateOrder || selectedStaff.canUpdateDeleteOrder || selectedStaff.canCreateUpdateDebt || selectedStaff.canCreateUpdateNote)'>
+                    <ion-item lines='none' (click)='viewTrades()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="cash-outline" color='warning'
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'trade.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='hideMaterials || !(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canUpdateDeleteProduct || selectedStaff.canCreateUpdateNote)'>
+                    <ion-item lines='none' (click)='viewMaterials()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="fast-food" style="color: #28B463"
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-materials' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='hideTablesFunction || !(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='manageTables()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="grid" style=' color: #3dc2ff'
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'table.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='hideCalendarFunction || !(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canCreateOrder)'>
+                    <ion-item lines='none' (click)='calendars()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="calendar" color='danger' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'calendar.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling'" size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess)'>
+                    <ion-item lines='none' (click)='viewReports()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="trending-up" style="color: #2C3E50"
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'excel-report-home.title' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='selling' && false" size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='viewFbPages()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="logo-facebook" [style.fontSize]="fontSizeSmall ? '25px' : '35px'"
+                                style="color: #4267B2"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'fb-page.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory' && selectedStaff == null" size-xs='3' size-sm='3' size-md='2'
+                    size-md='2'>
+                    <ion-item lines='none' (click)='viewCategories()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="folder" color='tertiary' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'trade-category.title' |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="tab==='inventory' && selectedStaff == null" size-xs='3' size-sm='3' size-md='2'
+                    size-md='2'>
+                    <ion-item lines='none' (click)='addMultiShop()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon color="success" name="business"
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'store.add-multi-shops' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item-divider>
+            <ion-label>{{'home.tab-contacts' | translate}}</ion-label>
+        </ion-item-divider>
+        <ion-grid>
+            <ion-row>
+                <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess || selectedStaff.canViewAllContacts || selectedStaff.canManageContacts)'>
+                    <ion-item lines='none' (click)='viewContacts()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <fa-icon slot="start" icon="address-card" [style.fontSize]="fontSizeSmall ? '20px' : '28px'"
+                                style=' color: #3dc2ff'></fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-contacts' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="selectedStaff == null" size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='viewStaffs()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <fa-icon slot="start" icon="people-arrows"
+                                [style.fontSize]="fontSizeSmall ? '20px' : '28px'" style=' color: #f88962'>
+                            </fa-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-staffs' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='showPoint()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="star" [style.fontSize]="fontSizeSmall ? '25px' : '35px'"
+                                style="color: #6C3483"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'point.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='viewNotes()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="document-text" [style.fontSize]="fontSizeSmall ? '25px' : '35px'"
+                                color="tertiary"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'note.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item-divider>
+            <ion-label>{{'home.tab-config' | translate}}</ion-label>
+        </ion-item-divider>
+        <ion-grid>
+            <ion-row>
+                <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'
+                    [hidden]='!(selectedStaff == null || selectedStaff.hasFullAccess)'>
+                    <ion-item lines='none' (click)='viewMoneyAccounts()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="card" style=' color: #f88962'
+                                [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-money-accounts' | translate}}</ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="selectedStaff == null" size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='configShop()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="settings" [style.fontSize]="fontSizeSmall ? '25px' : '35px'"
+                                style='color: #aaa;'></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'config.title' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col *ngIf="selectedStaff == null" size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='requestProPlan()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="gift" [style.fontSize]="fontSizeSmall ? '25px' : '35px'"
+                                style="color: #9900cc"></ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{(!currentPlan ? 'request-pro.title' :
+                                'request-pro.title-extend') |
+                                translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                    <ion-item lines='none' (click)='viewHelps()'
+                        style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                        <ion-label class='ion-text-wrap ion-text-center'>
+                            <ion-icon name="help" color='danger' [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                            </ion-icon>
+                            <br>
+                            <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                {{'home.view-helps' | translate}}
+                            </ion-text>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <div *ngIf='!currentPlan && !navCtrl.isIosReview()'
+            style='padding: 10px; margin: 10px; background-color: #f0ad4e; color: white; border-radius: 10px;'>
+            <p style='margin: 5px 5px 5px 5px;' *ngIf='isOnTrial' [innerHTML]='trialAlert'></p>
+            <p style='margin: 5px 5px 5px 5px;' *ngIf='!isOnTrial' innerHTML="{{'home.no-pro-plan' | translate}}"></p>
+            <ion-button color="success" fill='solid' (click)='requestProPlan()'>
+                <ion-icon name="gift" slot='start'></ion-icon>&nbsp;
+                {{'home.request-pro-plan' | translate}}
+            </ion-button>
+        </div>
+        <div *ngIf='currentPlan && !navCtrl.isIosReview()'
+            style='padding: 10px; margin: 10px; background-color: #f0ad4e; color: white; border-radius: 10px;'>
+            <p style='margin: 5px 5px 5px 5px;'>{{proPlan}}</p>
+        </div>
+        <ion-item lines='none' style='padding-top: 0px !important;'>
+            <ion-label class='ion-text-wrap'>
+                {{'common.app-version' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important; cursor: pointer;' (click)='openWeb()'
+            *ngIf='!navCtrl.isNotCordova()'>
+            <div style='width: 100px; background-color: #000000; color: #ffffff; border-radius: 5px; padding: 5px; text-align: left;  vertical-align: middle;'
+                slot='start'>
+                <ion-icon name='globe' color="success" style='float: left; font-size: 22px;'></ion-icon> <span
+                    style='font-size: 0.7em; font-weight: bold; margin-bottom: 5px;'>&nbsp;{{'home.browser' |
+                    translate}}</span>
+            </div>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.9em;">
+                https://isale.online/app
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important; cursor: pointer;'
+            *ngIf='(navCtrl.isWeb() || navCtrl.isIos()) && !navCtrl.isIosReview()' (click)='openAppAndroid()'>
+            <ion-img src='./assets/android-app.png' style='width: 100px;' slot='start'></ion-img>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.9em;">
+                https://play.google.com/store/apps/details?id=com.dlv.isale
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important; cursor: pointer;'
+            *ngIf='!navCtrl.isIos() || navCtrl.isWeb()' (click)='openAppIos()'>
+            <ion-img src='./assets/ios-app.png' style='width: 100px;' slot='start'></ion-img>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.9em;">
+                https://apps.apple.com/us/app/isale-management/id1485080690
+            </ion-label>
+        </ion-item>
+        <div class='ion-padding' style='padding-top: 0px !important;'>
+            <div *ngIf='!hasShop && selectedStaff == null'>
+                <hr>
+                <p>{{'shop-add.no-shop-message' | translate}}</p>
+                <ion-button expand='block' color="danger" fill='outline' (click)='configShop()'>
+                    <ion-icon name="settings" slot='start'></ion-icon>&nbsp;
+                    {{'shop-add.config-shop' | translate}}
+                </ion-button>
+            </div>
+            <div *ngIf='!hasMoneyAccount && selectedStaff == null'>
+                <hr>
+                <p>{{'home.no-default-money-account-message' | translate}}</p>
+                <ion-button expand='block' color="danger" fill='outline' (click)='createDefaultWallet()'>
+                    <ion-icon name="card" slot='start'></ion-icon>&nbsp;
+                    {{'home.create-default-wallet' | translate}}
+                </ion-button>
+            </div>
+            <rate *ngIf='!navCtrl.isIosReview()'></rate>
+            <support></support>
+        </div>
+    </div>
+    <div [hidden]='loading || hasSelectedStaff'>
+        <p style='padding-left: 20px; padding-right: 20px;'>{{'staff.select-shop-note' | translate}}</p>
+        <ion-list lines='inset'>
+            <ion-item *ngFor="let staff of staffsToSelect">
+                <ion-label (click)="selectShop(staff)">
+                    {{ staff.shopName }}
+                    <p *ngIf='staff.store'>{{ staff.store.name }}</p>
+                </ion-label>
+                <ion-button slot='end' (click)="selectShop(staff)">
+                    <ion-icon name="log-in" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-item>
+            <ion-item style="height: 5px; font-size: 0px;">&nbsp;</ion-item>
+        </ion-list>
+        <div class='ion-padding'>
+            <ion-button fill='outline' color="secondary" (click)='loginAsOwner()' size='small'>
+                <ion-icon name="log-in" slot='start'></ion-icon>
+                {{'staff.cancel-select-shop' | translate}}
+            </ion-button>
+        </div>
+    </div>
+</ion-content>

@@ -1,0 +1,34 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'shift.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openShiftAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'shift.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list>
+        <ion-item *ngFor="let shift of shifts" (click)='selectShift(shift)'>
+            <ion-label>
+                <h2>{{shift.name}}</h2>
+                <p>{{shift.startTime}}-{{shift.endTime}}</p>
+            </ion-label>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalShifts || originalShifts.length===0">
+            <div [innerHTML]="'shift.no-shift' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

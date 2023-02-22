@@ -1,0 +1,100 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'store-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item *ngIf='store.id'>
+            <ion-label position='stacked' color='primary'>{{'shop-add.id' | translate}}</ion-label>
+            <ion-input disabled clearInput [(ngModel)]='store.id'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder='Vd: Flowers Shop' [(ngModel)]='store.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.phone' | translate}}</ion-label>
+            <ion-input clearInput type="tel" placeholder='Vd: 09123456789' [(ngModel)]='store.phone'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' position='stacked'>{{'shop-add.photo' | translate}}</ion-label>
+            <br *ngIf='store.iconUrl'>
+            <img [src]="contactImageOrPlaceholder()" *ngIf='store.iconUrl' style="max-width: 150px;" />
+            <ion-button color='secondary' (click)='upload(uploadCallBack)' *ngIf='!isNotCordova()'>
+                <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+            </ion-button>
+            <label color='primary' for="filesStore" *ngIf='isNotCordova()'
+                style='margin-bottom: 10px; margin-top: 10px;'>
+                [<span *ngIf='!fileToUpload'>{{'note-add.select-photo' | translate}}</span>
+                <span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>]
+            </label>
+            <input *ngIf='isNotCordova()' #fileUploadInput type="file" accept="image/*" id="filesStore"
+                style="width: 0; height: 0; font-size: 0;" (change)="rememberFile($event, uploadCallBack)" />
+            <ion-button (click)='removeShopPhoto()' slot='end' fill='clear' size='small' *ngIf='store.iconUrl'>
+                <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.email' | translate}}</ion-label>
+            <ion-input clearInput type="email" placeholder='abc@email.com' [(ngModel)]="store.email"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.address' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="store.address"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.facebook' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="store.facebook"
+                placeholder='Eg: https://www.facebook.com/dlv.isale'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary' class='ion-text-wrap'>
+                {{'store-add.money-account' | translate}}
+            </ion-label>
+            <ion-buttons>
+                <ion-button color='dark' (click)='showSearchMoneyAccount()'
+                    *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0" size='small'>
+                    {{moneyAccountSelected.accountName}}
+                </ion-button>
+                <ion-button (click)='showSearchMoneyAccount()'
+                    *ngIf="!moneyAccountSelected || moneyAccountSelected.id == 0" size='small'>
+                    {{'trade-add.select-money-account' | translate}}
+                </ion-button>
+                <ion-button *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0" (click)='removeMoneyAccount()'
+                    size='small'>
+                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="store.bankName" placeholder='Eg: Vietcombank, BIDV...'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-account-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="store.bankAccountName" placeholder='Eg: Johny Doe'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-account-number' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="store.bankAccountNumber" placeholder='Eg: 123-666-999'>
+            </ion-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

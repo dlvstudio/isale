@@ -1,0 +1,33 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'table-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list lines='none'>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'table-add.name' | translate}}</ion-label>
+            <ion-text class='ion-text-wrap'>
+                {{table.name}}
+            </ion-text>
+        </ion-item>
+        <ion-item *ngIf='table.position'>
+            <ion-label position='stacked' color='primary'>{{'table-add.position' | translate}}</ion-label>
+            <ion-text class='ion-text-wrap'>
+                {{table.position}}
+            </ion-text>
+        </ion-item>
+    </ion-list>
+</ion-content>

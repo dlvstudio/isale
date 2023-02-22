@@ -1,0 +1,57 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'money-account-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='transfer()'>
+                <ion-icon name="swap-horizontal"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'money-account.name-header' | translate}}:
+                    {{productName(account)}}</span>
+                <br>
+                <ion-text color="secondary">{{account.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                <p *ngIf='account.bankName || account.bankAccountName || account.bankNumber'>
+                    <span *ngIf='account.bankName '>{{account.bankName}}<br></span>
+                    <span *ngIf='account.bankAccountName '>{{account.bankAccountName}}<br></span>
+                    <span *ngIf='account.bankNumber '>{{account.bankNumber}}</span>
+                </p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-list-header>
+            <ion-label>{{'money-account-detail.history' | translate}}</ion-label>
+        </ion-list-header>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}
+                    <br>
+                </span> {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}}
+                    {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [showContact]='false' [trade]='trade' [currency]='currency'
+            (onClick)='selectTrade(trade.id)'></trade-item>
+    </ion-list>
+</ion-content>

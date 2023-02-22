@@ -1,0 +1,37 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'shift-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="danger" (click)='delete()' *ngIf="shift && shift.id">
+                <ion-icon name="trash"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='shift'>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shift-add.name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder='Vd: Ca 1' [(ngModel)]='shift.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shift-add.start-time' | translate}}</ion-label>
+            <date-picker [(date)]="shift.startTime" type="time" min="00:00"
+                max="23:59">
+            </date-picker>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shift-add.end-time' | translate}}</ion-label>
+            <date-picker [(date)]="shift.endTime" type="time" min="00:00"
+                max="23:59">
+            </date-picker>
+        </ion-item>
+    </ion-list>
+</ion-content>
