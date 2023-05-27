@@ -1,0 +1,78 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'request-pro.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div *ngIf='navCtrl.isIosReview()' class="ion-padding">{{'request-pro.no-pro-plan-on-ios' | translate}}</div>
+    <ng-container *ngIf='!navCtrl.isIosReview()'>
+        <ion-list >
+            <ion-item>
+                <ion-label position='stacked' color='primary'>{{'request-pro.select-months' | translate}}</ion-label>
+                <ion-select [(ngModel)]='monthSelected' (ionChange)='changeMonth()'>
+                    <ion-select-option [value]="3" selected>3 {{'request-pro.months' | translate}}</ion-select-option>
+                    <ion-select-option [value]="6">6 {{'request-pro.months' | translate}}</ion-select-option>
+                    <ion-select-option [value]="12">12 {{'request-pro.months' | translate}}</ion-select-option>
+                </ion-select>
+            </ion-item>
+        </ion-list>
+        <ion-grid class="ion-padding" style='padding-bottom: 0;'>
+            <ion-row>
+                <ion-col size='6'>
+                    {{'request-pro.total-to-pay' | translate}}: <ion-text color='danger' style='font-size: 1.6em'>{{total |
+                        currency:"VND":"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    <br *ngIf='saved > 0'>
+                    <span *ngIf='saved > 0'>{{'request-pro.save' | translate}}: <ion-text color='success'
+                            style='font-size: 1.2em'>{{saved | currency:"VND":"symbol":'1.0-2':translateService.currentLang}} </ion-text></span>
+                    <br>
+                    <br>
+                    {{'request-pro.total-to-pay-in-usd' | translate}}: <ion-text color='danger' style='font-size: 1.6em'>
+                        {{totalUsd | currency:"USD":"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    <br *ngIf='savedUsd > 0'>
+                    <span *ngIf='savedUsd > 0'>{{'request-pro.save' | translate}}: <ion-text color='success'
+                            style='font-size: 1.2em'>{{savedUsd | currency:"USD":"symbol":'1.0-2':translateService.currentLang}} </ion-text></span>
+                </ion-col>
+                <ion-col size='6' innerHTML="{{'request-pro.description' | translate}}" style="font-size: 0.8em; font-style: italic;">
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size='12'>
+                    <p style='margin: 0; padding: 0 0 5px 0'>
+                        {{'request-pro.bank-account' | translate}}:
+                    </p>
+                    <p style='margin: 0; padding: 0'>
+                        {{'request-pro.bank-account-name' | translate}}: <strong>{{bankAccount}}</strong>&nbsp;
+                        <ion-button size='small' fill='clear' (click)='copy(bankAccount)' style='font-size: 10px; padding: 0; margin-top: -3px'><ion-icon slot='icon-only' name='copy-outline' style='font-size: 16px'></ion-icon></ion-button>
+                    </p>
+                    <p style='margin: 0; padding: 0'>
+                        {{'request-pro.bank-account-number' | translate}}: <strong>{{bankAccountNumber}}</strong>&nbsp;
+                        <ion-button size='small' fill='clear' (click)='copy(bankAccountNumber.split(" ").join(""))' style='font-size: 10px; padding: 0; margin-top: -3px'><ion-icon slot='icon-only' name='copy-outline' style='font-size: 16px'></ion-icon></ion-button>
+                    </p>
+                    <p>
+                        {{'request-pro.or-paypal-link' | translate}}: <br><strong>{{paypalLink}}</strong>&nbsp;
+                        <ion-button size='small' fill='clear' (click)='copy(paypalLink)' style='font-size: 10px; padding: 0; margin-top: -3px'><ion-icon slot='icon-only' name='copy-outline' style='font-size: 16px'></ion-icon></ion-button>
+                    </p>
+                    <p>
+                        {{'request-pro.transfer-content' | translate}}: <strong>{{transferContent}}</strong>&nbsp;
+                        <ion-button size='small' fill='clear' (click)='copy(transferContent)' style='font-size: 10px; padding: 0; margin-top: -3px'><ion-icon slot='icon-only' name='copy-outline' style='font-size: 16px'></ion-icon></ion-button>
+                    </p>
+                    <p style='margin: 0; padding: 0'>
+                        <ion-button size='small' fill='clear' (click)='copy(bankInfo)' style='font-size: 10px; padding: 0; margin-top: -3px'><ion-icon slot='start' name='copy-outline' style='font-size: 16px'></ion-icon>&nbsp;{{'request-pro.copy' | translate}}</ion-button>
+                    </p>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <div class="ion-padding" style='padding-top: 0px;'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="send"></ion-icon>
+                &nbsp;{{'request-pro.send' | translate}}
+            </ion-button>
+        </div>
+        <div style='padding: 10px; margin: 10px; background-color: #f0ad4e; color: white; border-radius: 10px;'>
+            <p style='margin: 5px 5px 5px 5px;' innerHTML="{{'home.no-pro-plan' | translate}}"></p>
+        </div>
+    </ng-container>
+</ion-content>

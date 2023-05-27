@@ -1,0 +1,13 @@
+<ng-template #template>
+    <ion-input #input1 *ngIf='clear' type="text" inputmode="numeric" [placeholder]="placeholder" [disabled]="disabled"
+        [(ngModel)]='moneyValueString' (ionBlur)='ionBlur()' (ionFocus)='ionFocus()' (keyup.enter)="onEnter()">
+    </ion-input>
+    <ion-input #input2 inputmode="numeric" *ngIf='!clear' [disabled]="disabled"
+        style='background-color: #efefef; border-radius: 5px; color: #000; margin-bottom: 5px;' type="text"
+        [placeholder]="placeholder" [(ngModel)]='moneyValueString' (ionBlur)='ionBlur()' (ionFocus)='ionFocus()'
+        (keyup.enter)="onEnter()">
+    </ion-input>
+    <ion-input [hidden]='true' [(ngModel)]='moneyValue' (ngModelChange)='change($event)'
+        (ionChange)='change(moneyValue)'>
+    </ion-input>
+</ng-template>

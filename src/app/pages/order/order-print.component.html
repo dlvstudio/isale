@@ -1,0 +1,878 @@
+<ng-container *ngIf='!printOrderLikeInvoice'>
+    <table *ngIf='shop' style='width: 100%; border: none;'>
+        <tr>
+            <td style='text-align: center; vertical-align: text-bottom;'>
+                <img *ngIf='shop.iconUrl' [src]='shop.iconUrl'
+                    style='max-width: 120px; float: left; max-height: 120px;' />
+                <span *ngIf='shop && shop.name'><b>{{shop.name}}</b><br></span>
+                <span *ngIf='shop && shop.shortDescription'><i>{{shop.shortDescription}}</i><br></span>
+                <span *ngIf='shop && shop.phone'>{{'shop-add.phone' | translate}}: {{shop.phone}}<br></span>
+                <span *ngIf='shop && shop.email'>{{'shop-add.email' | translate}}: {{shop.email}}<br></span>
+                <span *ngIf='shop && shop.facebook'>{{'shop-add.facebook' | translate}}:
+                    {{shop.facebook}}<br></span>
+                <span *ngIf='shop && shop.address'>{{'shop-add.address' | translate}}: {{shop.address}}<br></span>
+            </td>
+        </tr>
+    </table>
+    <hr class="hr">
+    <div style="text-align: center;">
+        <h2 style='font-size: 18px; text-transform: uppercase;'>{{'order-add.order-print-title' | translate}}</h2>
+    </div>
+    <div *ngIf='isMobile'>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    <strong>{{'order-add.order-code' | translate}}:</strong>
+                </td>
+                <td style='padding-left: 5px;'>
+                    #{{order.orderCode}}
+                </td>
+            </tr>
+            <tr *ngIf='order.staff'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'trade.staff' | translate}}
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{order.staff.name}}<span *ngIf='order.staff.userName'> - {{order.staff.userName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'order-print.date' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{dateFormat(order.createdAt)}}
+                </td>
+            </tr>
+            <tr>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'order-print.customer' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    <span *ngIf='order.contact && order.contact.fullName'>{{order.contact.fullName}}</span>
+                    <span *ngIf='!order.contact && order.contactName'>{{order.contactName}}</span>
+                    <span *ngIf='order.contact && order.contact.mobile'>| {{order.contact &&
+                        order.contact.mobile}}</span>
+                    <span *ngIf='!order.contact && order.contactPhone'> | {{order.contactPhone}}</span>
+                </td>
+            </tr>
+            <tr *ngIf='order.contact && order.contact.address'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'contact-add.address' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{order.contact.address}}
+                </td>
+            </tr>
+            <tr *ngIf='!order.contact && order.contactAddress'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'contact-add.address' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{order.contactAddress}}
+                </td>
+            </tr>
+            <tr *ngIf='order.note'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'order-add.note' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{order.note}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf='isMobile && shop && shop.bankName'>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    <strong>{{'shop-add.bank-name' | translate}}:</strong>
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{shop.bankName}}
+                </td>
+            </tr>
+            <tr *ngIf='shop.bankAccountName'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'shop-add.bank-account-name' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{shop.bankAccountName}}
+                </td>
+            </tr>
+            <tr *ngIf='shop.bankAccountNumber'>
+                <td nowrap style='width: 100px; white-space: nowrap;'>
+                    {{'shop-add.bank-account-number' | translate}}:
+                </td>
+                <td style='padding-left: 5px;'>
+                    {{shop.bankAccountNumber}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table style="border: none; " *ngIf='!isMobile'>
+        <tr>
+            <td [style.width]='shop && shop.bankName ? "50%" : "100%"'>
+                <table style="border: none; width: 100%;">
+                    <tr>
+                        <td nowrap>
+                            <strong>{{'order-add.order-code' | translate}}:</strong>
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            #{{order.orderCode}}
+                        </td>
+                    </tr>
+                    <tr *ngIf='order.staff'>
+                        <td nowrap>
+                            {{'trade.staff' | translate}}
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{order.staff.name}}<span *ngIf='order.staff.userName && showStaffPhone'> - {{order.staff.userName}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap>
+                            {{'order-print.date' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{dateFormat(order.createdAt)}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap>
+                            {{'order-print.customer' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            <span *ngIf='order.contact && order.contact.fullName'>{{order.contact.fullName}}</span>
+                            <span *ngIf='!order.contact && order.contactName'>{{order.contactName}}</span>
+                            <span *ngIf='order.contact && order.contact.mobile'>| {{order.contact.mobile}}</span>
+                            <span *ngIf='!order.contact && order.contactPhone'>| {{order.contactPhone}}</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf='!order.contact && order.contactAddress'>
+                        <td nowrap>
+                            {{'contact-add.address' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{order.contactAddress}}
+                        </td>
+                    </tr>
+                    <tr *ngIf='order.contact && order.contact.address'>
+                        <td nowrap>
+                            {{'contact-add.address' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{order.contact.address}}
+                        </td>
+                    </tr>
+                    <tr *ngIf='order.note'>
+                        <td nowrap>
+                            {{'order-add.note' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{order.note}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td *ngIf='shop && shop.bankName' [style.width]='"50%"' style='padding-left: 20px;'>
+                <table style="border: none; width: 100%;">
+                    <tr>
+                        <td nowrap>
+                            <strong>{{'shop-add.bank-name' | translate}}:</strong>
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{shop.bankName}}
+                        </td>
+                    </tr>
+                    <tr *ngIf='shop.bankAccountName'>
+                        <td nowrap>
+                            {{'shop-add.bank-account-name' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{shop.bankAccountName}}
+                        </td>
+                    </tr>
+                    <tr *ngIf='shop.bankAccountNumber'>
+                        <td nowrap>
+                            {{'shop-add.bank-account-number' | translate}}:
+                        </td>
+                        <td style='padding-left: 5px;'>
+                            {{shop.bankAccountNumber}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <hr class="hr">
+    <div style="padding-left: 5px; padding-right: 5px;">
+        <table style='width: 100%; border-collapse: collapse;'>
+            <tr style='border-bottom: 1px solid #ccc;'>
+                <td style='padding-bottom: 5px;'><b>{{'order-print.head-price' | translate}}</b>
+                </td>
+                <td style='text-align: right; padding-bottom: 5px;'><b>{{'order-print.head-qty' | translate}}</b>
+                </td>
+                <td style='text-align: right; padding-bottom: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                    <b>{{'order-print.head-unit' |
+                        translate}}</b>
+                </td>
+                <td style='text-align: right; padding-bottom: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                    <b>{{'order-add.product-discount-short' |
+                        translate}}</b>
+                </td>
+                <td style='text-align: right; padding-bottom: 5px;'><b>{{'order-print.head-amount' | translate}}</b>
+                </td>
+            </tr>
+            <ng-container *ngFor='let item of order.items; let i = index'>
+                <tr>
+                    <td style='padding-top: 5px;'>{{i+1}}. {{productName(item.productCode, item.productName)}}
+                        <ng-container *ngIf='item.items && item.items.length'>
+                            <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                                <strong>{{'order-add.combo-products' | translate}}</strong>
+                            </p>
+                            <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                                {{productName(option.productCode, option.productName)}}
+                                |
+                                {{option.count}}&nbsp;{{option.unit}}
+                            </p>
+                        </ng-container>
+                        <div *ngIf='hasOptionsOrAttributes(item)' style='font-size: 0.8em;'
+                            [style.fontWeight]='"normal"' class="ion-text-wrap">
+                            <p style='padding: 0; margin: 0' *ngIf='item.typeAttributes && item.typeAttributes.length'>
+                                <ion-text [style.fontWeight]='"normal"'>
+                                    {{getTypeAttributesString(item)}}
+                                </ion-text>
+                            </p>
+                            <ng-container *ngIf='item.attributes && item.attributes.length'>
+                                <p style='padding: 0; margin: 0'>
+                                    <ion-text [style.fontWeight]='"normal"'>
+                                        {{getAttributesString(item)}}
+                                    </ion-text>
+                                </p>
+                            </ng-container>
+                            <ng-container *ngFor='let op of item.typeOptions'>
+                                <p style='padding: 0; margin: 0'>
+                                    <ion-text>
+                                        <strong>{{op.title}}</strong>
+                                    </ion-text>
+                                </p>
+                                <ng-container *ngFor='let val of op.values; let j = index'>
+                                    <p style='padding: 0; margin: 0'>
+                                        <ion-text [style.fontWeight]='"normal"'>
+                                            {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215;
+                                                {{val.price |
+                                                currency:'':'':'1.0-2':translateService.currentLang}}</span>
+                                            |
+                                            <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                            currency:'':'':'1.0-2':translateService.currentLang}}
+                                        </ion-text>
+                                    </p>
+                                </ng-container>
+                            </ng-container>
+                            <ng-container *ngIf='item.options && item.options.length'>
+                                <p style='padding: 0; margin: 0'>
+                                    <strong>{{'order-add.added-products' | translate}}</strong>
+                                </p>
+                                <p *ngFor='let option of item.options' style='padding: 0; margin: 0'>
+                                    {{productName(option.code, option.title)}}
+                                    |
+                                    {{option.count}}
+                                    {{option.unit}} &#215; {{option.price |
+                                    currency:'':'':'1.0-2':translateService.currentLang}} |
+                                    +{{option.total
+                                    |
+                                    currency:'':'':'1.0-2':translateService.currentLang}}
+                                </p>
+                            </ng-container>
+                        </div>
+                    </td>
+                <tr>
+                <tr style='border-bottom: 1px solid #ccc;'>
+                    <td style='padding-top: 5px;'>{{item.price |
+                        currency:'':'':'1.0-2':translateService.currentLang}}
+                    </td>
+                    <td style='text-align: right; padding-top: 5px;'>x {{item.count}}<span
+                            *ngIf='isMobile || hideDiscountColumn'>&nbsp;{{item.unit}}</span>
+                    </td>
+                    <td style='text-align: right; padding-top: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                        {{item.unit}}
+                    </td>
+                    <td style='text-align: right; padding-top: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                        -{{item.discount |
+                        currency:'':'':'1.0-2':translateService.currentLang}}
+                    </td>
+                    <td style='text-align: right; padding-top: 5px;'>
+                        {{item.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                        <span *ngIf='(hideDiscountColumn || isMobile) && item.discountPercent'
+                            style='font-size: 0.75em'><br>(-{{item.discountPercent}}%)</span>
+                        <span *ngIf='(hideDiscountColumn || isMobile) && item.discount && !item.discountPercent'
+                            style='font-size: 0.75em'><br>(-{{item.discount |
+                            currency:'':'':'1.0-2':translateService.currentLang}})</span>
+                    </td>
+                <tr>
+            </ng-container>
+            <tr>
+                <td style='padding-top: 5px;'>
+                    <strong>{{'order-detail.total-amount' | translate}}</strong>
+                </td>
+                <td style='text-align: right; padding-top: 5px;'>
+                    {{totalProductsQuantity}}
+                </td>
+                <td style='text-align: right; padding-top: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                    &nbsp;
+                </td>
+                <td style='text-align: right; padding-top: 5px;' *ngIf='!(hideDiscountColumn || isMobile)'>
+                    &nbsp;
+                </td>
+                <td style='text-align: right; padding-top: 5px;'>
+                    {{totalProductsAmount | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            <tr>
+        </table>
+    </div>
+    <hr class="hr">
+    <table *ngIf='shop' style='width: 100%; border: none;'>
+        <tr *ngIf='order.totalPromotionDiscount'>
+            <td nowrap>
+                {{'order-add.total-promotion-discount' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                -{{order.totalPromotionDiscount | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr *ngIf='order.discount'>
+            <td nowrap>
+                {{'order-add.discount' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                -{{order.discountOnTotal | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr>
+            <td nowrap>
+                {{'order-add.net-value' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                {{order.netValue | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr *ngIf='order.amountFromPoint && order.pointAmount'>
+            <td nowrap>
+                {{'order-add.pay-by-point' | translate}}
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                -{{order.amountFromPoint | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr *ngIf='!hideTax'>
+            <td nowrap>
+                {{'order-add.tax' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                +{{order.tax | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr *ngIf='order.shippingFee'>
+            <td nowrap>
+                {{'order-add.shipping-fee' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                +{{order.shippingFee | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr style='font-weight: bold;'>
+            <td nowrap>
+                {{'order-add.total' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                {{order.total | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr>
+            <td nowrap>
+                {{'order-print.cash' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                {{order.paid | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+        <tr>
+            <td nowrap>
+                {{'order-print.change' | translate}}:
+            </td>
+            <td style='padding-left: 5px; padding-right: 5px; text-align: right;'>
+                {{order.change | currency:'':'':'1.0-2':translateService.currentLang}}
+            </td>
+        </tr>
+    </table>
+</ng-container>
+<ng-container *ngIf='printOrderLikeInvoice'>
+    <div *ngIf='shop' style="border-bottom: 1px solid #000;">
+        <div *ngIf='shop.name' style='width: 100%; text-align: center; margin-top: 5px;'>
+            <strong>{{shop.name.toUpperCase()}}</strong> <br>
+            <i *ngIf='shop.shortDescription'>{{shop.shortDescription}}</i>
+        </div>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td *ngIf='shop.iconUrl' [style.width]='shop.bankName ? "20%" : "40%"'>
+                    <img [src]='shop.iconUrl' style='max-width: 44px; float: left; max-height: 44px;' />
+                </td>
+                <td [style.width]='shop.bankName && shop.iconUrl ? "40%" : (shop.bankName || shop.iconUrl ? "60%": "100%")'
+                    style="vertical-align:top">
+                    <table style="border: none; border-spacing: 0; width: 100%; left: 50%;">
+                        <tr *ngIf='shop && shop.phone'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.phone")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px; ' nowrap>
+                                {{shop.phone}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.email'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.email")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.email}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.facebook'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.facebook")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.facebook}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.address'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.address")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.address}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td *ngIf='shop.bankName' [style.width]='shop.iconUrl ? "40%" : "100%"'
+                    style='padding-left: 20px; vertical-align: text-top;'>
+                    <table style="border: none; width: 100%;">
+                        <tr>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;">
+                                <strong [innerHTML]='toHtml("shop-add.bank-name")'></strong>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.bankName}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop.bankAccountName'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.bank-account-name")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;'>
+                                {{shop.bankAccountName}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop.bankAccountNumber'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.bank-account-number")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.bankAccountNumber}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="text-align: center;">
+        <h2 style='font-size: 18px; text-transform: uppercase; font-weight: bold;'>{{'order-add.order-print-title' |
+            translate}}</h2>
+    </div>
+    <div>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td style="width: 1px; white-space: nowrap; padding: 0;">
+                    <strong [innerHTML]='toHtml("order-add.order-code")'></strong>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    #{{order.orderCode}}
+                </td>
+            </tr>
+            <tr *ngIf='order.staff'>
+                <td style="width: 1px; white-space: nowrap; padding: 0;" [innerHTML]='toHtml("trade.staff", "")'>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    {{order.staff.name}}<span *ngIf='order.staff.userName && showStaffPhone'> - {{order.staff.userName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 1px; white-space: nowrap; padding: 0;" [innerHTML]='toHtml("order-print.date")'>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    {{dateFormat(order.createdAt)}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table style="border: none; width: 100%;">
+        <tr>
+            <td style="width: 40%; padding: 0;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("order-print.customer")'>
+                        </td>
+                        <td style='padding: 0 0 0 5px; border-bottom: 1px dotted #000;'>
+                            <span *ngIf='order.contact && order.contact.fullName'>{{order.contact.fullName}}</span>
+                            <span *ngIf='!order.contact && order.contactName'>{{order.contactName}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style='padding: 0;'>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("contact-add.phone")'>
+                        </td>
+                        <td style='padding: 0 0 0 5px; border-bottom: 1px dotted #000; '>
+                            <span *ngIf='order.contact && order.contact.mobile'>{{order.contact.mobile}}</span>
+                            <span *ngIf='!order.contact && order.contactPhone'>{{order.contactPhone}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style='padding: 0;'>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("contact-add.address")'>
+                        </td>
+                        <td style='border-bottom: 1px dotted #000; padding: 0 0 0 5px;'>
+                            <span *ngIf='order.contact && order.contact.address'>{{order.contact.address}}</span>
+                            <span *ngIf='!order.contact && order.contactAddress'>{{order.contactAddress}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div style='padding-left: 5px; padding-right: 5px;'>
+        <table style='margin-top: 10px; margin-bottom: 10px; width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; max-width: 60px; text-align: center;'>
+                    <b>{{'order-print.head-index' | translate}}</b>
+                </td>
+                <td nowrap
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <b>{{'order-print.head-name'
+                        | translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: center;'>
+                    <b>{{'order-print.head-unit-full' |
+                        translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'order-print.head-qty-full' |
+                        translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'order-print.head-price-full'
+                        | translate}}</b>
+                </td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'order-print.head-discount-full' | translate}}</b>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'order-print.head-amount-full'
+                        | translate}}</b>
+                </td>
+            </tr>
+            <tr *ngFor='let item of order.items; let i = index'>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; max-width: 60px; text-align: center;'>
+                    {{i+1}}</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{productName(item.productCode, item.productName)}}
+                    <ng-container *ngIf='item.items && item.items.length'>
+                        <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            <strong>{{'order-add.combo-products' | translate}}</strong>
+                        </p>
+                        <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            {{productName(option.productCode, option.productName)}}
+                            |
+                            {{option.count}}&nbsp;{{option.unit}}
+                        </p>
+                    </ng-container>
+                    <div *ngIf='hasOptionsOrAttributes(item)' style='font-size: 0.8em;' [style.fontWeight]='"normal"'
+                        class="ion-text-wrap">
+                        <p style='padding: 0; margin: 0' *ngIf='item.typeAttributes && item.typeAttributes.length'>
+                            <ion-text [style.fontWeight]='"normal"'>
+                                {{getTypeAttributesString(item)}}
+                            </ion-text>
+                        </p>
+                        <ng-container *ngIf='item.attributes && item.attributes.length'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text [style.fontWeight]='"normal"'>
+                                    {{getAttributesString(item)}}
+                                </ion-text>
+                            </p>
+                        </ng-container>
+                        <ng-container *ngFor='let op of item.typeOptions'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text>
+                                    <strong>{{op.title}}</strong>
+                                </ion-text>
+                            </p>
+                            <ng-container *ngFor='let val of op.values; let j = index'>
+                                <p style='padding: 0; margin: 0'>
+                                    <ion-text [style.fontWeight]='"normal"'>
+                                        {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215; {{val.price |
+                                            currency:'':'':'1.0-2':translateService.currentLang}}</span> |
+                                        <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                        currency:'':'':'1.0-2':translateService.currentLang}}
+                                    </ion-text>
+                                </p>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf='item.options && item.options.length'>
+                            <p style='padding: 0; margin: 0'>
+                                <strong>{{'order-add.added-products' | translate}}</strong>
+                            </p>
+                            <p *ngFor='let option of item.options' style='padding: 0; margin: 0'>
+                                {{productName(option.code, option.title)}}
+                                |
+                                {{option.count}}
+                                {{option.unit}} &#215; {{option.price |
+                                currency:'':'':'1.0-2':translateService.currentLang}} | +{{option.total |
+                                currency:'':'':'1.0-2':translateService.currentLang}}
+                            </p>
+                        </ng-container>
+                    </div>
+                </td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: center;'>
+                    {{item.unit}}</td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.count}}
+                </td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.price |
+                    currency:'':'':'1.0-2':translateService.currentLang}}</td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <span *ngIf='item.discountPercent'>-{{item.discountPercent}}%</span>
+                    <span *ngIf='item.discount && !item.discountPercent'>-{{item.discount |
+                        currency:'':'':'1.0-2':translateService.currentLang}}</span>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                    <span *ngIf='hideDiscountColumn && item.discountPercent'
+                        style='font-size: 0.8em'><br>(-{{item.discountPercent}}%)</span>
+                    <span *ngIf='hideDiscountColumn && item.discount && !item.discountPercent'
+                        style='font-size: 0.8em'><br>(-{{item.discount |
+                        currency:'':'':'1.0-2':translateService.currentLang}})</span>
+                </td>
+            <tr>
+            <tr *ngFor='let item of numberArrays(order.items.length, orderInvoiceMaxEmptyRows)'>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: center;'>
+                    {{item + 1}}</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    &nbsp;</td>
+            <tr>
+            <tr>
+                <td colspan="3" style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <strong>{{'order-detail.total-amount' | translate}}</strong>
+                </td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{totalProductsQuantity}}
+                </td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{totalProductsAmount | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='order.totalPromotionDiscount'>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'order-add.total-promotion-discount' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    -{{order.totalPromotionDiscount | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='order.discountOnTotal'>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'order-add.discount' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    -{{order.discountOnTotal | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf="order.netValue !== totalProductsAmount">
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; '>
+                    {{'order-add.net-value' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{order.netValue | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='order.amountFromPoint && order.pointAmount'>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; '>
+                    {{'order-add.pay-by-point' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    -{{order.amountFromPoint | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='!hideTax && order.tax !== 0'>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'order-add.tax' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    +{{order.tax | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='order.shippingFee'>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'order-add.shipping-fee' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    +{{order.shippingFee | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr>
+                <td [attr.colspan]="hideDiscountColumn ? 5 : 6"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <strong>{{'order-add.total' | translate}}</strong>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{order.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="width: 100%; border: none;" cellpadding="0" cellspacing="0">
+            <tr>
+                <td style="width: 1px; white-space: nowrap;"
+                    [innerHTML]='toHtml("order-print.total-written-in-letters")'>
+                </td>
+                <td style="border-bottom: 1px dotted #000;">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px dotted #000;" colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr *ngIf='order.note'>
+                <td colspan="2" style='padding: 0;'>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("order-add.note")'>
+                            </td>
+                            <td style='border-bottom: 1px dotted #000; padding: 0 0 0 5px;'>
+                                <span>{{order.note}}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr *ngIf='orderPrintNote'>
+                <td colspan="2" style='padding: 0;'>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style='padding: 0 0 0 0px;'>
+                                <i>{{orderPrintNote}}</i>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="border: none; width: 100%; margin-bottom: 50px; margin-top: 20px;">
+            <tr>
+                <td style='width: 50%; text-align: center; vertical-align: text-top;'>
+                    <table style='border: none; margin: 0 auto;'>
+                        <tr>
+                            <td>
+                                <strong style="text-transform: uppercase;">{{'order-print.customer' |
+                                    translate}}</strong><br>
+                                ({{'order-print.sign-and-write-fullname' | translate}})
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style='width: 50%; text-align: center; vertical-align: text-top;'>
+                    <table style='border: none; margin: 0 auto;'>
+                        <tr>
+                            <td>
+                                <strong style="text-transform: uppercase;">{{'order-print.buyer' |
+                                    translate}}</strong><br>
+                                ({{'order-print.sign-and-write-fullname' | translate}})
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr *ngIf='order && order.staff && showStaffNameUnderSign'>
+                            <td>
+                                <span>{{order.staff.name}}<span *ngIf='order.staff.userName && showStaffPhone'> -
+                                        {{order.staff.userName}}</span></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</ng-container>

@@ -1,0 +1,16 @@
+{
+    "plugins": {
+        "FirebaseAnalytics": {
+            "FIREBASE_ANALYTICS_COLLECTION_ENABLED": "true",
+            "FIREBASE_PERFORMANCE_COLLECTION_ENABLED": "true",
+            "FIREBASE_CRASHLYTICS_COLLECTION_ENABLED": "true"
+        },
+        "PushNotifications": {
+            "presentationOptions": [
+                "badge",
+                "sound",
+                "alert"
+            ]
+        }
+    }
+}

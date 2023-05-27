@@ -1,0 +1,40 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.title-detail' | translate}}</ion-title>
+        <ion-buttons slot=end>
+            <ion-button color="danger" (click)='delete()'>
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content *ngIf='page'>
+    <ion-list lines='none'>
+        <ion-item>
+            <ion-thumbnail>
+                <ion-img [src]="'http://graph.facebook.com/' + page.pageId + '/picture?type=square'"></ion-img>
+            </ion-thumbnail>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap; '>
+                    {{page.name}}
+                    &nbsp;
+                    <ion-icon name="copy" (click)="copy(page.name)"></ion-icon>
+                </span>
+                <p>
+                    <ion-text color="secondary">{{'fb-page.page-id' | translate}}: {{page.pageId}}
+                        &nbsp;
+                        <ion-icon name="copy" (click)="copy(page.pageId)"></ion-icon>
+                    </ion-text>
+                </p>
+                <p>
+                    <ion-text *ngIf="page.isConnected" color="success">{{'fb-page.connected' | translate}}</ion-text>
+                    <ion-text *ngIf="!page.isConnected" color="dark">{{'fb-page.not-connected' |
+                        translate}}</ion-text>
+                </p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

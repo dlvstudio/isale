@@ -1,0 +1,47 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'order-detail.print-alert-title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <div>
+        {{'order-detail.help-print-android' |
+        translate}}
+    </div>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='full' color='danger' (click)='goPrintPage()'>
+                    {{'order-detail.help-print-android-button' |
+                    translate}}<ion-icon name='help-circle' slot='start'></ion-icon>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <div>
+        {{'order-detail.print-invoice-description' | translate}}
+    </div>
+    <ion-item lines='none' class="ion-no-padding" class="ion-text-wrap">
+        <ion-checkbox slot='start' [(ngModel)]="noAlertRepeat" (ngModelChange)='updateAlertRepeat()'></ion-checkbox>
+        <ion-label class="ion-text-wrap">
+            {{'order-detail.print-alert-no-show-again' | translate}}
+        </ion-label>
+    </ion-item>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='full' color='primary' (click)='print()'>{{'order-detail.continue-print' |
+                    translate}}<ion-icon name='print' slot='start'></ion-icon>
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='full' color='success' (click)='share()'>{{'order-detail.share-to-print-app' |
+                    translate}}<ion-icon name='share' slot='start'></ion-icon>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

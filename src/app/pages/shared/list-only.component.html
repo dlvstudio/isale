@@ -1,0 +1,190 @@
+<ng-template #template>
+    <div class='ion-no-padding'>
+        <ion-grid
+            *ngIf="!searchMode && actions && actions.length && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)">
+            <ion-row>
+                <ng-container *ngFor="let item of actions">
+                    <ion-col *ngIf="!item.hidden()" size-xs='4' size-sm='4' size-md='3' size-md='3'>
+                        <ion-item lines='none' (click)='item.path ? navCtrl.push(item.path) : item.click(objects)'
+                            class="box_home">
+                            <ion-label class='ion-text-wrap ion-text-center'>
+                                <ion-icon *ngIf="!item.isFaIcon && item.color" [name]="item.icon" [color]='item.color'
+                                    [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                                </ion-icon>
+                                <ion-icon *ngIf="!item.isFaIcon && item.customColor" [name]="item.icon"
+                                    [style.color]="item.customColor" [style.fontSize]="fontSizeSmall ? '25px' : '35px'">
+                                </ion-icon>
+                                <fa-icon *ngIf="item.isFaIcon" slot="start" [icon]="item.icon"
+                                    [style.fontSize]="fontSizeSmall ? '20px' : '28px'"
+                                    [style.color]="item.color"></fa-icon>
+                                <br>
+                                <ion-text class='ion-text-wrap' [style.fontSize]="fontSizeSmall ? '0.6em' : '0.9em'">
+                                    {{(item.title ? item.title : item.titleFunc()) | translate}}
+                                </ion-text>
+                            </ion-label>
+                        </ion-item>
+                    </ion-col>
+                </ng-container>
+            </ion-row>
+        </ion-grid>
+        <ion-item class="ion-no-padding" lines='none' *ngIf="!hideSearch ||filterObjectKeys && filterObjectKeys.length">
+            <ion-searchbar debounce="700" *ngIf="!hideSearch" (ionClear)='clearSearch()' (ionChange)='search()'
+                placeholder="{{tableKebab + '.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+            <ion-button slot='end' fill='clear' (click)='showFilter()'
+                *ngIf='filterObjectKeys && filterObjectKeys.length'>
+                <ion-icon slot='icon-only' name="funnel-outline"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='isShowFilter && filterObjectKeys && filterObjectKeys.length' class="ion-no-padding"
+            lines='none'>
+            <ion-grid>
+                <ion-row>
+                    <ng-container *ngFor="let filterObjectKey of filterObjectKeys">
+                        <ion-col>
+                            <ion-text color='primary'>{{tableKebab + '.filter-' + filterObjectKey | translate
+                                }}</ion-text>
+                            <br>
+                            <ion-button ion-text color='dark' (click)='showSearchFilter(filterObjectKey)'
+                                *ngIf="filterObjects[filterObjectKey].value && filterObjects[filterObjectKey].value.id > 0">
+                                {{filterObjects[filterObjectKey].value[filterObjects[filterObjectKey].field]}}
+                            </ion-button>
+                            <ion-button size='small' (click)='showSearchFilter(filterObjectKey)'
+                                *ngIf="!filterObjects[filterObjectKey].value || filterObjects[filterObjectKey].value.id === 0">
+                                {{tableKebab + '.select-filter-' + filterObjectKey | translate}}
+                            </ion-button>
+                            <ion-button size='small'
+                                *ngIf="filterObjects[filterObjectKey].value && filterObjects[filterObjectKey].value.id > 0"
+                                fill='clear' (click)='removeSearchFilter(filterObjectKey)'>
+                                <ion-icon slot='icon-only' name="close"></ion-icon>
+                            </ion-button>
+                        </ion-col>
+                    </ng-container>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+        <ion-segment [(ngModel)]="segmentValue" (ngModelChange)='filter()'
+            *ngIf="segmentValueKeys && segmentValueKeys.length">
+            <ng-container *ngFor="let key of segmentValueKeys">
+                <ion-segment-button [value]="key">
+                    <ion-icon *ngIf="segmentValuesConverted[key]['icon']" [name]="segmentValuesConverted[key]['icon']"></ion-icon>
+                    {{tableKebab + '.filter-' + key | translate}}
+                </ion-segment-button>
+            </ng-container>
+        </ion-segment>
+    </div>
+    <ion-grid>
+        <ion-row style='border-bottom: 1px solid #ccc'>
+            <ion-col [size]='isShowPaging && objects && objects.length ? 8 : 12'>
+                <ion-item class='ion-text-wrap ion-no-padding' lines='none' style="font-size: 0.8em;">
+                    {{'common.total' | translate}}: {{objects && objects.length ? objects.length : 0}}
+                    {{tableKebab + '.' + tableKebab + '(s)' | translate}}
+                </ion-item>
+            </ion-col>
+            <ion-col size='4' class="ion-text-right" *ngIf='isShowPaging && objects && objects.length'>
+                <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                    1}}
+                </ion-label>
+                <br>
+                <ion-buttons class="ion-float-right">
+                    <ion-button fill='solid' (click)='previousPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                    </ion-button>
+                    <ion-button fill='solid' (click)='nextPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list>
+        <ion-item-sliding *ngFor="let object of objects | slice:start:(end+1); let i = index">
+            <ion-item (click)='select(object, $event)'>
+                <ng-container *ngIf="!searchMode && itemTemplate.reorderButtons">
+                    <ion-button [disabled]='i === 0' size='small' fill='clear' (click)='$event.stopPropagation(); itemTemplate.reorderButtons.upFunc(i, object, objects)'
+                        style="--padding-end: 0; --padding-start: 0;">
+                        <ion-icon name="caret-up"></ion-icon>
+                    </ion-button>
+                    <ion-button [disabled]='i === (objects.length - 1)' size='small' fill='clear' (click)='$event.stopPropagation(); itemTemplate.reorderButtons.downFunc(i, object, objects)'
+                        style="--padding-end: 10px; --padding-start: 0;">
+                        <ion-icon name="caret-down"></ion-icon>
+                    </ion-button>
+                </ng-container>
+                <ion-label class='ion-text-wrap' color="primary">
+                    <h1 *ngIf="itemTemplate.h1">
+                        {{itemTemplate.h1.valueFunc ? func(itemTemplate.h1.valueFunc)(object) : value(object, itemTemplate.h1.field)}}
+                    </h1>
+                    <h2 *ngIf="itemTemplate.h2">
+                        {{itemTemplate.h2.valueFunc ? func(itemTemplate.h2.valueFunc)(object) : value(object, itemTemplate.h2.field)}}
+                    </h2>
+                    <ng-container *ngFor="let p of itemTemplate.pList">
+                        <p *ngIf="p.field && (!p.segmentValue || segmentValue === p.segmentValue)"
+                            [style]="p.style ? p.style : ''">
+                            <ion-icon *ngIf='p.icon'
+                                [name]="p.icon.name ? p.icon.name : (p.icon.nameFunc ? p.icon.nameFunc(object) : '')"
+                                [slot]='p.icon.slot'></ion-icon>
+                            {{p.valueFunc ? func(p.valueFunc)(object) : value(object, p.field)}}
+                        </p>
+                        <p *ngIf="p.short && value(object, p.short)">
+                            <ion-icon *ngIf='p.icon'
+                                [name]="p.icon.name ? p.icon.name : (p.icon.nameFunc ? p.icon.nameFunc(object) : '')"
+                                [slot]='p.icon.slot'></ion-icon>
+                            {{tableKebab + '.' + p.short | translate}}: {{p.valueFunc ? func(p.valueFunc)(object) : value(object, p.short)}}
+                        </p>
+                        <p *ngIf="p.bold && value(object, p.bold)" style="font-weight: bold">
+                            {{p.valueFunc ? func(p.valueFunc)(object) : value(object, p.bold)}}
+                        </p>
+                    </ng-container>
+                </ion-label>
+                <ion-thumbnail slot='end' *ngIf="itemTemplate.thumbnail && valueOf(object, itemTemplate.thumbnail)">
+                    <img [src]="valueOf(object, itemTemplate.thumbnail)">
+                </ion-thumbnail>
+                <ion-avatar slot='end' *ngIf="object.avatarUrl">
+                    <img [src]="avatar(object)" />
+                </ion-avatar>
+                <ion-toggle *ngIf="!searchMode && itemTemplate.toggleAction" slot='end'
+                    [(ngModel)]="object[kebabToCamel(itemTemplate.toggleAction.field)]"
+                    (click)="$event.stopPropagation()"
+                    (ionChange)="itemTemplate.toggleAction.func(object, $event, objects, originalObjects)"></ion-toggle>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option (click)='edit(object)' *ngIf="canEditItem">
+                    <ion-icon name="pencil" slot="icon-only"></ion-icon>
+                </ion-item-option>
+                <ion-item-option color="tertiary" (click)='text(object)' *ngIf="callable">
+                    <ion-icon slot="start" name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call(object)' *ngIf="callable">
+                    <ion-icon slot="start" name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+                <ion-item-option *ngIf="canDeleteItem || presentItemActionKeys && presentItemActionKeys.length"
+                    color="primary" (click)='presentItemActionSheet(object)'>
+                    <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item class='ion-text-wrap' *ngIf="!originalObjects || originalObjects.length===0">
+            <div [innerHTML]="tableKebab + '.no-' + tableKebab | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-item *ngIf='isShowPaging && objects && objects.length' class="ion-no-padding" lines='none'>
+        <ion-label slot='end' class="ion-text-right">{{'common.page' | translate}} {{currentPage +
+            1}}
+        </ion-label>
+        <ion-buttons slot="end" class="ion-float-right">
+            <ion-button fill='solid' (click)='previousPage()' size='small'>
+                <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+            </ion-button>
+            <ion-button fill='solid' (click)='nextPage()' size='small'>
+                <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="center" slot="fixed">
+        <ion-fab-button (click)='openAdd()'>
+            <ion-icon [name]="iconAdd"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ng-template>

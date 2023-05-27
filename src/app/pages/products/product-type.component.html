@@ -1,0 +1,114 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-label class='ion-text-start' style="font-weight: bold">
+            {{'product-type.title' | translate}}
+        </ion-label>
+        <ion-buttons slot='end'>
+            <ion-button size="large" color="primary" (click)='openProductTypeAdd()'
+                [hidden]='!staffService.canAddUpdateProduct()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+            <ion-button size="large" color="primary" (click)='copy()'>
+                <ion-icon name="copy"></ion-icon>
+            </ion-button>
+            <ion-button size="large" color="primary" (click)='save()' *ngIf='productId === 0'>
+                <ion-icon name="checkmark"></ion-icon>&nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item *ngIf='product'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap; font-weight: bold'>{{productName(product.code,
+                    product.title)}}</span>
+                <br>
+                <ion-text>
+                    <ion-icon name="pricetag"></ion-icon>
+                    &nbsp;{{'product-detail.product-unit-price' | translate}}:
+                    {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </ion-text>
+                <span> - {{'product-detail.product-quantity' | translate}}: {{product.count}} {{product.unit}}</span>
+                <span *ngIf='product.expiredAt'>
+                    <br>
+                    <ion-text>
+                        <ion-icon name="calendar"></ion-icon>
+                        &nbsp;{{'product-add.expired-date' | translate}}:
+                        {{dateFormat(product.expiredAt)}}
+                    </ion-text>
+                </span>
+            </ion-label>
+        </ion-item>
+        <ng-container *ngFor="let type of productTypes; let i = index">
+            <ion-item text-wrap color='light'>
+                <ion-button [disabled]='i === 0' size='small' fill='clear' (click)='up(type, i)' style="--padding-end: 0; --padding-start: 0;">
+                    <ion-icon name="caret-up"></ion-icon>
+                </ion-button>
+                <ion-button [disabled]='i === (productTypes.length - 1)' size='small' fill='clear' (click)='down(type, i)' style="--padding-end: 10px; --padding-start: 0;">
+                    <ion-icon name="caret-down"></ion-icon>
+                </ion-button>
+                <ion-label (click)='selectProductType(type)'>
+                    <span style='white-space: pre-wrap;'><strong>{{type.title}}</strong></span>
+                    <p *ngIf='type.multiChoice'>
+                        <ion-text color='primary'>{{'product-type.allow-multi-choice' |
+                            translate}}</ion-text>
+                    </p>
+                </ion-label>
+                <ion-buttons slot='end' [hidden]='!staffService.canAddUpdateProduct()'>
+                    <ion-button size="large" color="primary" (click)='addTypeValue(type)'>
+                        <ion-icon name="add"></ion-icon>
+                    </ion-button>
+                    <ion-button size="large" color="primary" (click)='selectProductType(type)'>
+                        <ion-icon name="create-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button size="large" color="danger" (click)='removeProductType(type, i)'>
+                        <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item text-wrap *ngFor='let value of type.values; let j = index'>
+                <ion-button [disabled]='j === 0' size='small' fill='clear' (click)='upValue(value, i, j)' style="--padding-end: 0; --padding-start: 0;">
+                    <ion-icon name="caret-up"></ion-icon>
+                </ion-button>
+                <ion-button [disabled]='j === (type.values.length - 1)' size='small' fill='clear' (click)='downValue(value, i, j)' style="--padding-end: 10px; --padding-start: 0;">
+                    <ion-icon name="caret-down"></ion-icon>
+                </ion-button>
+                <ion-label (click)='selectProductTypeValue(value, type.id)'>
+                    <span style='white-space: pre-wrap;'>{{value.title}}
+                        <ion-text *ngIf='value.price && value.isAddedToPrice' color='primary'>: +{{value.price |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                        <ion-text *ngIf='value.price && !value.isAddedToPrice' color='primary'>: {{value.price |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    </span>
+                </ion-label>
+                <ion-buttons slot='end' [hidden]='!staffService.canAddUpdateProduct()'>
+                    <ion-button size="large" color="primary" (click)='selectProductTypeValue(value, type.id)'>
+                        <ion-icon name="create-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button size="large" color="danger" (click)='removeProductTypeValue(value, i)'>
+                        <ion-icon name="close-outline"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item text-wrap *ngIf="!type.values || type.values.length===0">
+                <div [innerHTML]="'product-type.no-product-type-value' | translate">
+                </div>
+            </ion-item>
+        </ng-container>
+        <ion-item text-wrap *ngIf="!originalProductTypes || originalProductTypes.length===0">
+            <div [innerHTML]="'product-type.no-product-type' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed" [hidden]='!staffService.canAddUpdateProduct()'>
+        <ion-fab-button (click)='openProductTypeAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

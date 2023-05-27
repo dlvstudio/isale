@@ -1,0 +1,178 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>
+            {{'date-range.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-segment [(ngModel)]='timeType' class="ion-no-padding">
+        <ion-segment-button value="month">
+            <ion-label class="ion-text-wrap">
+                {{'date-range.by-month' | translate}}
+            </ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="week">
+            <ion-label class="ion-text-wrap">
+                {{'date-range.by-week' | translate}}
+            </ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="quarter">
+            <ion-label class="ion-text-wrap">
+                {{'date-range.by-quarter' | translate}}
+            </ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="day">
+            <ion-label class="ion-text-wrap">
+                {{'date-range.by-day' | translate}}
+            </ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="custom">
+            <ion-label class="ion-text-wrap">
+                {{'date-range.custom' | translate}}
+            </ion-label>
+        </ion-segment-button>
+    </ion-segment>
+    <ion-list>
+        <ion-item [hidden]='timeType !== "month"'>
+            <ion-label class='ion-text-wrap'>
+                {{'date-range.by-month' | translate}} {{getMonth()}}
+            </ion-label>
+            <p slot='end'>
+                <ion-button ion-button outline icon-left (click)='previousMoment()'>
+                    <ion-icon name="arrow-back"></ion-icon>&nbsp; {{'date-range.previous-month' | translate}}
+                </ion-button>
+                <ion-button outline icon-right (click)='nextMoment()'>
+                    {{'date-range.next-month' | translate}}&nbsp; <ion-icon name="arrow-forward"></ion-icon>
+                </ion-button>
+                <ion-button ion-button outline icon-left (click)='setCurrentMoment()'>
+                    {{'date-range.current-month' | translate}}
+                </ion-button>
+            </p>
+        </ion-item>
+        <ion-item [hidden]='timeType !== "week"'>
+            <ion-label class='ion-text-wrap'>
+                {{'date-range.by-week' | translate}} {{getWeek()}}
+            </ion-label>
+            <p slot='end'>
+                <ion-button outline icon-left (click)='previousWeek()'>
+                    <ion-icon name="arrow-back"></ion-icon>&nbsp; {{'date-range.previous-week' | translate}}
+                </ion-button>
+                <ion-button outline icon-right (click)='nextWeek()'>
+                    {{'date-range.next-week' | translate}}&nbsp; <ion-icon name="arrow-forward"></ion-icon>
+                </ion-button>
+                <ion-button outline icon-left (click)='setCurrentWeek()'>
+                    {{'date-range.current-week' | translate}}
+                </ion-button>
+            </p>
+        </ion-item>
+        <ion-item [hidden]='timeType !== "quarter"'>
+            <ion-label class='ion-text-wrap'>
+                {{'date-range.by-quarter' | translate}} {{getQuarter()}}
+            </ion-label>
+            <p slot='end'>
+                <ion-button outline icon-left (click)='previousQuarter()'>
+                    <ion-icon name="arrow-back"></ion-icon>&nbsp; {{'date-range.previous-quarter' | translate}}
+                </ion-button>
+                <ion-button outline icon-right (click)='nextQuarter()'>
+                    {{'date-range.next-quarter' | translate}}&nbsp; <ion-icon name="arrow-forward"></ion-icon>
+                </ion-button>
+                <ion-button outline icon-left (click)='setCurrentQuarter()'>
+                    {{'date-range.current-quarter' | translate}}
+                </ion-button>
+            </p>
+        </ion-item>
+        <ion-item [hidden]='timeType !== "day"'>
+            <ion-label class='ion-text-wrap'>
+                {{'date-range.by-day' | translate}} {{getDay()}}
+            </ion-label>
+            <p slot='end'>
+                <ion-button outline icon-left (click)='previousDay()'>
+                    <ion-icon name="arrow-back"></ion-icon>&nbsp; {{'date-range.previous-day' | translate}}
+                </ion-button>
+                <ion-button outline icon-right (click)='nextDay()'>
+                    {{'date-range.next-day' | translate}}&nbsp; <ion-icon name="arrow-forward"></ion-icon>
+                </ion-button>
+                <ion-button outline icon-left (click)='setCurrentDay()'>
+                    {{'date-range.current-day' | translate}}
+                </ion-button>
+            </p>
+        </ion-item>
+        <ion-item [hidden]='timeType !== "custom"'>
+            <ion-label>{{'date-range.from-date' | translate}}</ion-label>
+            <date-picker [(date)]="dateFrom" *ngIf="dateFrom" pickerId="dateFromPicker">
+            </date-picker>
+            <ion-button size="small" (click)='showDateFromPopup()' *ngIf="!dateFrom">
+                {{'common.select-date' | translate}}
+            </ion-button>
+            <ion-button *ngIf="dateFrom" fill='outline' class='ion-text-right' (click)='removeDateFrom()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]='timeType !== "custom"'>
+            <ion-label>{{'date-range.to-date' | translate}}</ion-label>
+            <date-picker [(date)]="dateTo" *ngIf="dateTo" pickerId="dateToPicker">
+            </date-picker>
+            <ion-button size="small" (click)='showDateToPopup()' *ngIf="!dateTo">
+                {{'common.select-date' | translate}}
+            </ion-button>
+            <ion-button *ngIf="dateTo" fill='outline' class='ion-text-right' (click)='removeDateTo()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='page === "product" && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)'>
+            <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text>
+            <ion-button slot='end' ion-text color='dark' (click)='showSearchStaff()'
+                *ngIf="selectedStaff && selectedStaff.id > 0">
+                {{selectedStaff.name}}
+            </ion-button>
+            <ion-button slot='end' (click)='showSearchStaff()' *ngIf="!selectedStaff || selectedStaff.id == 0">
+                {{'order-add.select-collaborator' | translate}}
+            </ion-button>
+            <ion-button slot='end' *ngIf="selectedStaff && selectedStaff.id > 0" fill='clear' (click)='removeStaff()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='page === "order" && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)'>
+            <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text>
+            <ion-button slot='end' ion-text color='dark' (click)='showSearchStaff()'
+                *ngIf="selectedStaff && selectedStaff.id > 0">
+                {{selectedStaff.name}}
+            </ion-button>
+            <ion-button slot='end' (click)='showSearchStaff()' *ngIf="!selectedStaff || selectedStaff.id == 0">
+                {{'order-add.select-collaborator' | translate}}
+            </ion-button>
+            <ion-button slot='end' *ngIf="selectedStaff && selectedStaff.id > 0" fill='clear' (click)='removeStaff()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='page === "order" && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)'>
+            <ion-text color='primary'>{{'staff-add.store' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchStore()' *ngIf="storeSelected && storeSelected.id > 0">
+                {{storeSelected.name}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchStore()' *ngIf="!storeSelected || storeSelected.id == 0">
+                {{'staff-add.select-store' | translate}}
+            </ion-text>
+            <ion-button *ngIf="storeSelected && storeSelected.id > 0" fill='outline' slot='end' (click)='removeStore()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+    </ion-list>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand="full" color="primary" (click)='ok()'>{{'date-range.ok' | translate}}</ion-button>
+            </ion-col>
+            <ion-col [hidden]='timeType !== "custom"'>
+                <ion-button expand="full" color="secondary" (click)='remove()'>{{'date-range.clear-date' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

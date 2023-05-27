@@ -1,0 +1,153 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'transfer-note.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='importNote()'>
+                    <fa-icon icon="file-excel" size="lg"></fa-icon>&nbsp;
+                    {{'transfer-note.import-note-from-excel' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(0)'>
+                    <ion-icon slot='start' name="document"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-summary' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(1)'>
+                    <ion-icon slot='start' name="newspaper"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-detail' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'transfer-note.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <period-range (onPeriodChanged)="onPeriodChanged($event)"></period-range>
+    <ion-list>
+        <ng-container *ngIf='isMobile'>
+            <transfer-note-list-item *ngFor="let note of notes" [note]='note' [currency]='currency'
+                (onPress)="presentActionSheet(note)" (onClick)='select(note.id)' [showContact]='true'>
+            </transfer-note-list-item>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && notes && notes.length'>
+            <ion-row>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.code' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.export-store' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.import-store' | translate}}</strong>
+                </ion-col>
+                <ion-col size='4'>
+                    <strong>{{'transfer-note-add.product' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.delivery-person' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.transportation' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.receiver' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note-add.delivery-address' | translate}}</strong>
+                </ion-col>
+                <ion-col size='1'>
+                    <strong>{{'transfer-note.created-at' | translate}}</strong>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let note of notes; let i = index" style='border-bottom: 1px solid #ccc;'
+                [style.cursor]="'pointer'" (press)="presentActionSheet(note)" (click)='select(note.id)'>
+                <ion-col size='1'>#{{note.id}}</ion-col>
+                <ion-col size='1'>
+                    <ion-text *ngIf="note.importStore && note.importStore.id > 0">
+                        {{note.importStore.name}}
+                    </ion-text>
+                </ion-col> 
+                <ion-col size='1'>
+                    <ion-text *ngIf="note.exportStore && note.exportStore.id > 0">
+                        {{note.exportStore.name}}
+                    </ion-text>
+                </ion-col>
+                <ion-col size='4'>
+                    <ion-label *ngFor="let item of note.items| slice:0:2; let i = index">
+                        <ion-text>
+                            <span *ngIf='item.productCode'>{{i + 1}}. {{item.productCode}}-</span>{{item.productName}}
+                            <span style='font-size: 0.9em;'>
+                                <br>
+                                {{'transfer-note-add.product-export-count' | translate}}: {{item.actualExport}} -
+                                {{'transfer-note-add.product-import-count' | translate}}: {{item.actualImport}} -
+                                {{'transfer-note-add.product-unit' | translate}}: {{item.unit}}
+                                <br>
+                                {{'transfer-note-add.product-unit-price' | translate}}: {{item.unitPrice |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}} - {{'transfer-note-add.product-total' |
+                                translate}}:
+                                {{item.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </span>
+                        </ion-text>
+                        <p *ngIf='item["note"]'>{{item["note"]}}</p>
+                        <br>
+                    </ion-label>
+                    <span *ngIf='note.items.length >= 3'>
+                        <ion-text style="font-size: 12px;">...</ion-text>
+                    </span>
+                </ion-col>
+                <ion-col size='1'>
+                    {{note.deliverer}}
+                </ion-col>
+                <ion-col size='1'>
+                    {{note.transportation}}
+                </ion-col>
+                <ion-col size='1'>
+                    {{note.receiver}}
+                </ion-col>
+                <ion-col size='1'>
+                    {{note.deliveryAddress}}
+                </ion-col>
+                <ion-col size='1'>
+                    {{dateFormat(note.createdAt)}}
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item class='ion-text-wrap' *ngIf="!originalNotes || originalNotes.length===0">
+            <div [innerHTML]="'transfer-note.no-transfer-note' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

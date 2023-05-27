@@ -1,0 +1,44 @@
+<ng-template #template>
+    <ion-header>
+        <ion-toolbar>
+            <ion-buttons slot="start">
+                <ion-back-button *ngIf="backOnly && !searchMode" defaultHref="/home"></ion-back-button>
+                <ion-button *ngIf="searchMode" (click)="dismiss()">
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+                <ion-menu-button *ngIf="!searchMode && !backOnly" menu="first"></ion-menu-button>
+                <ion-button *ngIf="!searchMode && !backOnly" color="primary" (click)='navCtrl.home()'>
+                    <ion-icon name="home"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-title>{{tableKebab + '.title' | translate}}</ion-title>
+            <ion-buttons slot="end">
+                <ion-button (click)='openAdd()' color="primary">
+                    <ion-icon [name]="iconAdd"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+        <div list-only #listOnlyComponent
+        [presentItemActions]="presentItemActions"
+        [orderBy] = "orderBy"
+        [table]="table"
+        [iconAdd]="iconAdd"
+        [isQuickAdd]="isQuickAdd"
+        [callable]="callable"
+        [segmentValues]="segmentValues"
+        [itemTemplate]="itemTemplate"
+        [searchFields]="searchFields"
+        [defaultSegmentValue]="defaultSegmentValue"
+        [canEditItem]="canEditItem"
+        [filterObjects]="filterObjects"
+        [actions]="actions"
+        [canDeleteItem]="canDeleteItem"
+        [noDetail]="noDetail"
+        [deleteRelated]="deleteRelated"
+        [fetchObjectsFunc] = "fetchObjectsFunc"
+        (scrollToTop)="scrollToTop()"
+        ></div>
+    </ion-content>
+</ng-template>

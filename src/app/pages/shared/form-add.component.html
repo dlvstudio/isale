@@ -1,0 +1,92 @@
+<ng-template #template>
+    <ion-header>
+        <ion-toolbar>
+            <ion-buttons slot='start'>
+                <ion-button ion-button (click)="dismiss()">
+                    <ion-icon name="close"></ion-icon>
+                    &nbsp;{{'common.cancel' | translate}}
+                </ion-button>
+            </ion-buttons>
+            <ion-title>{{tableKebab + '.title-add' | translate}}</ion-title>
+            <ion-buttons slot='end'>
+                <ion-button color="primary" (click)='save()'>
+                    <ion-icon name="checkmark"></ion-icon>
+                    &nbsp;{{'action.save' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+        <ion-grid>
+            <ion-row>
+                <ion-col *ngFor="let field of fieldsList" size-xs="12" size-sm="12" size-md="6" size-lg="4">
+                    <ion-item *ngIf="!checkFieldInstruction(field, 'type', 'image') && !checkFieldInstruction(field, 'type', 'date')" class="ion-no-padding">
+                        <ion-label position='stacked' color='primary'>{{tableKebab + '.'
+                            + camelToKebab(field === 'title' ?
+                            'title-field' : field) |
+                            translate}}</ion-label>
+                        <ion-toggle slot="end" *ngIf="checkFieldInstruction(field, 'type', 'toggle')"
+                            [(ngModel)]='object[field]' (ngModelChange)="onChange(field)"></ion-toggle>
+                        <ion-select *ngIf="checkFieldInstruction(field, 'type', 'gender')" [(ngModel)]='object[field]'
+                            (ngModelChange)="onChange(field)">
+                            <ion-select-option value="">
+                                {{'contact-add.gender-na' | translate}}
+                            </ion-select-option>
+                            <ion-select-option value="male">
+                                {{'contact-add.gender-male' |translate}}
+                            </ion-select-option>
+                            <ion-select-option value="female">
+                                {{'contact-add.gender-female' | translate}}
+                            </ion-select-option>
+                        </ion-select>
+                        <money-input *ngIf="checkFieldInstruction(field, 'type', 'money')" [clear]=true
+                            [placeholder]='"common.enter-value" | translate' [(moneyValue)]='object[field]'
+                            (moneyValueChange)="onChange(field)"></money-input>
+                        <ion-input
+                            *ngIf="!hasFieldInstruction(field, 'lookup') && !checkFieldInstruction(field, 'type', 'toggle') && !checkFieldInstruction(field, 'type', 'money') && !checkFieldInstruction(field, 'type', 'gender')"
+                            [disabled]="hasFieldInstruction(field, 'disabled')" clearInput
+                            [type]="fieldInstructions && fieldInstructions[field] && fieldInstructions[field].type ? fieldInstructions[field].type : 'text'"
+                            [placeholder]='"common.enter-value" | translate' [(ngModel)]='object[field]'
+                            (ngModelChange)="onChange(field)"></ion-input>
+                        <ion-buttons *ngIf="hasFieldInstruction(field, 'lookup')">
+                            <ion-button color='dark' (click)='showLookup(field)'
+                                *ngIf="fieldInstructions[field].lookupObject && fieldInstructions[field].lookupObject.id > 0"
+                                size='small'>
+                                {{fieldInstructions[field].lookupObject[fieldInstructions[field].lookupField]}}
+                            </ion-button>
+                            <ion-button color='dark' (click)='showLookup(field)'
+                                *ngIf="!fieldInstructions || !fieldInstructions[field].lookupObject || fieldInstructions[field].lookupObject.id === 0"
+                                size='small'>
+                                {{tableKebab + '.select-' + camelToKebab(field) | translate}}
+                            </ion-button>
+                            <ion-button
+                                *ngIf="fieldInstructions[field].lookupObject && fieldInstructions[field].lookupObject.id > 0"
+                                (click)='removeLookup(field)' size='small'>
+                                <ion-icon slot='icon-only' name="close"></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                    <ion-item *ngIf="checkFieldInstruction(field, 'type', 'date')" class="ion-no-padding">
+                        <ion-label position='stacked' color='primary'>{{tableKebab + '.'
+                            + camelToKebab(field === 'title' ?
+                            'title-field' : field) |
+                            translate}}</ion-label>
+                        <date-picker slot='end' *ngIf="object[field]" [(date)]="object[field]"
+                            pickerId="contactBdPicker">
+                        </date-picker>
+                        <ion-text slot='end' (click)='showDatePopup(field)' *ngIf="!object[field]">
+                            {{'common.select-date' | translate}}
+                        </ion-text>
+                        <ion-button *ngIf="object[field]" fill='outline' slot='end' (click)='removeDate(field)'>
+                            <ion-icon slot='icon-only' name="close"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                    <form-image *ngIf="checkFieldInstruction(field, 'type', 'image')" [table]="table"
+                        [fieldInstructions]="fieldInstructions" [field]="field" [object]="object"
+                        [fieldsList]="fieldsList">
+                    </form-image>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-content>
+</ng-template>

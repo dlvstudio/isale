@@ -1,0 +1,142 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'staff-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item-sliding>
+            <ion-item>
+                <ion-avatar slot='start'>
+                    <img [src]="staffImageOrPlaceholder()">
+                </ion-avatar>
+                <ion-label>
+                    <h2><b>{{staff.name}}</b></h2>
+                    <p>{{staff.userName}}</p>
+                    <p *ngIf='staff.store'>{{'staff-add.store' | translate}}: {{staff.store.name}}</p>
+                    <p *ngIf='staff.shift'>{{'staff-add.shift' | translate}}: {{staff.shift.name}}</p>
+                </ion-label>
+                <ion-label slot="end" *ngIf="!staff.shiftId">
+                    <ion-button color="primary" (click)='edit()' size="small">
+                        {{'staff-add.add-shift' | translate}}&nbsp;
+                        <ion-icon name="time"></ion-icon>
+                    </ion-button>
+                </ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option color="primary" (click)='text()'>
+                    <ion-icon name="text"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call()'>
+                    <ion-icon name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+    </ion-list>
+    <ion-segment [(ngModel)]="tab" [scrollable]='true' class="ion-text-wrap">
+        <ion-segment-button value="order" class="ion-text-wrap">
+            {{'contact-detail.order' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="trade" class="ion-text-wrap">
+            {{'contact-detail.trade' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="permissions" class="ion-text-wrap">
+            {{'staff-detail.permissions' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="prices" class="ion-text-wrap">
+            {{'staff-detail.prices' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="discounts" class="ion-text-wrap">
+            {{'contact.discounts' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-list *ngIf='tab==="trade"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span  *ngIf="dateFrom != '' || dateTo != ''">
+                {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}} {{dateFormat(dateTo)}}
+                <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp; 
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}} {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [trade]='trade' [currency]='currency' (onClick)='selectTrade(trade.id)'></trade-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="order"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span  *ngIf="dateOrderFrom != '' || dateOrderTo != ''">
+                {{'common.from' | translate}} {{dateFormat(dateOrderFrom)}} {{'common.to' | translate}} {{dateFormat(dateOrderTo)}}
+                <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp; 
+                <ion-text color="{{orderTotal >=0 ? 'secondary': 'danger'}}">{{orderTotal >=0 ? '+': ''}} {{orderTotal | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForOrder()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <order-list-item *ngFor="let order of orders" [showContact]='false' [order]='order' [currency]='currency' (onClick)='selectOrder(order.id)'></order-list-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="permissions" && allStaffPermissions'>
+        <ng-container *ngFor="let permissionKey of permissionKeys">
+            <ion-item *ngIf="!allStaffPermissions[permissionKey][1] || staff[staffPermissionProps[allStaffPermissions[permissionKey][1]]]">
+                <ion-label class='ion-text-wrap'>{{'staff-add.' + permissionKey | translate}}</ion-label>
+                <ion-toggle *ngIf="typeOfPermissions[permissionKey] === 'boolean'" [(ngModel)]='staff[staffPermissionProps[permissionKey]]' (ngModelChange)="autoSave()"></ion-toggle>
+                <ion-input *ngIf="typeOfPermissions[permissionKey] === 'number'" type='number' [(ngModel)]='staff[staffPermissionProps[permissionKey]]' class="ion-text-right" (ionBlur)="autoSave()"></ion-input>
+            </ion-item>
+        </ng-container>
+    </ion-list>
+    <ion-list *ngIf='tab==="prices"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerPrices && customerPrices.length ? customerPrices.length : 0}}
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addPrice()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-price-item *ngFor="let customerPrice of customerPrices" [showContact]='true' [showProduct]='true'
+            [customerPrice]='customerPrice' [currency]='currency' (onClick)='selectCustomerPrice(customerPrice.id)'>
+        </customer-price-item>
+        <div class="ion-padding" *ngIf='!customerPrices || !customerPrices.length'>{{'contact-detail.no-prices' |
+            translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="discounts"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerDiscounts && customerDiscounts.length ? customerDiscounts.length :
+                    0}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addDiscount()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-discount-item *ngFor="let customerDiscount of customerDiscounts" [showContact]='false' [showStaff]='false'
+            [showProduct]='true' [customerDiscount]='customerDiscount' [currency]='currency'
+            (onClick)='selectCustomerDiscount(customerDiscount.id)'></customer-discount-item>
+        <div class="ion-padding" *ngIf='!customerDiscounts || !customerDiscounts.length'>{{'contact-detail.no-discounts'
+            | translate}}</div>
+    </ion-list>
+</ion-content>

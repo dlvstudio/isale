@@ -1,0 +1,248 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'quote-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='printQuote()'>
+                <ion-icon name="print"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-grid>
+            <ion-row>
+                <ion-col size-xs='6' size-sm='6' size-md='3'>
+                    <ion-text color='primary'>{{'quote-add.name' | translate}}:</ion-text><br>
+                    <ion-text style='margin-top: 5px;'>{{quote.name}}</ion-text>
+                </ion-col>
+                <ion-col size-xs='6' size-sm='6' size-md='3'>
+                    <ion-text color='primary'>{{'quote-add.quote-date' | translate}}:</ion-text><br>
+                    <ion-text>{{dateFormat(quote.createdAt)}}</ion-text>
+                </ion-col>
+                <ion-col *ngIf='quote && quote.staff' size-xs='6' size-sm='6' size-md='3'>
+                    <ion-text color='primary'>{{'trade.staff' | translate}}</ion-text><br>
+                    <ion-text>{{quote.staff.name}}</ion-text>
+                </ion-col>
+                <ion-col size-xs='6' size-sm='6' size-md='3'>
+                    <ion-button expand='full' (click)='createOrder()'>
+                        <ion-icon name='cart'></ion-icon>&nbsp;{{'quote-detail.create-order' | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col size-xs='12' size-sm='12' size-md='6'>
+                    <ion-buttons>
+                        <ion-text color="primary">{{'quote-detail.for-print' | translate}}:</ion-text> &nbsp;
+                        <ion-text>{{'quote-detail.show-des' | translate}}</ion-text> 
+                        <ion-toggle [(ngModel)]="showDes" [enableOnOffLabels]="true" (ngModelChange)="quoteShowField('Des')"></ion-toggle>
+                        <ion-text>{{'quote-detail.show-image' | translate}}</ion-text> 
+                        <ion-toggle [(ngModel)]="showImage" [enableOnOffLabels]="true" (ngModelChange)="quoteShowField('Image')"></ion-toggle>
+                    </ion-buttons>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item-divider color="light"
+            *ngIf='(quote.contactId !== 0 || quote.contactName || quote.contactPhone || quote.contactAddress)'>
+            {{'quote-add.contact-info' | translate}}
+        </ion-item-divider>
+        <ion-item-sliding *ngIf='quote.contactId !== 0 && quote.contact'>
+            <ion-item lines='none'>
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder()">
+                </ion-avatar>
+                <ion-label>
+                    <h2><b>{{quote.contact.fullName}}</b></h2>
+                    <p>{{quote.contact.mobile}}</p>
+                    <p *ngIf='quote.contact.address'>{{quote.contact.address}}</p>
+                </ion-label>
+                <ion-icon name="copy" (click)="copy(quote.contact.fullName + (quote.contact.mobile ? '\n' + quote.contact.mobile : '') + (quote.contact.address ? '\n' + quote.contact.address : ''))"></ion-icon>
+            </ion-item>
+            <ion-item-options size="end">
+                <ion-item-option color="primary" (click)='text()'>
+                    <ion-icon slot="start" name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call()'>
+                    <ion-icon slot="start" name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item lines='none'
+            *ngIf='(quote.contactName || quote.contactPhone || quote.contactAddress) && quote.contactId === 0'>
+            <ion-label>
+                <h2 *ngIf='quote.contactName'><b>{{quote.contactName}}</b></h2>
+                <p *ngIf='quote.contactPhone'>{{quote.contactPhone}}</p>
+                <p *ngIf='quote.contactAddress'>{{quote.contactAddress}}</p>
+            </ion-label>
+            <ion-icon name="copy" (click)="copy(quote.contactName + (quote.contactPhone ? '\n' + quote.contactPhone : '') + (quote.contactAddress ? '\n' + quote.contactAddress : ''))"></ion-icon>
+        </ion-item>
+    </ion-list>
+    <ion-item-divider color="light">
+        {{'quote-add.product' | translate}}
+    </ion-item-divider>
+    <ion-list [hidden]='!quote.items || quote.items.length === 0'>
+        <ion-item *ngFor="let item of quote.items; let i = index">
+            <ion-text class='ion-text-wrap' style='padding-top: 8px; padding-bottom: 8px;'>
+                {{i+1}}. {{productName(item.productCode, item.productName)}} |
+                {{item.count}}
+                {{item.unit}} &#215; {{(item.price + getOptionPrices(item)) |
+                currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                <p *ngIf='item.note' style='font-size: 0.8em;'>{{item.note}}</p>
+                <ion-text *ngIf='hasOptionsOrAttributes(item)' style='font-size: 0.8em;' [style.fontWeight]='"normal"'
+                    class="ion-text-wrap">
+                    <p style='padding: 0; margin: 0' *ngIf='item.typeAttributes && item.typeAttributes.length'>
+                        <ion-text [style.fontWeight]='"normal"'>
+                            {{getTypeAttributesString(item)}}
+                        </ion-text>
+                    </p>
+                    <ng-container *ngIf='item.attributes && item.attributes.length'>
+                        <p style='padding: 0; margin: 0'>
+                            <ion-text [style.fontWeight]='"normal"'>
+                                {{getAttributesString(item)}}
+                            </ion-text>
+                        </p>
+                    </ng-container>
+                    <ng-container *ngFor='let op of item.typeOptions'>
+                        <p style='padding: 0; margin: 0'>
+                            <ion-text>
+                                <strong>{{op.title}}</strong>
+                            </ion-text>
+                        </p>
+                        <ng-container *ngFor='let val of op.values; let j = index'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text [style.fontWeight]='"normal"'>
+                                    {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215; {{val.price |
+                                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span> | <span
+                                        *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                </ion-text>
+                            </p>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf='item.options && item.options.length'>
+                        <p style='padding: 0; margin: 0'>
+                            <strong>{{'quote-add.added-products' | translate}}</strong>
+                        </p>
+                        <p *ngFor='let option of item.options' style='padding: 0; margin: 0'>
+                            {{productName(option.code, option.title)}}
+                            |
+                            {{option.count}}
+                            {{option.unit}} &#215; {{option.price |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}} | +{{option.total |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                        </p>
+                    </ng-container>
+                </ion-text>
+                <ng-container *ngIf='item.items && item.items.length'>
+                    <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                        <strong>{{'quote-add.combo-products' | translate}}</strong>
+                    </p>
+                    <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                        {{productName(option.productCode, option.productName)}}
+                        |
+                        {{option.count}}
+                        {{option.unit}} &#215; {{option.price |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                    </p>
+                </ng-container>
+            </ion-text>
+            <ion-thumbnail slot='end' *ngIf="item.productAvatar">
+                <img [src]="item.productAvatar">
+            </ion-thumbnail>
+            <ion-text slot='end' class='ion-text-wrap ion-text-right'>+{{item.total |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}<span style='font-size: 0.75em'
+                    *ngIf='item.discount'><br>{{'quote-add.product-discount-short' | translate}}: -{{item.discount |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span></ion-text>
+        </ion-item>
+        <ion-item>
+            <ion-text class='ion-text-wrap' style='padding-top: 8px; padding-bottom: 8px;'>
+                {{'quote-detail.total-quantity' | translate}}
+            </ion-text>
+            <ion-text slot='end' class='ion-text-wrap ion-text-right'>
+                {{totalProductsQuantity}}
+            </ion-text>
+        </ion-item>
+        <ion-item>
+            <ion-text class='ion-text-wrap' style='padding-top: 8px; padding-bottom: 8px;'>
+                <strong>{{'quote-detail.total-amount' | translate}}</strong>
+            </ion-text>
+            <ion-text slot='end' class='ion-text-wrap ion-text-right'>
+                {{totalProductsAmount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+            </ion-text>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-item-divider color="light" *ngIf='quote.note'>
+            {{'quote-add.note' | translate}}
+        </ion-item-divider>
+        <ion-item *ngIf='quote.note'>
+            <ion-text>{{quote.note}}</ion-text>
+        </ion-item>
+        <ion-item-divider color="light">
+            {{'quote-add.payment' | translate}}
+        </ion-item-divider>
+        <ion-item *ngIf='quote.discountOnTotal'>
+            <ion-text color='danger'>{{'quote-add.discount' | translate}}:</ion-text>
+            <span slot='end'>-{{quote.discountOnTotal |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'quote-add.net-value' | translate}}:</ion-text>
+            <span slot='end'>{{quote.netValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.amountFromPoint && quote.pointAmount'>
+            <ion-text color="secondary">
+                <b>{{'quote-add.pay-by-point' | translate}}:</b>
+            </ion-text>
+            <span slot='end'>-{{quote.amountFromPoint |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}} ({{quote.pointAmount}}
+                {{'point-add.point' | translate}})</span>
+        </ion-item>
+        <ion-item *ngIf='!hideTax'>
+            <ion-text color='primary'>{{'quote-add.tax' | translate}}:</ion-text>
+            <span slot='end'>+{{quote.tax | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.shippingFee'>
+            <ion-text color='primary'>{{'quote-add.shipping-fee' | translate}}:</ion-text>
+            <span slot='end'>+{{quote.shippingFee |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'><b>{{'quote-add.total' | translate}}:</b></ion-text>
+            <span slot='end'><b>{{quote.total |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</b></span>
+        </ion-item> 
+        <ion-item-divider color="light" *ngIf='quote.hasShipInfo'>
+            {{'quote-add.shipping' | translate}}
+        </ion-item-divider>
+        <ion-item *ngIf='quote.billOfLadingCode'>
+            <ion-text color='primary'>{{'quote-add.bill-of-lading-code' | translate}}:</ion-text>
+            <span slot='end'>{{quote.billOfLadingCode}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.shippingPartner'>
+            <ion-text color='primary'>{{'quote-add.shipping-partner' | translate}}:</ion-text>
+            <span slot='end'>{{quote.shippingPartner}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.shipperName'>
+            <ion-text color='primary'>{{'quote-add.shipper-name' | translate}}:</ion-text>
+            <span slot='end'>{{quote.shipperName}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.shipperPhone'>
+            <ion-text color='primary'>{{'quote-add.shipper-phone' | translate}}:</ion-text>
+            <span slot='end'>{{quote.shipperPhone}}</span>
+        </ion-item>
+        <ion-item *ngIf='quote.deliveryAddress'>
+            <ion-text color='primary'>{{'quote-add.delivery-address' | translate}}:</ion-text>
+            <span slot='end'>{{quote.deliveryAddress}}</span>
+        </ion-item>
+    </ion-list>
+</ion-content>

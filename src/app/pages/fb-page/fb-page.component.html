@@ -1,0 +1,198 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button *ngIf="searchMode" (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+            <ion-menu-button *ngIf="!searchMode" menu="first"></ion-menu-button>
+            <ion-button *ngIf="!searchMode" color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div *ngIf='!currentPlan && !isOnTrial'
+        style='padding: 10px; margin: 10px; background-color: #f0ad4e; color: white; border-radius: 10px;'>
+        <p style='margin: 5px 5px 5px 5px;'>{{'common.register-pro-alert' | translate}}</p>
+        <ion-button color="success" fill='solid' (click)='navCtrl.push("/request-pro")'>
+            <ion-icon name="gift" slot='start'></ion-icon>&nbsp;
+            {{'home.request-pro-plan' | translate}}
+        </ion-button>
+    </div>
+    <div *ngIf='!navCtrl.isNotCordova()'
+        style='padding: 10px; margin: 10px; background-color: #f0ad4e; color: white; border-radius: 10px;'>
+        <p style='margin: 5px 5px 5px 5px;'>{{'common.only-on-browser' | translate}}</p>
+        <ion-button color="success" fill='solid' (click)='openBrowser()'>
+            <ion-icon name="earth-outline" slot='start'></ion-icon>&nbsp;
+            {{'common.open-isale-browser' | translate}}
+        </ion-button>
+    </div>
+    <ion-grid *ngIf="!searchMode">
+        <ion-row>
+            <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                <ion-item lines='none' (click)='loginFacebook()'
+                    style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                    <ion-label class='ion-text-wrap ion-text-center'>
+                        <ion-icon name="logo-facebook" style=' color: #4267B2'
+                            [style.fontSize]="'35px'">
+                        </ion-icon>
+                        <br>
+                        <ion-text class='ion-text-wrap' [style.fontSize]="'0.9em'">
+                            {{'fb-page.title-connect' | translate}}</ion-text>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+            <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                <ion-item lines='none' (click)='autoReplyConfig()'
+                    style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                    <ion-label class='ion-text-wrap ion-text-center'>
+                        <ion-icon name="arrow-undo" style=' color: #f88962'
+                            [style.fontSize]="'35px'">
+                        </ion-icon>
+                        <br>
+                        <ion-text class='ion-text-wrap' [style.fontSize]="'0.9em'">
+                            {{'fb-page.reply-config' | translate}}</ion-text>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+            <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                <ion-item lines='none' (click)='openLiveStream()'
+                    style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                    <ion-label class='ion-text-wrap ion-text-center'>
+                        <ion-icon name="chatbubbles" color="success"
+                            [style.fontSize]="'35px'">
+                        </ion-icon>
+                        <br>
+                        <ion-text class='ion-text-wrap' [style.fontSize]="'0.9em'">
+                            {{'fb-page.live-stream-comments' | translate}}</ion-text>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+            <ion-col size-xs='3' size-sm='3' size-md='2' size-md='2'>
+                <ion-item lines='none' (click)='autoOrder()'
+                    style='border: 1px solid #bbb; border-radius: 10px; height: 105px; cursor: pointer; --padding-start: 3px;  --inner-padding-end: 0;'>
+                    <ion-label class='ion-text-wrap ion-text-center'>
+                        <ion-icon name="basket" color="tertiary"
+                            [style.fontSize]="'35px'">
+                        </ion-icon>
+                        <br>
+                        <ion-text class='ion-text-wrap' [style.fontSize]="'0.9em'">
+                            {{'fb-page.auto-order' | translate}}</ion-text>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-segment [(ngModel)]="tab" *ngIf="!searchMode">
+        <ion-segment-button value="page">
+            {{'fb-page.page' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="chat" class="ion-text-wrap" *ngIf="!searchMode">
+            <ion-text *ngIf="totalUnRead" color="danger" style="font-weight: bold">{{'fb-page.chat' | translate}}
+                ({{totalUnRead}})</ion-text>
+            <ion-text *ngIf="!totalUnRead">{{'fb-page.chat' | translate}}</ion-text>
+        </ion-segment-button>
+        <ion-segment-button value="comment" class="ion-text-wrap" *ngIf="!searchMode">
+            <ion-text *ngIf="totalUnReadComment" color="danger" style="font-weight: bold">{{'fb-page.comment' | translate}}
+                ({{totalUnReadComment}})</ion-text>
+            <ion-text *ngIf="!totalUnReadComment">{{'fb-page.comment' | translate}}</ion-text>
+        </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()' *ngIf="tab==='page'"
+        placeholder="{{'fb-page.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-list *ngIf="tab==='page'">
+        <ion-item *ngFor="let page of items" (click)='selectPage(page)'>
+            <ion-thumbnail>
+                <ion-img [src]="'http://graph.facebook.com/' + page.pageId + '/picture?type=square'"></ion-img>
+            </ion-thumbnail>
+            <ion-label class='ion-text-wrap' style="padding-left: 5px;">
+                <span style='white-space: pre-wrap; '>{{page.name}}</span>
+                <p>
+                    <ion-text color="secondary">{{'fb-page.page-id' | translate}}: {{page.pageId}}</ion-text>
+                </p>
+                <p>
+                    <ion-text *ngIf="page.isConnected" color="success">{{'fb-page.connected' | translate}}</ion-text>
+                    <ion-text *ngIf="!page.isConnected" color="dark">{{'fb-page.not-connected' |
+                        translate}}</ion-text>
+                </p>
+            </ion-label>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originals || originals.length===0">
+            <div [innerHTML]="'fb-page.no-connected-page' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-searchbar debounce="700" (ionClear)='clearSearchFlow()' (ionChange)='searchFlow()' *ngIf="tab==='chat' && !searchMode"
+        placeholder="{{'fb-page.search-flow' | translate}}" [(ngModel)]='flowSearchKey'></ion-searchbar>
+    <ion-list *ngIf="tab==='chat' && !searchMode">
+        <ion-item *ngFor="let flow of flows" (click)='selectFlow(flow)' [color]="flow.isRead ? 'light' : 'secondary'"
+            style="margin:8px; border-radius: 5px; border: 1px solid #ccc">
+            <ion-icon name="person" slot="start" *ngIf="flow.fromUser && !(flow.fromUserAvatarUrl)"></ion-icon>
+            <ion-avatar slot="start" *ngIf="flow.fromUser && (flow.fromUserAvatarUrl)">
+                <ion-img [src]="flow.fromUserAvatarUrl"></ion-img>
+            </ion-avatar>
+            <ion-avatar slot="start" *ngIf="!flow.fromUser">
+                <ion-img [src]="'https://graph.facebook.com/' + flow.pageId + '/picture?type=square'"></ion-img>
+            </ion-avatar>
+            <ion-label class='ion-text-wrap' style="padding-left: 5px;">
+                <span *ngIf="flow.fromUserName && flow.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{flow.fromUserName}}<br></span>
+                <span *ngIf="flow.pageName && !flow.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{flow.pageName}}<br></span>
+                <p *ngIf="flow.fromUserName && !flow.fromUser" style="font-size: 0.85em;">
+                    <i>{{'fb-page.replied' | translate}}: {{flow.fromUserName}}</i>
+                </p>
+                <span style='white-space: pre-wrap; '>{{flow.lastMessage}}</span>
+                <p style="font-size: 0.85em;">
+                    {{dateFormat(flow.lastTimestamp)}}
+                </p>
+            </ion-label>
+            <ion-avatar>
+                <ion-img [src]="'https://graph.facebook.com/' + flow.pageId + '/picture?type=square'"></ion-img>
+            </ion-avatar>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalFlows || originalFlows.length===0">
+            <div [innerHTML]="'fb-page.no-messages' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <ion-searchbar debounce="700" (ionClear)='clearSearchPost()' (ionChange)='searchPost()' *ngIf="tab==='comment' && !searchMode"
+        placeholder="{{'fb-page.search-post' | translate}}" [(ngModel)]='postSearchKey'></ion-searchbar>
+    <ion-list *ngIf="tab==='comment' && !searchMode">
+        <ion-item *ngFor="let post of posts" (click)='selectPost(post)' [color]="post.isRead ? 'light' : 'secondary'"
+            style="margin:8px; border-radius: 5px; border: 1px solid #ccc">
+            <ion-icon name="person" slot="start" *ngIf="post.lastFromUser && !(post.lastFromUserAvatarUrl)"></ion-icon>
+            <ion-avatar slot="start" *ngIf="post.lastFromUser && (post.lastFromUserAvatarUrl)">
+                <ion-img [src]="post.lastFromUserAvatarUrl"></ion-img>
+            </ion-avatar>
+            <ion-avatar slot="start" *ngIf="!post.fromUser">
+                <ion-img [src]="'https://graph.facebook.com/' + post.pageId + '/picture?type=square'"></ion-img>
+            </ion-avatar>
+            <ion-label class='ion-text-wrap' style="padding-left: 5px;">
+                <p>
+                    <i>{{'fb-page.post-id' | translate}}: {{post.postId}}</i>
+                </p>
+                <span *ngIf="post.lastFromUserName && post.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{post.lastFromUserName}}<br></span>
+                <span *ngIf="post.pageName && !post.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{post.pageName}}<br></span>
+                <p *ngIf="post.lastFromUserName && !post.fromUser" style="font-size: 0.85em;">
+                    <i>{{'fb-page.replied' | translate}}: {{post.lastFromUserName}}</i>
+                </p>
+                <span style='white-space: pre-wrap; '>{{post.lastComment}}</span>
+                <p style="font-size: 0.85em;">
+                    {{dateFormat(post.lastTimestamp)}}
+                </p>
+            </ion-label>
+            <ion-avatar>
+                <ion-img [src]="'https://graph.facebook.com/' + post.pageId + '/picture?type=square'"></ion-img>
+            </ion-avatar>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originalPosts || originalPosts.length===0">
+            <div [innerHTML]="'fb-page.no-posts' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

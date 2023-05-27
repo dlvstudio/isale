@@ -1,0 +1,66 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'chart.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='selectDateRangeForTrade()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-segment [(ngModel)]="segment">
+        <ion-segment-button value="chart">
+            <ion-icon name="star"></ion-icon>
+            {{'chart.chart' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="data">
+            <ion-icon name="time"></ion-icon>
+            {{'chart.data' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-list>
+        <ion-item *ngIf="this.chart.dateFrom != '' || this.chart.dateTo != ''" (click)='selectDateRangeForTrade()'>
+            <ion-label class='ion-text-wrap'>
+                {{'common.filter' | translate}}: {{dateFormat(this.chart.dateFrom)}}
+                {{this.chart.dateFrom != '' ? '-': ''}} {{dateFormat(this.chart.dateTo)}}
+            </ion-label>
+        </ion-item>
+    </ion-list>
+    <ion-list *ngIf="segment === 'data'">
+        <div *ngFor="let arr of data">
+            <ion-item *ngFor="let output of arr">
+                <ion-label class='ion-text-wrap'>
+                    <p>
+                        <span>
+                            {{output.dateType}} ({{'common.from' | translate}} {{output.dateFrom}}
+                            {{'common.to' | translate}} {{output.dateTo}})
+                        </span>
+                    </p>
+                    <p style='padding-top: 5px;'>
+                        <ion-text *ngIf="!isDebtChart" color="{{output.totalValue >= 0 ? 'secondary': 'danger'}}">
+                            {{'common.total' | translate}}:
+                            {{output.totalValue >= 0 ? '+': ''}}{{output.totalValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                        <ion-text *ngIf="isDebtChart" color="danger">
+                            {{'common.total' | translate}}: {{output.totalValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                        / {{output.totalItem}}&nbsp;
+                        <span *ngIf="chart.dataType == 0">{{'chart.contact(s)' | translate}}.</span>
+                        <span *ngIf="chart.dataType == 1">{{'chart.category(s)' | translate}}.</span>
+                        <span *ngIf="chart.dataType == 2">{{'chart.product(s)' | translate}}.</span>
+                        <span *ngIf="chart.dataType == 3">{{'report-detail.dates' | translate}}.</span>
+                    </p>
+                </ion-label>
+            </ion-item>
+        </div>
+    </ion-list>
+    <div *ngIf="segment == 'chart' && isChartReady">
+        <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+            [legend]="barChartLegend" [type]="barChartType">
+        </canvas>
+    </div>
+</ion-content>

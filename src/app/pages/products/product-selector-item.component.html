@@ -1,0 +1,303 @@
+<ion-item text-wrap style='--min-height: 0;' lines='none'>
+    <ion-buttons>
+        <ion-button fill='clear' (click)='expand(product)' color='medium'>
+            <fa-icon icon="{{product.isExpand ? 'compress-arrows-alt' : 'edit'}}"></fa-icon>
+        </ion-button>
+    </ion-buttons>
+    <ion-text [color]='product.count > 0 ? "primary": "normal"' style='padding: 0;' (click)='increase(product)'>
+        {{productName(product.code, product.title)}}<span *ngIf='product.unitsJson'>
+            ({{product.unit}})</span>
+    </ion-text>
+    <ion-thumbnail slot='end' *ngIf="product.avatarUrl">
+        <img [src]="product.avatarUrl">
+    </ion-thumbnail>
+    <ion-buttons slot='end'>
+        <ion-button size='small' fill='clear' color='medium' (click)='showOptions(product)' *ngIf="product.count">
+            <ion-icon slot='icon-only' size="small" name='cog'></ion-icon>
+        </ion-button>
+        <ion-button fill='clear' size="large" (click)='decrease(product)' *ngIf="product.count">
+            <ion-icon slot='icon-only' size="large" name='remove'></ion-icon>
+        </ion-button>
+        <ion-button fill='clear' size="large" (click)='increase(product)'>
+            <ion-icon slot='icon-only' size="large" name='add'></ion-icon>
+        </ion-button>
+    </ion-buttons>
+</ion-item>
+<ion-item text-wrap style='--min-height: 0;' lines='none'>
+    <ion-text [color]='product.count > 0 ? "primary": "normal"' style='padding: 0;' (click)='increase(product)'>
+        <span style='font-size: 0.8em'>
+            <p *ngIf='product.costPrice && isShopAdmin || product.basePrice' style="margin: 0; font-size: 0.8em; font-style: italic;">
+                <span *ngIf="product.costPrice && isShopAdmin">{{'product-add.cost-price' | translate}}: {{product.costPrice | currency:currency:'symbol':'1.0-2':translateService.currentLang}}<br></span>
+                <span *ngIf="product.basePrice">{{'product-detail.base-price' | translate}}: {{product.basePrice | currency:currency:'symbol':'1.0-2':translateService.currentLang}}<br></span>
+            </p>
+            <p *ngIf='product.isCustomerPrice || product.isStaffPrice || product.isCollaboratorPrice'>
+                <span *ngIf='product.isCustomerPrice'>{{'product-detail.customer-price' |
+                    translate}}</span>
+                <span *ngIf='product.isStaffPrice'>{{'product-detail.staff-price' | translate}}</span>
+                <span *ngIf='product.isCollaboratorPrice'>{{'product-detail.collaborator-price' |
+                    translate}}</span>
+            </p>
+            <span *ngIf="product.count">{{toFixQuantity(product.count)}}&nbsp;{{product.unit}} &#215; </span>{{(product.price + getOptionPrices(product)) |
+            currency:currency:'symbol':'1.0-2':translateService.currentLang}}<span *ngIf='product.discount'>
+                - {{product.discount |
+                currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+            <span *ngIf="product.count">| {{product.total | currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+        </span>
+        <br>
+        <span style='font-size: 0.8em'
+            *ngIf='!product.isService && !product.isCombo && !(product.materials && product.materials.length) && !blockViewingQuantity'>{{'product-selector.quantity-left'
+            |
+            translate}}:
+            {{product.quantity - product.count > 0 ? toFixQuantity(product.quantity - product.count) : 0}}
+            {{product.unit}}</span>
+    </ion-text>
+    <ion-label slot='end' class="ion-text-right" style='padding: 0; margin: 0'>
+        <ion-button size='medium' fill='clear' (click)='showTypes(product)' *ngIf="product.count">
+            <ion-icon slot='start' name='options'></ion-icon>
+            <ion-text style='font-size: 0.8em;'>{{'product-selector.show-types' | translate}}</ion-text>
+        </ion-button>
+        <br *ngIf="product.count">
+        <ion-button color='secondary' *ngIf='product.others && product.others.length' fill='clear'
+            (click)='showOthers(product)'>
+            <ion-icon slot='start' [name]='product.showOthers ? "chevron-up-outline" : "chevron-down-outline"'>
+            </ion-icon>
+            <ion-text style='font-size: 0.8em;'>
+                {{'product-selector.other-units' | translate}}</ion-text>
+        </ion-button>
+    </ion-label>
+</ion-item>
+<ion-item text-wrap style='--padding-bottom: 10px; --min-height: 0;'>
+    <ion-text [color]='product.count > 0 ? "primary": "normal"' style='padding: 0;' (click)='increase(product)'>
+        <p style='padding: 0; margin: 0' *ngIf='product.attributes && product.attributes.length'>
+            <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                {{getAttributesString(product)}}
+            </ion-text>
+        </p>
+        <p style='padding: 0; margin: 0' *ngIf='product.typeAttributes && product.typeAttributes.length'>
+            <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                {{getTypeAttributesString(product)}}
+            </ion-text>
+        </p>
+        <ng-container *ngFor='let op of product.typeOptions'>
+            <p style='padding: 0; margin: 0'>
+                <ion-text style='font-size: 0.8em'>
+                    <strong>{{op.title}}</strong>
+                </ion-text>
+            </p>
+            <ng-container *ngFor='let val of op.values; let j = index'>
+                <p style='padding: 0; margin: 0'>
+                    <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                        {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}}
+                            &#215; {{val.price |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span> | <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                    </ion-text>
+                </p>
+            </ng-container>
+        </ng-container>
+        <ng-container *ngIf='product.options && product.options.length'>
+            <p style='padding: 0; margin: 0'>
+                <ion-text style='font-size: 0.8em'>
+                    <strong>{{'order-add.added-products' | translate}}</strong>
+                </ion-text>
+            </p>
+            <p *ngFor='let option of product.options' style='padding: 0; margin: 0'>
+                <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                    {{productName(option.code, option.title)}}
+                    |
+                    {{option.count}}
+                    {{option.unit}} &#215; {{option.price |
+                    currency:currency:'symbol':'1.0-2':translateService.currentLang}} | +{{option.total |
+                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}</ion-text>
+            </p>
+        </ng-container>
+    </ion-text>
+</ion-item>
+<ion-grid *ngIf='product.isExpand' style='padding-left: 15px; padding-right: 15px; margin: 0;' color="light">
+    <ion-row>
+        <ion-col>
+            <ion-label position='stacked' color='primary'>
+                {{'order-add.product-price' | translate}}
+            </ion-label>
+            <money-input [disabled]="blockEditingOrderPrice" [clear]='true' placeholder="{{'order-add.enter-product-price' | translate}}"
+                [(moneyValue)]='product.price' (moneyValueChange)='reCalc(product)'>
+            </money-input>
+        </ion-col>
+        <ion-col>
+            <ion-label position='stacked' color='primary'>
+                {{'order-add.product-count' | translate}}
+            </ion-label>
+            <ion-input clearInput type="number" placeholder="{{'order-add.enter-product-count' | translate}}"
+                [(ngModel)]='product.count' (ngModelChange)='changeCount(product)' (focus)='selectAll($event)'>
+            </ion-input>
+        </ion-col>
+        <ion-col>
+            <ion-label position='stacked' color='primary'>
+                {{'order-add.product-discount' | translate}}</ion-label>
+            <money-input [clear]='true' placeholder="{{'order-add.enter-product-discount' | translate}}"
+                [(moneyValue)]='product.discount' (moneyValueChange)='reCalc(product)'>
+            </money-input>
+            <ion-text (click)='openProductDiscountPercent(product)' class="ion-text-nowrap"
+                style='margin-left: 3px; margin-top: 3px; font-size: 0.7em; background-color: #3880ff; color: white; padding: 3px; border-radius: 5px; font-weight: bold;'
+                [style.backgroundColor]='product.discountPercent ? "#3880ff" : "#ccc"'>
+                {{product.discountPercent ? (product.discountPercent).toFixed(0) + '%' : '%'}}
+            </ion-text>
+        </ion-col>
+        <ion-col>
+            <ion-label position='stacked' color='primary'>
+                {{'order-add.product-total' | translate}}
+            </ion-label>
+            <money-input [clear]='true' placeholder="{{'order-add.enter-product-total' | translate}}"
+                [(moneyValue)]='product.total'>
+            </money-input>
+        </ion-col>
+    </ion-row>
+</ion-grid>
+<ng-container *ngIf='product.showOthers'>
+    <ng-container *ngFor="let other of product.others">
+        <ion-item text-wrap style='--min-height: 0;' lines='none'>
+            <ion-buttons>
+                <ion-button fill='clear' (click)='expand(other)' color='medium'>
+                    <fa-icon icon="{{other.isExpand ? 'compress-arrows-alt' : 'edit'}}"></fa-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-text [color]='other.count > 0 ? "primary": "normal"' style='padding: 0; font-style: italic;'
+                (click)='increase(other)'>
+                {{productName(other.code, other.title)}}<span *ngIf='other.unitsJson'>
+                    ({{other.unit}})</span>
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button fill='clear' size="large" (click)='decrease(other)'>
+                    <ion-icon slot='icon-only' size="large" name='remove'></ion-icon>
+                </ion-button>
+                <ion-button fill='clear' size="large" (click)='increase(other)'>
+                    <ion-icon slot='icon-only' size="large" name='add'></ion-icon>
+                </ion-button>
+                <ion-button size='small' fill='clear' color='medium' (click)='showOptions(other)'>
+                    <ion-icon slot='icon-only' size="small" name='cog'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item text-wrap style='--min-height: 0;' lines='none'>
+            <ion-text [color]='other.count > 0 ? "primary": "normal"' style='padding: 0;' (click)='increase(other)'>
+                <ion-text style='font-size: 0.8em'>
+                    <p *ngIf='other.isCustomerPrice || other.isStaffPrice || other.isCollaboratorPrice'>
+                        <span *ngIf='other.isCustomerPrice'>{{'product-detail.customer-price' |
+                            translate}}</span>
+                        <span *ngIf='other.isStaffPrice'>{{'product-detail.staff-price' | translate}}</span>
+                        <span *ngIf='other.isCollaboratorPrice'>{{'product-detail.collaborator-price' |
+                            translate}}</span>
+                    </p>
+                    {{toFixQuantity(other.count)}}
+                    {{other.unit}} &#215; {{(other.price + getOptionPrices(other)) |
+                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}<span *ngIf='other.discount'>
+                        - {{other.discount |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+                    | {{other.total | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                </ion-text>
+                <br>
+                <span style='font-size: 0.8em'
+                    *ngIf='!other.isService && !other.isCombo'>{{'product-selector.quantity-left' |
+                    translate}}:
+                    {{other.quantity - other.count > 0 ? toFixQuantity(other.quantity - other.count) : 0}}
+                    {{other.unit}}</span>
+            </ion-text>
+            <ion-thumbnail slot='end' *ngIf="other.avatarUrl">
+                <img [src]="other.avatarUrl">
+            </ion-thumbnail>
+            <ion-buttons slot='end'>
+                <ion-button size='small' fill='clear' (click)='showTypes(other)'>
+                    <ion-icon slot='start' size="small" name='options'></ion-icon>
+                    <ion-text style='font-size: 0.8em;'>{{'product-selector.show-types' | translate}}
+                    </ion-text>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item text-wrap style='--padding-bottom: 10px; --min-height: 0;'>
+            <ion-text [color]='other.count > 0 ? "primary": "normal"' style='padding: 0;' (click)='increase(other)'>
+                <p style='padding: 0; margin: 0' *ngIf='other.attributes && other.attributes.length'>
+                    <ion-text style='font-size: 0.8em'>
+                        {{getAttributesString(other)}}
+                    </ion-text>
+                </p>
+                <p style='padding: 0; margin: 0' *ngIf='other.typeAttributes && other.typeAttributes.length'>
+                    <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                        {{getTypeAttributesString(other)}}
+                    </ion-text>
+                </p>
+                <ng-container *ngFor='let op of other.typeOptions'>
+                    <p style='padding: 0; margin: 0'>
+                        <ion-text style='font-size: 0.8em'>
+                            <strong>{{op.title}}</strong>
+                        </ion-text>
+                    </p>
+                    <ng-container *ngFor='let val of op.values; let j = index'>
+                        <p style='padding: 0; margin: 0'>
+                            <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                                {{val.title}} | +{{val.count}} | <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                            </ion-text>
+                        </p>
+                    </ng-container>
+                </ng-container>
+                <ng-container *ngIf='other.options && other.options.length'>
+                    <p style='padding: 0; margin: 0'>
+                        <ion-text style='font-size: 0.8em'>
+                            <strong>{{'order-add.added-products' | translate}}</strong>
+                        </ion-text>
+                    </p>
+                    <p *ngFor='let option of other.options' style='padding: 0; margin: 0'>
+                        <ion-text style='font-size: 0.8em' [style.fontWeight]='"normal"'>
+                            {{productName(option.code, option.title)}}
+                            |
+                            {{option.count}}
+                            {{option.unit}} &#215; {{option.price |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}} |
+                            +{{option.total |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}</ion-text>
+                    </p>
+                </ng-container>
+            </ion-text>
+        </ion-item>
+        <ion-grid *ngIf='other.isExpand' style='padding-left: 15px; padding-right: 15px; margin: 0;' color="light">
+            <ion-row>
+                <ion-col>
+                    <ion-label position='stacked' color='primary'>
+                        {{'order-add.product-price' | translate}}
+                    </ion-label>
+                    <money-input [clear]='true' placeholder="{{'order-add.enter-product-price' | translate}}"
+                        [(moneyValue)]='other.price' (moneyValueChange)='reCalc(other)'>
+                    </money-input>
+                </ion-col>
+                <ion-col>
+                    <ion-label position='stacked' color='primary'>
+                        {{'order-add.product-count' | translate}}
+                    </ion-label>
+                    <ion-input clearInput type="number" placeholder="{{'order-add.enter-product-count' | translate}}"
+                        [(ngModel)]='other.count' (ngModelChange)='changeCount(other)'>
+                    </ion-input>
+                </ion-col>
+                <ion-col>
+                    <ion-label position='stacked' color='primary'>
+                        {{'order-add.product-discount' | translate}}</ion-label>
+                    <money-input [clear]='true' placeholder="{{'order-add.enter-product-discount' | translate}}"
+                        [(moneyValue)]='other.discount' (moneyValueChange)='reCalc(other)'>
+                    </money-input>
+                    <ion-text (click)='openProductDiscountPercent(product)' class="ion-text-nowrap"
+                        style='margin-left: 3px; margin-top: 3px; font-size: 0.7em; background-color: #3880ff; color: white; padding: 3px; border-radius: 5px; font-weight: bold;'
+                        [style.backgroundColor]='product.discountPercent ? "#3880ff" : "#ccc"'>
+                        {{other.discountPercent ? (other.discountPercent).toFixed(0) + '%' : '%'}}
+                    </ion-text>
+                </ion-col>
+                <ion-col>
+                    <ion-label position='stacked' color='primary'>
+                        {{'order-add.product-total' | translate}}
+                    </ion-label>
+                    <money-input [clear]='true' placeholder="{{'order-add.enter-product-total' | translate}}"
+                        [(moneyValue)]='other.total'>
+                    </money-input>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ng-container>
+</ng-container>

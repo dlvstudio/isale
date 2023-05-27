@@ -1,0 +1,449 @@
+<div id='print-page'>
+    <div *ngIf='shop' style="border-bottom: 1px solid #000;">
+        <div *ngIf='shop.name' style='width: 100%; text-align: center; margin-top: 5px;'>
+            <strong>{{shop.name.toUpperCase()}}</strong> <br>
+            <i *ngIf='shop.shortDescription'>{{shop.shortDescription}}</i>
+        </div>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td *ngIf='shop.iconUrl' [style.width]='shop.bankName ? "20%" : "40%"'>
+                    <img [src]='shop.iconUrl' style='max-width: 44px; float: left; max-height: 44px;' />
+                </td>
+                <td [style.width]='shop.bankName && shop.iconUrl ? "40%" : (shop.bankName || shop.iconUrl ? "60%": "100%")'
+                    style="vertical-align:top">
+                    <table style="border: none; border-spacing: 0; width: 100%; left: 50%;">
+                        <tr *ngIf='shop && shop.phone'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.phone")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px; ' nowrap>
+                                {{shop.phone}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.email'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.email")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.email}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.facebook'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.facebook")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.facebook}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop && shop.address'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.address")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.address}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td *ngIf='shop.bankName' [style.width]='shop.iconUrl ? "40%" : "100%"'
+                    style='padding-left: 20px; vertical-align: text-top;'>
+                    <table style="border: none; width: 100%;">
+                        <tr>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;">
+                                <strong [innerHTML]='toHtml("shop-add.bank-name")'></strong>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.bankName}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop.bankAccountName'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.bank-account-name")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;'>
+                                {{shop.bankAccountName}}
+                            </td>
+                        </tr>
+                        <tr *ngIf='shop.bankAccountNumber'>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("shop-add.bank-account-number")'>
+                            </td>
+                            <td style='padding: 0 0 0 5px;' nowrap>
+                                {{shop.bankAccountNumber}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="text-align: center;">
+        <h2 style='font-size: 18px; text-transform: uppercase; font-weight: bold;'>{{'quote-add.quote-print-title' |
+            translate}}</h2>
+    </div>
+    <div>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td style="width: 1px; white-space: nowrap; padding: 0;">
+                    <strong [innerHTML]='toHtml("quote-add.name")'></strong>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    {{quote.name}}
+                </td>
+            </tr>
+            <tr *ngIf='quote.staff'>
+                <td style="width: 1px; white-space: nowrap; padding: 0;" [innerHTML]='toHtml("trade.staff", "")'>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    {{quote.staff.name}}<span *ngIf='quote.staff.userName'> - {{quote.staff.userName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 1px; white-space: nowrap; padding: 0;" [innerHTML]='toHtml("quote-print.date")'>
+                </td>
+                <td style='padding: 0 0 0 5px;' nowrap>
+                    {{dateFormat(quote.createdAt)}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table style="border: none; width: 100%;">
+        <tr>
+            <td style="width: 40%; padding: 0;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("quote-print.customer")'>
+                        </td>
+                        <td style='padding: 0 0 0 5px; border-bottom: 1px dotted #000;'>
+                            <span *ngIf='quote.contact && quote.contact.fullName'>{{quote.contact.fullName}}</span>
+                            <span *ngIf='!quote.contact && quote.contactName'>{{quote.contactName}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style='padding: 0;'>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("contact-add.phone")'>
+                        </td>
+                        <td style='padding: 0 0 0 5px; border-bottom: 1px dotted #000; '>
+                            <span *ngIf='quote.contact && quote.contact.mobile'>{{quote.contact.mobile}}</span>
+                            <span *ngIf='!quote.contact && quote.contactPhone'>{{quote.contactPhone}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style='padding: 0;'>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 1px; white-space: nowrap; padding: 0;"
+                            [innerHTML]='toHtml("contact-add.address")'>
+                        </td>
+                        <td style='border-bottom: 1px dotted #000; padding: 0 0 0 5px;'>
+                            <span *ngIf='quote.contact && quote.contact.address'>{{quote.contact.address}}</span>
+                            <span *ngIf='!quote.contact && quote.contactAddress'>{{quote.contactAddress}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div style='padding-left: 5px; padding-right: 5px;'>
+        <table style='margin-top: 10px; margin-bottom: 10px; width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; max-width: 60px; text-align: center;'>
+                    <b>{{'quote-print.head-index' | translate}}</b>
+                </td>
+                <td *ngIf="showImage"
+                    style='border-right: 1px solid #000; border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: center;'>
+                    <b>{{'quote-print.image'
+                        | translate}}</b>
+                </td>
+                <td nowrap
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <b>{{'quote-print.head-name'
+                        | translate}}</b>
+                </td>
+                <td *ngIf="showDes"
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <b>{{'quote-print.head-des' |
+                        translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <b>{{'quote-print.head-unit-full' |
+                        translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'quote-print.head-qty-full' |
+                        translate}}</b>
+                </td>
+                <td
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'quote-print.head-price-full'
+                        | translate}}</b>
+                </td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'quote-print.head-discount-full' | translate}}</b>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-top: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <b>{{'quote-print.head-amount-full'
+                        | translate}}</b>
+                </td>
+            </tr>
+            <tr *ngFor='let item of quote.items; let i = index'>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; max-width: 60px; text-align: center;'>
+                    {{i+1}}</td>
+                <td *ngIf="showImage"
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: center;'>
+                    <img [src]="item.productAvatar" style="max-width: 150px; max-height: 200px;">
+                </td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{productName(item.productCode, item.productName)}}
+                    <ng-container *ngIf='item.items && item.items.length'>
+                        <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            <strong>{{'quote-add.combo-products' | translate}}</strong>
+                        </p>
+                        <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            {{productName(option.productCode, option.productName)}}
+                            |
+                            {{option.count}}&nbsp;{{option.unit}}
+                        </p>
+                    </ng-container>
+                    <div *ngIf='hasOptionsOrAttributes(item)' style='font-size: 0.8em;' [style.fontWeight]='"normal"'
+                        class="ion-text-wrap">
+                        <p style='padding: 0; margin: 0' *ngIf='item.typeAttributes && item.typeAttributes.length'>
+                            <ion-text [style.fontWeight]='"normal"'>
+                                {{getTypeAttributesString(item)}}
+                            </ion-text>
+                        </p>
+                        <ng-container *ngIf='item.attributes && item.attributes.length'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text [style.fontWeight]='"normal"'>
+                                    {{getAttributesString(item)}}
+                                </ion-text>
+                            </p>
+                        </ng-container>
+                        <ng-container *ngFor='let op of item.typeOptions'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text>
+                                    <strong>{{op.title}}</strong>
+                                </ion-text>
+                            </p>
+                            <ng-container *ngFor='let val of op.values; let j = index'>
+                                <p style='padding: 0; margin: 0'>
+                                    <ion-text [style.fontWeight]='"normal"'>
+                                        {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215; {{val.price | currency:'':'':'1.0-2':translateService.currentLang}}</span> |
+                                        <span *ngIf='val.isAddedToPrice'>+</span>{{val.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                                    </ion-text>
+                                </p>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf='item.options && item.options.length'>
+                            <p style='padding: 0; margin: 0'>
+                                <strong>{{'quote-add.added-products' | translate}}</strong>
+                            </p>
+                            <p *ngFor='let option of item.options' style='padding: 0; margin: 0'>
+                                {{productName(option.code, option.title)}}
+                                |
+                                {{option.count}}
+                                {{option.unit}} &#215; {{option.price |
+                                currency:'':'':'1.0-2':translateService.currentLang}} | +{{option.total |
+                                currency:'':'':'1.0-2':translateService.currentLang}}
+                            </p>
+                        </ng-container>
+                    </div>
+                </td>
+                <td *ngIf="showDes"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{item.description}}</td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{item.unit}}</td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.count}}
+                </td>
+                <td
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.price |
+                    currency:'':'':'1.0-2':translateService.currentLang}}</td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    <span *ngIf='item.discountPercent'>-{{item.discountPercent}}%</span>
+                    <span *ngIf='item.discount && !item.discountPercent'>-{{item.discount |
+                        currency:'':'':'1.0-2':translateService.currentLang}}</span>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{item.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                    <span *ngIf='hideDiscountColumn && item.discountPercent'
+                        style='font-size: 0.8em'><br>(-{{item.discountPercent}}%)</span>
+                    <span *ngIf='hideDiscountColumn && item.discount && !item.discountPercent'
+                        style='font-size: 0.8em'><br>(-{{item.discount |
+                        currency:'':'':'1.0-2':translateService.currentLang}})</span>
+                </td>
+            <tr>
+            <tr>
+                <td [attr.colspan]="colspan1"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <strong>{{'quote-detail.total-amount' | translate}}</strong>
+                </td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{totalProductsQuantity}}
+                </td>
+                <td *ngIf='!hideDiscountColumn'
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>&nbsp;</td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{totalProductsAmount | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='quote.discountOnTotal'>
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'quote-add.discount' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    -{{quote.discountOnTotal | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf="quote.netValue !== totalProductsAmount">
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; '>
+                    {{'quote-add.net-value' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{quote.netValue | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='quote.amountFromPoint && quote.pointAmount'>
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; '>
+                    {{'quote-add.pay-by-point' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    -{{quote.amountFromPoint | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='!hideTax && quote.tax !== 0'>
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'quote-add.tax' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    +{{quote.tax | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr *ngIf='quote.shippingFee'>
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    {{'quote-add.shipping-fee' | translate}}
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    +{{quote.shippingFee | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+            <tr>
+                <td [attr.colspan]="hideDiscountColumn ? colspan2 : (colspan2 + 1)"
+                    style='border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px;'>
+                    <strong>{{'quote-add.total' | translate}}</strong>
+                </td>
+                <td
+                    style='border-right: 1px solid #000; border-left: 1px solid #000; border-bottom: 1px solid #000; padding: 5px; text-align: right;'>
+                    {{quote.total | currency:'':'':'1.0-2':translateService.currentLang}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="width: 100%; border: none;" cellpadding="0" cellspacing="0">
+            <tr>
+                <td style="width: 1px; white-space: nowrap;"
+                    [innerHTML]='toHtml("quote-print.total-written-in-letters")'>
+                </td>
+                <td style="border-bottom: 1px dotted #000;">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px dotted #000;" colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr *ngIf='quote.note'>
+                <td colspan="2" style='padding: 0;'>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="width: 1px; white-space: nowrap; padding: 0;"
+                                [innerHTML]='toHtml("quote-add.note")'>
+                            </td>
+                            <td style='border-bottom: 1px dotted #000; padding: 0 0 0 5px;'>
+                                <span>{{quote.note}}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="border: none; width: 100%; margin-bottom: 50px; margin-top: 20px;">
+            <tr>
+                <td style='width: 50%; text-align: center; vertical-align: text-top;'>
+                    <table style='border: none; margin: 0 auto;'>
+                        <tr>
+                            <td>
+                                <strong style="text-transform: uppercase;">{{'quote-print.customer' |
+                                    translate}}</strong><br>
+                                ({{'quote-print.sign-and-write-fullname' | translate}})
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style='width: 50%; text-align: center; vertical-align: text-top;'>
+                    <table style='border: none; margin: 0 auto;'>
+                        <tr>
+                            <td>
+                                <strong style="text-transform: uppercase;">{{'quote-print.buyer' |
+                                    translate}}</strong><br>
+                                ({{'quote-print.sign-and-write-fullname' | translate}})
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr *ngIf='quote && quote.staff && showStaffNameUnderSign'>
+                            <td>
+                                <span>{{quote.staff.name}}<span *ngIf='quote.staff.userName'> -
+                                        {{quote.staff.userName}}</span></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

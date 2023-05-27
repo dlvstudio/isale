@@ -1,0 +1,39 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>
+            {{'share.share-via' | translate}}
+        </ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding'>
+        <ion-button (click)='via("facebook")'>
+            <ion-icon slot='icon-only' name="logo-facebook"></ion-icon>
+        </ion-button>
+        <ion-button (click)='via("twitter")'>
+            <ion-icon slot='icon-only' name="logo-twitter"></ion-icon>
+        </ion-button>
+        <ion-button (click)='via("instagram")'>
+            <ion-icon slot='icon-only' name="logo-instagram"></ion-icon>
+        </ion-button>
+        <ion-button (click)='via("whatsapp")'>
+            <ion-icon slot='icon-only' name="logo-whatsapp"></ion-icon>
+        </ion-button>
+        <br>
+        <ion-button (click)='via("mail")'>
+            <ion-icon name="mail"></ion-icon>
+            &nbsp;Email
+        </ion-button>
+        <ion-button (click)='via("sms")'>
+            <ion-icon name="send"></ion-icon>
+            &nbsp;SMS
+        </ion-button>
+    </div>
+</ion-content>

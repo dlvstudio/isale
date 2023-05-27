@@ -1,0 +1,640 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'order-export.title' | translate}}</ion-title>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='!report'>
+        <ion-item *ngIf="ordersInput && ordersInput.length">
+            <ion-text color='primary'>{{'order-export.order-selected' | translate}}: {{ordersInput.length}} {{'order.order(s)' | translate}}</ion-text>
+        </ion-item>
+        <ion-item *ngIf="!ordersInput || !ordersInput.length">
+            <ion-text color='primary'>{{'order-export.select-date-range' | translate}}:</ion-text>
+        </ion-item>
+        <ion-item *ngIf="!ordersInput || !ordersInput.length">
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}</span>
+            </ion-label>
+            <ion-button fill='clear' color="secondary" slot='end' (click)='selectDateRange()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'order-export.select-report-type' | translate}}:</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-select [(ngModel)]="reportType"
+                style="width: 100% !important; max-width: 100% !important; padding-left: 0px !important;">
+                <ion-select-option [value]="0">{{'order-export.report-type-by-order' | translate}}</ion-select-option>
+                <ion-select-option [value]="1">{{'order-export.report-type-by-product' | translate}}</ion-select-option>
+                <ion-select-option [value]="2">{{'order-export.report-type-by-customer' | translate}}</ion-select-option>
+                <ion-select-option [value]="3">{{'order-export.report-type-by-staff' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item *ngIf='(!staffService.isStaff() || staffService.selectedStaff.hasFullAccess) && (!ordersInput || !ordersInput.length)'>
+            <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text>
+            <ion-button slot='end' ion-text color='dark' (click)='showSearchStaff()'
+                *ngIf="selectedStaff && selectedStaff.id > 0">
+                {{selectedStaff.name}}
+            </ion-button>
+            <ion-button slot='end' (click)='showSearchStaff()' *ngIf="!selectedStaff || selectedStaff.id == 0">
+                {{'order-add.select-collaborator' | translate}}
+            </ion-button>
+            <ion-button slot='end' *ngIf="selectedStaff && selectedStaff.id > 0" fill='clear' (click)='removeStaff()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+    </ion-list>
+    <div class='ion-padding' style='padding-top: 0; padding-bottom: 0'>
+        <ion-grid *ngIf='!report'>
+            <ion-row>
+                <ion-col>
+                    <ion-button color="primary" expand='block' (click)='generate()'>
+                        <ion-icon name="funnel"></ion-icon>
+                        &nbsp;{{'order-export.generate' | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button color="secondary" expand='block' (click)='export()'>
+                        <fa-icon icon="file-excel" size="lg"></fa-icon>
+                        &nbsp;{{'order-export.export' | translate}}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-grid *ngIf='report'>
+            <ion-row>
+                <ion-col>
+                    <ion-button color="primary" expand='block' (click)='resetReport()'>
+                        <ion-icon name="create"></ion-icon>
+                        &nbsp;{{'order-export.change' | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button color="secondary" expand='block' (click)='export()'>
+                        <fa-icon icon="file-excel" size="lg"></fa-icon>
+                        &nbsp;{{'order-export.export' | translate}}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+    <ion-list>
+        <ion-item class='ion-text-wrap' *ngIf='report'>
+            <ion-grid>
+                <ion-row>
+                    <ion-col size-sm='4' size-xs='4' *ngIf="!ordersInput || !ordersInput.length">
+                        <ion-text>{{'common.from' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{dateFormat(dateFrom)}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4' *ngIf="!ordersInput || !ordersInput.length">
+                        <ion-text>{{'common.to' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{dateFormat(dateTo)}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col>
+                        <ion-text>{{'order-export.report-type' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{reportName()}}</ion-text>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col size-sm='4' size-xs='4'>
+                        <ion-text color='danger'>{{'common.total' | translate}}</ion-text>:<br>
+                        <ion-text color="{{report.total >= 0 ? 'secondary': 'danger'}}">
+                            {{report.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-no-vat' | translate}}:<br>
+                        <ion-text color="{{report.totalNoVAT >= 0 ? 'secondary': 'danger'}}">
+                            {{report.totalNoVAT | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-vat' | translate}}:<br>
+                        <ion-text color="{{report.totalVAT >=0 ? 'secondary': 'danger'}}">
+                            {{report.totalVAT | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4' *ngIf='report.totalQuantity'>
+                        {{'order-export.total-quantity' | translate}}:<br>
+                        <ion-text>
+                            {{report.totalQuantity}} <span *ngIf="report.totalProducts">/ {{report.totalProducts}} {{'chart.product(s)' | translate}}</span>
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-shipping' | translate}}:<br>
+                        <ion-text color="{{report.totalShip >= 0 ? 'secondary': 'danger'}}">
+                            {{report.totalShip | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-discount' | translate}}:<br>
+                        <ion-text color="{{report.totalDiscount >= 0 ? 'secondary': 'danger'}}">
+                            {{report.totalDiscount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-cost' | translate}}:<br>
+                        <ion-text color="{{report.totalCost >= 0 ? 'secondary': 'danger'}}">
+                            {{report.totalCost | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'order-export.total-revenue' | translate}}:<br>
+                        <ion-text color="{{report.totalRevenue >= 0 ? 'secondary': 'danger'}}">
+                            {{report.totalRevenue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4' *ngIf='selectedStaff'>
+                        {{'order-add.collaborator-info' | translate}}:<br>
+                        <ion-text>{{selectedStaff.name}}</ion-text>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+        <ng-container *ngIf='isMobile && report'>
+            <ion-list-header>
+                <ion-label>{{'order-export.list' | translate}}</ion-label>
+            </ion-list-header>
+            <ng-container *ngIf='reportType === 0'>
+                <ion-item *ngFor="let order of report.items" (click)='selectOrder(order.id)'>
+                    <ion-label class='ion-text-wrap'>
+                        <strong>#{{order.code}}</strong> -
+                        <ion-text color='dark' *ngIf='order.status == 0'>{{'order-detail.status-draft' |
+                            translate}}</ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 1'>{{'order-detail.status-inprogress' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 2'>{{'order-detail.status-shipping' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='primary' *ngIf='order.status == 3'>{{'order-detail.status-done' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 4'>{{'order-detail.status-cancel' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 5'>{{'order-detail.status-has-debt' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 6'>{{'order-detail.status-shipping-has-debt' |
+                            translate}}
+                        </ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 7'>{{'order-detail.status-deposit' |
+                            translate}}
+                        </ion-text>
+                        - <ion-text color="primary">{{order.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                        <div>
+                            {{'order-export.total-no-vat' | translate}}: {{order.netValue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'order-export.total-vat' | translate}}: {{order.tax |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </div>
+                        <div>
+                            {{'order-export.total-discount' | translate}}: {{order.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'order-export.total-shipping' | translate}}: {{order.shippingFee |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </div>
+                        <div>
+                            {{'order-export.total-revenue' | translate}}: {{order.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'order-export.total-cost' | translate}}: {{order.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </div>
+                        <p *ngIf='order.contact'>
+                            {{order.contact}}
+                        </p>
+                        <p>
+                            {{dateFormat(order.createdAt)}}
+                        </p>
+                        <p *ngIf='order.staff'>
+                            <i style="font-size: 11px;">{{'trade.staff' | translate}} {{order.staff}}</i>
+                        </p>
+                    </ion-label>
+                </ion-item>
+            </ng-container>
+            <ng-container *ngIf='reportType === 1'>
+                <ion-item *ngFor="let product of report.items" (click)='selectProduct(product.id)'>
+                    <ion-label class='ion-text-wrap'>
+                        <strong>{{product.contact}}</strong>
+                        - <ion-text color="primary">{{product.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                        <div>
+                            {{'order-export.total-quantity' | translate}}: {{product.quantity}} {{product.unit}}
+                        </div>
+                        <div>
+                            {{'order-export.total-revenue' | translate}}: {{product.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'order-export.total-cost' | translate}}: {{product.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'order-export.total-discount' | translate}}: {{product.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'product-add.price' | translate}}: {{(product.total / product.quantity) |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            - {{'product-add.cost-price' | translate}}: {{(product.cost / product.quantity) |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </div>
+                    </ion-label>
+                </ion-item>
+            </ng-container>
+            <ng-container *ngIf='reportType === 2'>
+                <ng-container *ngFor="let customer of report.items">
+                    <ion-item (click)='selectContact(customer.id)' color='light'>
+                        <ion-label class='ion-text-wrap'>
+                            <strong *ngIf='customer.id'>#{{customer.contact}}</strong>
+                            <strong *ngIf='!customer.id'>{{'order-export.guests' | translate}}</strong>
+                            - <ion-text color="primary">{{customer.total |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                            <div>
+                                {{'order-export.total-no-vat' | translate}}: {{customer.netValue |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-vat' | translate}}: {{customer.tax |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </div>
+                            <div>
+                                {{'order-export.total-discount' | translate}}: {{customer.discount |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-shipping' | translate}}: {{customer.shippingFee |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </div>
+                            <div>
+                                {{'order-export.total-revenue' | translate}}: {{customer.revenue |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-cost' | translate}}: {{customer.cost |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </div>
+                        </ion-label>
+                    </ion-item>
+                    <ion-list style='margin-left: 10px'>
+                        <ion-item *ngFor="let product of customer.subItems; let i = index"
+                            (click)='selectProduct(product.id)'>
+                            <ion-label class='ion-text-wrap' style='font-size: 0.68em'>
+                                <strong>{{i+1}}.{{product.contact}}</strong>
+                                - <ion-text color="primary">{{product.total |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                                <div>
+                                    {{'order-export.total-quantity' | translate}}: {{product.quantity}} {{product.unit}}
+                                </div>
+                                <div>
+                                    {{'order-export.total-revenue' | translate}}: {{product.revenue |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    - {{'order-export.total-cost' | translate}}: {{product.cost |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    - {{'order-export.total-discount' | translate}}: {{product.discount |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                </div>
+                            </ion-label>
+                        </ion-item>
+                    </ion-list>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf='reportType === 3'>
+                <ng-container *ngFor="let staff of report.items">
+                    <ion-item (click)='selectStaff(staff.id)' color='light'>
+                        <ion-label class='ion-text-wrap'>
+                            <strong *ngIf='staff.id'>{{staff.staff}}</strong>
+                            <strong *ngIf='!staff.id'>{{'order-export.others' | translate}}</strong>
+                            - <ion-text color="primary">{{staff.total |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                            <div>
+                                {{'order-export.total-no-vat' | translate}}: {{staff.netValue |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-vat' | translate}}: {{staff.tax |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </div>
+                            <div>
+                                {{'order-export.total-discount' | translate}}: {{staff.discount |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-shipping' | translate}}: {{staff.shippingFee |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                            </div>
+                            <div>
+                                {{'order-export.total-revenue' | translate}}: {{staff.revenue |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                - {{'order-export.total-cost' | translate}}: {{staff.cost |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                <span *ngIf="staff.staffRevenue">
+                                - {{'order-export.staff-revenue' | translate}}: {{staff.staffRevenue |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                </span>
+                            </div>
+                        </ion-label>
+                    </ion-item>
+                    <ion-list style='margin-left: 10px'>
+                        <ion-item *ngFor="let product of staff.subItems; let i = index"
+                            (click)='selectProduct(product.id)'>
+                            <ion-label class='ion-text-wrap' style='font-size: 0.68em'>
+                                <strong>{{i+1}}.{{product.contact}}</strong>
+                                - <ion-text color="primary">{{product.total |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                                <div>
+                                    {{'order-export.total-quantity' | translate}}: {{product.quantity}} {{product.unit}}
+                                </div>
+                                <div>
+                                    {{'order-export.total-revenue' | translate}}: {{product.revenue |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    - {{'order-export.total-cost' | translate}}: {{product.cost |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    - {{'order-export.total-discount' | translate}}: {{product.discount |
+                                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    <span *ngIf="product.staffRevenue">
+                                    - {{'order-export.staff-revenue' | translate}}: {{product.staffRevenue |
+                                        currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                    </span>
+                                </div>
+                            </ion-label>
+                        </ion-item>
+                    </ion-list>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && report && report.items && report.items.length' class='ion-padding'>
+            <ng-container *ngIf='reportType === 0'>
+                <ion-row>
+                    <ion-col><strong>{{'order-add.order-code' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-add.contact-info' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-add.total' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-no-vat' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-vat' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-shipping' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-discount' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-cost' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-revenue' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'trade.staff' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order.created-at' | translate}}</strong></ion-col>
+                </ion-row>
+                <ion-row *ngFor="let order of report.items; let i = index" style='border-bottom: 1px solid #ccc;'
+                    [style.cursor]="'pointer'" (click)='selectOrder(order.id)'>
+                    <ion-col>{{order.code}}</ion-col>
+                    <ion-col>
+                        <p *ngIf='order.contact'>
+                            {{order.contact}}</p>
+                    </ion-col>
+                    <ion-col>{{order.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                    <ion-col>{{order.netValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{order.tax | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                    <ion-col>{{order.shippingFee | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{order.discount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{order.cost | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                    <ion-col>{{order.revenue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col class='ion-text-wrap'>
+                        <p *ngIf='order.staff'>
+                            {{order.staff}}
+                        </p>
+                    </ion-col>
+                    <ion-col class='ion-text-wrap'>
+                        <ion-text color='dark' *ngIf='order.status == 0'>
+                            {{'order-detail.status-draft' | translate}}</ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 1'>
+                            {{'order-detail.status-inprogress' | translate}}</ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 2'>
+                            {{'order-detail.status-shipping' | translate}}</ion-text>
+                        <ion-text color='primary' *ngIf='order.status == 3'>
+                            {{'order-detail.status-done' | translate}}</ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 4'>
+                            {{'order-detail.status-cancel' | translate}}</ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 5'>
+                            {{'order-detail.status-has-debt' | translate}}</ion-text>
+                        <ion-text color='danger' *ngIf='order.status == 6'>
+                            {{'order-detail.status-shipping-has-debt' | translate}}
+                        </ion-text>
+                        <ion-text color='secondary' *ngIf='order.status == 7'>
+                            {{'order-detail.status-deposit' | translate}}
+                        </ion-text>
+                        -
+                        {{dateFormat(order.createdAt)}}
+                    </ion-col>
+                </ion-row>
+            </ng-container>
+            <ng-container *ngIf='reportType === 1'>
+                <ion-row>
+                    <ion-col><strong>{{'order-export.product' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-quantity' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-add.total' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-discount' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-cost' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.total-revenue' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'product-add.price' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'product-add.cost-price' | translate}}</strong></ion-col>
+                </ion-row>
+                <ion-row *ngFor="let product of report.items; let i = index" style='border-bottom: 1px solid #ccc;'
+                    [style.cursor]="'pointer'" (click)='selectProduct(product.id)'>
+                    <ion-col>{{product.contact}}</ion-col>
+                    <ion-col>
+                        {{product.quantity}} {{product.unit}}
+                    </ion-col>
+                    <ion-col>{{product.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{product.discount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{product.cost | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{product.revenue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{(product.total / product.quantity) |
+                        currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                    <ion-col>{{(product.cost / product.quantity) |
+                        currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </ion-col>
+                </ion-row>
+            </ng-container>
+            <ng-container *ngIf='reportType === 2'>
+                <ion-row>
+                    <ion-col><strong>{{'order-add.contact-info' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.product' | translate}}</strong></ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-quantity' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-add.total' | translate}}</strong></ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-no-vat' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-vat' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-shipping' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-discount' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-cost' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-revenue' | translate}}</strong>
+                    </ion-col>
+                </ion-row>
+                <ng-container *ngFor="let customer of report.items; let i = index">
+                    <ion-row style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                        (click)='selectContact(customer.id)'>
+                        <ion-col>
+                            <span *ngIf='customer.contact'>
+                                {{customer.contact}}</span>
+                            <span *ngIf='!customer.contact'>
+                                {{'order.guests' | translate}}</span>
+                        </ion-col>
+                        <ion-col>&nbsp;
+                        </ion-col>
+                        <ion-col>&nbsp;
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.netValue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.tax |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.shippingFee |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                    </ion-row>
+                    <ion-row *ngFor="let product of customer.subItems; let i = index"
+                        style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                        (click)='selectProduct(product.id)'>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>{{i+1}}.{{product.contact}}</ion-col>
+                        <ion-col style='text-align: right'>
+                            {{product.quantity}} {{product.unit}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col style='text-align: right'>{{product.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                    </ion-row>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf='reportType === 3'>
+                <ion-row>
+                    <ion-col><strong>{{'order-export.staff' | translate}}</strong></ion-col>
+                    <ion-col><strong>{{'order-export.product' | translate}}</strong></ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-quantity' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-add.total' | translate}}</strong></ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-no-vat' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-vat' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-shipping' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-discount' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-cost' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.total-revenue' | translate}}</strong>
+                    </ion-col>
+                    <ion-col style='text-align: right'><strong>{{'order-export.staff-revenue' | translate}}</strong>
+                    </ion-col>
+                </ion-row>
+                <ng-container *ngFor="let customer of report.items; let i = index">
+                    <ion-row style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                        (click)='selectStaff(customer.id)'>
+                        <ion-col>
+                            <span *ngIf='customer.staff'>
+                                {{customer.contact}}</span>
+                            <span *ngIf='!customer.staff'>
+                                {{'order.others' | translate}}</span>
+                        </ion-col>
+                        <ion-col>&nbsp;
+                        </ion-col>
+                        <ion-col>&nbsp;
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.netValue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.tax |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.shippingFee |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{customer.staffRevenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                    </ion-row>
+                    <ion-row *ngFor="let product of customer.subItems; let i = index"
+                        style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                        (click)='selectProduct(product.id)'>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>{{i+1}}.{{product.contact}}</ion-col>
+                        <ion-col style='text-align: right'>
+                            {{product.quantity}} {{product.unit}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.total |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col>&nbsp;</ion-col>
+                        <ion-col style='text-align: right'>{{product.discount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.cost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.revenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                        <ion-col style='text-align: right'>{{product.staffRevenue |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </ion-col>
+                    </ion-row>
+                </ng-container>
+            </ng-container>
+        </ion-grid>
+    </ion-list>
+</ion-content>

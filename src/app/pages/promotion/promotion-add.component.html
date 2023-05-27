@@ -1,0 +1,268 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'promotion-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button *ngIf="config && config.id" color="danger" (click)='delete()'>
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid>
+        <ion-item-divider color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+            {{'promotion-add.info' | translate}}
+        </ion-item-divider>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.name' | translate}}
+                </ion-label>
+                <div>
+                    <ion-input clearInput type="text" placeholder="{{'promotion-add.enter-name' | translate}}"
+                        [(ngModel)]="config.name"></ion-input>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.code' | translate}}
+                </ion-label>
+                <div>
+                    <ion-input clearInput type="text" placeholder="{{'promotion-add.enter-code' | translate}}"
+                        [(ngModel)]="config.code"></ion-input>
+                </div>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.is-active' | translate}}
+                </ion-label>
+                <div>
+                    <ion-toggle [(ngModel)]='config.isActive'></ion-toggle>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.start-date' | translate}}
+                </ion-label>
+                <div>
+                    <date-picker [(date)]="config.startDate" type="date" pickerId="promotionStartDate" min="2015-01-01"
+                        max="2025-12-31">
+                    </date-picker>
+                </div>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.end-date' | translate}}
+                </ion-label>
+                <div>
+                    <date-picker [(date)]="config.endDate" type="date" pickerId="promotionEndDate" min="2015-01-01"
+                        max="2025-12-31">
+                    </date-picker>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-item-divider color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+            {{'promotion-add.conditions' | translate}}
+        </ion-item-divider>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.condition-total-amount' | translate}}
+                </ion-label>
+                <div>
+                    <money-input placeholder="{{'promotion-add.enter-condition-total-amount' | translate}}"
+                        [(moneyValue)]='config.conditionTotalAmount'>
+                    </money-input>
+                    <p style="font-size: 0.8em">{{'promotion-add.condition-total-amount-description' | translate}}</p>
+                </div>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.condition-total-quantity' | translate}}
+                </ion-label>
+                <div>
+                    <ion-input clearInput type="number"
+                        placeholder="{{'promotion-add.enter-condition-total-quantity' | translate}}"
+                        [(ngModel)]="config.conditionTotalQuantity"></ion-input>
+                    <p style="font-size: 0.8em">{{'promotion-add.condition-total-quantity-description' | translate}}</p>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-list>
+            <ion-item-divider color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+                {{'promotion-add.apply-for' | translate}}
+            </ion-item-divider>
+            <ion-item>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.for-all-customer' | translate}}</ion-label>
+                <ion-toggle color="primary" [(ngModel)]='config.forAllCustomer'>
+                </ion-toggle>
+            </ion-item>
+            <ion-item *ngIf="!config.forAllCustomer">
+                <ion-label>{{'promotion-add.contact' | translate}}: &nbsp;</ion-label>
+                <ion-text slot='end' color='dark' (click)='showSearchContact()' *ngIf="contactSelected && contactSelected.id > 0">
+                    {{contactSelected.fullName}}
+                </ion-text>
+                <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id === 0">
+                    {{'promotion-add.select-contact' | translate}}
+                </ion-text>
+                <ion-buttons slot='end'>
+                    <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='clear' (click)='removeContact()'>
+                        <ion-icon name="close" slot='icon-only'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item *ngIf="!categorySelected">
+                <ion-label color="primary">{{'promotion-add.product' | translate}} ({{'promotion-add.optional' |
+                    translate}}): &nbsp;</ion-label>
+                <ion-text slot='end' color='dark' (click)='showSearchProduct()' *ngIf="productSelected && productSelected.id > 0">
+                    {{productSelected.title}}
+                </ion-text>
+                <ion-text slot='end' (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id === 0">
+                    {{'promotion-add.select-product' | translate}}
+                </ion-text>
+                <ion-buttons slot='end'>
+                    <ion-button *ngIf="productSelected && productSelected.id > 0" fill='clear' (click)='removeProduct()'>
+                        <ion-icon name="close" slot='icon-only'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item *ngIf="!productSelected">
+                <ion-label color="primary">{{'promotion-add.category' | translate}} ({{'promotion-add.optional' |
+                    translate}}): &nbsp;</ion-label>
+                <ion-text slot='end' color='dark' (click)='showSearchCategory()' *ngIf="categorySelected && categorySelected.id > 0">
+                    {{categorySelected.title}}
+                </ion-text>
+                <ion-text slot='end' (click)='showSearchCategory()' *ngIf="!categorySelected || categorySelected.id === 0">
+                    {{'promotion-add.select-category' | translate}}
+                </ion-text>
+                <ion-buttons slot='end'>
+                    <ion-button *ngIf="categorySelected && categorySelected.id > 0" fill='clear' (click)='removeCategory()'>
+                        <ion-icon name="close" slot='icon-only'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+            <ion-item>
+                <ion-text color='primary'>{{'staff-add.store' | translate}} ({{'promotion-add.optional' |
+                    translate}}): &nbsp;</ion-text>
+                <ion-text slot='end' color='dark' (click)='showSearchStore()' *ngIf="storeSelected && storeSelected.id > 0">
+                    {{storeSelected.name}}
+                </ion-text>
+                <ion-text slot='end' (click)='showSearchStore()' *ngIf="!storeSelected || storeSelected.id === 0">
+                    {{'staff-add.select-store' | translate}}
+                </ion-text>
+                <ion-buttons slot='end'>
+                    <ion-button *ngIf="storeSelected && storeSelected.id > 0" fill='clear' (click)='removeStore()'>
+                        <ion-icon name="close"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+        </ion-list>
+        <ion-item-divider color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+            {{'promotion-add.type' | translate}}
+        </ion-item-divider>
+        <ion-row>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.discount' | translate}}
+                </ion-label>
+                <div>
+                    <ion-toggle [(ngModel)]='config.isDiscount'></ion-toggle>
+                </div>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.gift' | translate}}
+                </ion-label>
+                <div>
+                    <ion-toggle [(ngModel)]='config.isGift'></ion-toggle>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-item-divider *ngIf="config.isDiscount" color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+            {{'promotion-add.payment' | translate}}
+        </ion-item-divider>
+        <ion-row *ngIf="config.isDiscount">
+            <ion-col>
+                <ion-label position='stacked' color='primary'>{{'promotion-add.is-percent' | translate}}
+                </ion-label>
+                <div>
+                    <ion-toggle [(ngModel)]='config.isPercent'></ion-toggle>
+                </div>
+            </ion-col>
+            <ion-col>
+                <ion-label position='stacked' color='danger'>{{'promotion-add.promotion-value' | translate}} <ion-text
+                        *ngIf="config.isPercent">(%)</ion-text>
+                </ion-label>
+                <div>
+                    <money-input *ngIf="!config.isPercent"
+                        placeholder="{{'promotion-add.enter-promotion-value' | translate}}"
+                        [(moneyValue)]='config.promotionValue'>
+                    </money-input>
+                    <ion-input clearInput type="number" *ngIf="config.isPercent"
+                        placeholder="{{'promotion-add.enter-promotion-percent' | translate}}"
+                        [(ngModel)]="config.promotionValue"></ion-input>
+
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="config.isDiscount">
+            <ion-col>
+                <ion-label position='stacked' color='danger'>{{'promotion-add.promotion-max-value' | translate}}
+                </ion-label>
+                <div>
+                    <money-input placeholder="{{'promotion-add.enter-promotion-max-value' | translate}}"
+                        [(moneyValue)]='config.promotionMaxValue'>
+                    </money-input>
+                </div>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list *ngIf="config.isGift">
+        <ion-item-divider color="light" style="--padding-top: 5px; --padding-bottom: 5px;">
+            {{'promotion-add.promotion-products' | translate}}
+        </ion-item-divider>
+        <ion-item *ngIf="!promotionCategorySelected">
+            <ion-label color="primary">{{'promotion-add.product' | translate}} ({{'promotion-add.optional' |
+                translate}}): &nbsp;</ion-label>
+            <ion-text slot='end' color='dark' (click)='showSearchPromotionProduct()' *ngIf="promotionProductSelected && promotionProductSelected.id > 0">
+                {{promotionProductSelected.title}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchPromotionProduct()' *ngIf="!promotionProductSelected || promotionProductSelected.id === 0">
+                {{'promotion-add.select-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="promotionProductSelected && promotionProductSelected.id > 0" fill='clear' (click)='removePromotionProduct()'>
+                    <ion-icon name="close" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item *ngIf="!promotionProductSelected">
+            <ion-label color="primary">{{'promotion-add.category' | translate}} ({{'promotion-add.optional' |
+                translate}}): &nbsp;</ion-label>
+            <ion-text slot='end' color='dark' (click)='showSearchPromotionCategory()' *ngIf="promotionCategorySelected && promotionCategorySelected.id > 0">
+                {{promotionCategorySelected.title}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchPromotionCategory()' *ngIf="!promotionCategorySelected || promotionCategorySelected.id === 0">
+                {{'promotion-add.select-category' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="promotionCategorySelected && promotionCategorySelected.id > 0" fill='clear' (click)='removePromotionCategory()'>
+                    <ion-icon name="close" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'promotion-add.max-promotion-quantity' | translate}}</ion-label>
+            <ion-input clearInput type="number" [(ngModel)]='config.maxPromotionQuantity'></ion-input>
+            <p style="font-size: 0.8em;">
+                {{'promotion-add.max-promotion-quantity-description' | translate}}
+            </p>
+        </ion-item>
+    </ion-list>
+</ion-content>

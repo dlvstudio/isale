@@ -1,0 +1,120 @@
+<ion-segment [(ngModel)]='segment' [hidden]='currentType === 3' color="primary" class="ion-no-padding">
+    <ion-segment-button value="pre" (click)='previousMoment()' class="ion-text-wrap">
+        {{getTimeType()}} {{previousNumber}}
+    </ion-segment-button>
+    <ion-segment-button value="curr" class="ion-text-wrap">
+        {{getTimeType()}} {{currentNumber}}
+    </ion-segment-button>
+    <ion-segment-button value="nex" (click)='nextMoment()' class="ion-text-wrap">
+        {{getTimeType()}} {{nextNumber}}
+    </ion-segment-button>
+    <ion-button fill='clear' color="primary" class='ion-item-right' (click)='selectDateRange()' size='small'>
+        <ion-icon slot='icon-only' name="funnel"></ion-icon>
+    </ion-button>
+</ion-segment>
+<ion-item [hidden]='currentType !== 3' class="ion-no-padding">
+    <ion-label class='ion-text-wrap '>
+        <span *ngIf="dateFrom != '' || dateTo != ''">
+            {{'common.from' | translate}} {{dateOnlyFormat(dateFrom)}} {{'common.to' | translate}}
+            {{dateOnlyFormat(dateTo)}}
+        </span>
+        <span *ngIf="dateFrom == '' && dateTo == ''">
+            {{'date-range.all-time' | translate}}
+        </span>
+        <ion-button fill='clear' color="primary" class='ion-item-right' (click)='selectDateRange()'>
+            <ion-icon slot='icon-only' name="funnel"></ion-icon>
+        </ion-button>
+    </ion-label>
+</ion-item>
+<ion-grid *ngIf='page==="order"' class="ion-no-padding" style="margin-top: 5px;">
+    <ion-row>
+        <ion-col class="ion-no-padding" size='12'>
+            <ion-segment [(ngModel)]='orderStatus' (ngModelChange)='changeStatus()'
+                class="ion-no-padding">
+                <ion-segment-button [value]="-1" class="ion-text-wrap">
+                    {{'order-detail.status-all' | translate}}
+                </ion-segment-button>
+                <ion-segment-button [value]="2" class="ion-text-wrap">
+                    {{'order-detail.status-shipping' | translate}}
+                </ion-segment-button>
+                <ion-segment-button [value]="3" class="ion-text-wrap">
+                    {{'order-detail.status-done' | translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 0" [value]="0" class="ion-text-wrap">
+                    {{'order-detail.status-draft' | translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 4" [value]="4" class="ion-text-wrap">
+                    {{'order-detail.status-cancel' | translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 1" [value]="1" class="ion-text-wrap">
+                    {{'order-detail.status-inprogress' |
+                    translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 5" [value]="5" class="ion-text-wrap">
+                    {{'order-detail.status-has-debt' | translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 6" [value]="6" class="ion-text-wrap">
+                    {{'order-detail.status-shipping-has-debt' |
+                    translate}}
+                </ion-segment-button>
+                <ion-segment-button *ngIf="orderOtherStatus === 7" [value]="7" class="ion-text-wrap">
+                    {{'order-detail.status-deposit' | translate}}
+                </ion-segment-button>
+                <ion-button fill="clear" (click)='selectOtherStatus()'
+                    size='small'>
+                    <ion-icon slot='icon-only' name="ellipsis-horizontal-outline"></ion-icon>
+                </ion-button>
+            </ion-segment>
+            <ion-select #orderOtherStatusSelect [(ngModel)]="orderOtherStatus" (ngModelChange)='changeOrderOtherStatus()'
+                style='width: 0; height: 0; font-size: 0; display: none;'>
+                <ion-select-option [value]="0" class="ion-text-wrap">{{'order-detail.status-draft' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="1" class="ion-text-wrap">{{'order-detail.status-inprogress' |
+                    translate}}
+                </ion-select-option>
+                <ion-select-option [value]="4" class="ion-text-wrap">{{'order-detail.status-cancel' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="5" class="ion-text-wrap">{{'order-detail.status-has-debt' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="6" class="ion-text-wrap">{{'order-detail.status-shipping-has-debt' |
+                    translate}}
+                </ion-select-option>
+                <ion-select-option [value]="7" class="ion-text-wrap">{{'order-detail.status-deposit' | translate}}
+                </ion-select-option>
+            </ion-select>
+        </ion-col>
+        <ion-col class="ion-no-padding"
+            *ngIf='selectedStaff && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)'
+            style='padding-left: 5px; padding-bottom: 5px; padding-top: 5px;'>
+            <ion-text color='primary'>{{'order-add.collaborator-info' | translate}}</ion-text><br>
+            <ion-text color='dark' (click)='selectDateRange()'>
+                {{selectedStaff.name}}
+            </ion-text>
+        </ion-col>
+        <ion-col class="ion-no-padding"
+            *ngIf='storeSelected && (!staffService.isStaff() || staffService.selectedStaff.hasFullAccess)'
+            style='padding-left: 5px; padding-bottom: 5px; padding-top: 5px;'>
+            <ion-text color='primary'>{{'staff-add.store' | translate}}</ion-text><br>
+            <ion-text color='dark' (click)='selectDateRange()'>
+                {{storeSelected.name}}
+            </ion-text>
+        </ion-col>
+    </ion-row>
+</ion-grid>
+<ion-grid *ngIf='page === "trade"'>
+    <ion-row style='border: 1px solid #f4f5f8'>
+        <ion-col class="ion-no-padding" size='12' style='padding-left: 5px;'>
+            <ion-item class="ion-no-padding" lines='none' color='light'>
+                <ion-text color='primary'>{{'trade-add.trade-type' | translate}}</ion-text>&nbsp;
+                <ion-select [(ngModel)]="isReceivedTrade" (ngModelChange)='changeTradeType()'>
+                    <ion-select-option [value]="-1" class="ion-text-wrap">{{'order-detail.status-all' | translate}}
+                    </ion-select-option>
+                    <ion-select-option [value]="1" class="ion-text-wrap">{{'trade-add.money-in' | translate}}
+                    </ion-select-option>
+                    <ion-select-option [value]="0" class="ion-text-wrap">{{'trade-add.money-out' | translate}}
+                    </ion-select-option>
+                </ion-select>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+</ion-grid>

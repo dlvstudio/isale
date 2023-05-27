@@ -1,0 +1,168 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/fbpage"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'fb-page.title-live-comment' | translate}}</ion-title>
+        <ion-buttons slot="end" *ngIf="originals && originals.length">
+            <ion-button (click)="selectMulti()">
+                <ion-icon slot="icon-only" name="list"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item lines="none">
+        <ion-label position='stacked' color='primary'>{{'fb-page.select-page' | translate}}</ion-label>
+        <ion-button color='dark' (click)='showSearchPages()' *ngIf="selectedPage && selectedPage.id > 0">
+            {{strip(selectedPage.name, 38)}}
+        </ion-button>
+        <ion-button (click)='showSearchPages()' *ngIf="!selectedPage || selectedPage.id === 0">
+            {{'fb-page.select-page' | translate}}
+        </ion-button>
+        <ion-button slot="end" *ngIf="selectedPage && selectedPage.id > 0" fill='clear' (click)='removePage()'>
+            <ion-icon slot='icon-only' name="close"></ion-icon>
+        </ion-button>
+    </ion-item>
+    <ion-item>
+        <p style="font-size: 0.8em;" [innerHTML]="'fb-page.live-comment-description' | translate"></p>
+    </ion-item>
+    <ion-item *ngIf="liveVideo">
+        <ion-label>
+            {{'fb-page.livevideo-stream' | translate}}: {{liveVideo.title}}
+        </ion-label>
+    </ion-item>
+    <ion-segment [(ngModel)]="tab" (ngModelChange)="changeTab()">
+        <ion-segment-button value="all">
+            {{'fb-page.all-mess' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="phone" class="ion-text-wrap">
+            {{'fb-page.show-phone' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="order" class="ion-text-wrap">
+            {{'fb-page.show-order' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="order-phone" class="ion-text-wrap">
+            {{'fb-page.show-order-phone' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'fb-page.search-comment' | translate}}" [(ngModel)]='searchKey' *ngIf="tab==='all'"></ion-searchbar>
+    <ion-item lines="none" *ngIf="multiSelect && originals && originals.length" style="margin: 5px; ">
+        <ion-checkbox [(ngModel)]="selectedAll" slot="start" (ngModelChange)="changeSelectedAll()">
+        </ion-checkbox>
+        <ion-label>{{'fb-page.select-all-noti' | translate}}</ion-label>
+        <ion-buttons slot="end">
+            <ion-button color="danger" (click)="deleteMulti()">
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item *ngFor="let comment of comments" lines="none">
+            <ion-checkbox [(ngModel)]="comment.selected" slot="start" *ngIf="multiSelect">
+            </ion-checkbox>
+            <ion-icon name="person" slot="start" *ngIf="comment.fromUser && !comment.fromUserAvatarUrl"></ion-icon>
+            <ion-avatar slot="start" *ngIf="comment.fromUser && comment.fromUserAvatarUrl">
+                <ion-img [src]="comment.fromUserAvatarUrl"></ion-img>
+            </ion-avatar>
+            <ion-label [slot]="comment.fromUser ? 'start' : 'end'" class='ion-text-wrap'
+                style="border-radius: 10px; border: 1px solid #ccc; padding: 5px; flex: unset; max-width: 65%;">
+                <p *ngIf="comment.parent" style="border-radius: 10px; border: 1px solid #ccc; padding: 5px;">
+                    <span>{{'fb-page.reply' | translate}}: <br></span>
+                    <span style='white-space: pre-wrap; '>{{comment.parent.comment}}</span>
+                </p>
+                <span *ngIf="comment.fromUserName && comment.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{comment.fromUserName}}<br></span>
+                <span *ngIf="comment.pageName && !comment.fromUser"
+                    style='white-space: pre-wrap; font-weight: bold; '>{{comment.pageName}}<br></span>
+                <span style='white-space: pre-wrap; '>{{comment.comment}}</span>
+                <ion-img (ionImgDidLoad)="scroll()" *ngIf="comment.photoUrl" [src]="comment.photoUrl"
+                    style="max-width: 288px"></ion-img>
+                <p style="font-size: 0.8em;">
+                    {{dateFormat(comment.timestamp)}}
+                </p>
+                <p *ngIf="comment.phone" style="border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-top: 5px;">
+                    <ion-text color="success">{{comment.phone}}</ion-text>
+                    &nbsp;
+                    <ion-icon name="person-add" (click)="addToContact(comment, comment.phone)"></ion-icon>
+                    &nbsp;
+                    <ion-icon name="call" (click)="call(comment.phone)"></ion-icon>
+                </p>
+                <p *ngIf="comment.order" style="border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-top: 5px;">
+                    <ion-text color="tertiary" (click)="viewOrder(comment.order)" style="font-size: 0.8em;">{{'fb-page.order-added' |
+                        translate}}: #{{comment.order.orderCode}}</ion-text>
+                    &nbsp;
+                    <ion-icon name="eye" (click)="viewOrder(comment.order)" style="margin-bottom: -3px;"></ion-icon>
+                </p>
+                <ion-label *ngIf="!comment.order && comment.products && comment.products.length && comment.fromUser"
+                    style="border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin-top: 5px;">
+                    <ion-label *ngFor="let product of comment.products; let i = index" class="ion-text-wrap">
+                        <p>
+                            <ion-text color="success"><span
+                                    *ngIf="comment.products.length > 1">{{i+1}}.&nbsp;</span>{{product.title}}</ion-text>
+                            &nbsp;
+                            <ion-icon name="arrow-undo" (click)="sendProduct(comment, product)"></ion-icon>
+                        </p>
+                    </ion-label>
+                    <ion-label (click)="addOrder(comment)">
+                        <p>
+                            <ion-text style="font-size: 0.8em;" color="primary">{{'fb-page.add-order' |
+                            translate}}</ion-text>
+                            &nbsp;<ion-icon name="basket" style="margin-bottom: -3px;"></ion-icon>
+                        </p>
+                    </ion-label>
+                </ion-label>
+            </ion-label>
+            <ion-icon *ngIf="comment.fromUser" name="arrow-undo-outline" (click)="reply(comment)">
+            </ion-icon>
+            <ion-icon *ngIf="comment.fromUser" name="mail-outline" (click)="chat(comment)" style="margin-left: 10px;">
+            </ion-icon>
+            <ion-avatar slot="end" *ngIf="!comment.fromUser">
+                <ion-img [src]="'https://graph.facebook.com/' + comment.pageId + '/picture?type=square'"></ion-img>
+            </ion-avatar>
+        </ion-item>
+        <ion-item class='ion-text-wrap' *ngIf="!originals || originals.length===0">
+            <div [innerHTML]="'fb-page.no-comment' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>
+<ion-footer>
+    <ion-item lines="none" *ngIf="replyingComment">
+        <ion-label [slot]="replyingComment.fromUser ? 'start' : 'end'" class='ion-text-wrap'
+            style="border-radius: 10px; border: 1px solid #ccc; padding: 5px; min-width: 65%;">
+            <span>{{'fb-page.replying' | translate}}: <br></span>
+            <span style='white-space: pre-wrap; '>{{replyingComment.comment}}</span>
+            <ion-img (ionImgDidLoad)="scroll()" *ngIf="replyingComment.photoUrl" [src]="replyingComment.photoUrl"
+                style="max-width: 288px"></ion-img>
+        </ion-label>
+        <ion-icon name="close" color="danger" (click)="removeReply()" slot="end">
+        </ion-icon>
+    </ion-item>
+    <ion-item lines="none" *ngIf="photo">
+        <ion-label>
+            <ion-thumbnail>
+                <img [src]="photo" style="max-width: 150px;" />
+            </ion-thumbnail>
+        </ion-label>
+        <ion-button (click)='removePhoto()' fill='clear' size='small'><ion-icon size='small' name='trash-outline'
+                slot='icon-only'></ion-icon></ion-button>
+    </ion-item>
+    <ion-item style="margin-bottom: 10px;" lines="none">
+        <ion-input #messageInput [(ngModel)]="comment"
+            style="border: 2px solid #bbb; border-radius: 10px; --padding-start: 5px;min-height: 50px"
+            placeholder="{{'fb-page.enter-message' | translate}}" (keyup.enter)="enterMessage()"></ion-input>
+        <label slot="end" color='primary' for="files" *ngIf='navCtrl.isNotCordova()'
+            style="width: 28px; padding-top: 3px;">
+            <ion-icon name="image" color="success" style="font-size: 28px;">
+            </ion-icon>
+        </label>
+        <input *ngIf='navCtrl.isNotCordova()' #fileUploadInput type="file" accept="image/*" id="files"
+            style="width: 0; height: 0; font-size: 0;" (change)="rememberFile($event)" />
+        <ion-icon slot="end" name="image" color="success" (click)="upload()" *ngIf='!navCtrl.isNotCordova()'>
+        </ion-icon>
+        <ion-icon slot="end" name="send" color="success" (click)="enterMessage()">
+        </ion-icon>
+    </ion-item>
+</ion-footer>

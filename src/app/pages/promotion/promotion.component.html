@@ -1,0 +1,97 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button *ngIf="searchMode" (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+            <ion-menu-button *ngIf="!searchMode" menu="first"></ion-menu-button>
+            <ion-button *ngIf="!searchMode"color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'promotion.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)='reload()' *ngIf="segment === 'histories'">
+                <ion-icon name="refresh"></ion-icon>
+            </ion-button>
+            <ion-button (click)='addConfig()'
+                *ngIf="segment === 'config' && (!selectedStaff || selectedStaff.hasFullAccess)">
+                <ion-icon name="add"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-segment [(ngModel)]="segment" color='primary' (ngModelChange)="tabChange()" *ngIf="!searchMode">
+        <ion-segment-button value="config" *ngIf="!selectedStaff || selectedStaff.hasFullAccess">
+            <ion-label class="ion-text-wrap">
+                {{'promotion.config' | translate}}
+            </ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="histories">
+            <ion-label class="ion-text-wrap">
+                {{'promotion.histories' | translate}}
+            </ion-label>
+        </ion-segment-button>
+    </ion-segment>
+    <div [hidden]="segment !== 'config'">
+        <ion-searchbar debounce="700" (ionChange)='searchConfigs()'
+            placeholder="{{'promotion.search-configs' | translate}}" [(ngModel)]='searchKeyConfigs'></ion-searchbar>
+    </div>
+    <div [hidden]="segment !== 'histories'">
+        <ion-searchbar debounce="700" (ionClear)='clearSearchHistories()' (ionChange)='searchHistories()'
+            placeholder="{{'promotion.search-histories' | translate}}" [(ngModel)]='searchKeyHistories'></ion-searchbar>
+        <div style='padding-left: 10px; padding-right: 10px;'>
+            <period-range (onPeriodChanged)="onPeriodChanged($event)" page='promotion' [modeLink]='true'></period-range>
+        </div>
+    </div>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div [hidden]="segment !== 'config'" >
+        <div list-only table="promotion" #listConfigs [hideSearch]="true"      
+        [itemTemplate]="itemTemplate" [searchFields]="searchFields" [fetchObjectsFunc] = "getAvaliablePromotionConfigs">
+        </div>
+    </div>
+    <div [hidden]="segment !== 'histories'">
+        <ion-list>
+            <ion-grid>
+                <ion-row style='border-bottom: 1px solid #ccc'>
+                    <ion-col [size]='promotionHistories && promotionHistories.length ? 8 : 12'>
+                        <ion-item class='ion-text-wrap ion-no-padding' lines='none'>
+                            <ion-label color="primary">
+                                {{'common.total' | translate}}: {{total |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                <p>
+                                    <ion-text color='dark'>
+                                        {{promotionHistories && promotionHistories.length ? promotionHistories.length :
+                                        0}} {{'promotion.history(s)' | translate}}
+                                    </ion-text>
+                                </p>
+                            </ion-label>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+            <ion-item *ngFor="let item of promotionHistories; let i = index" (press)="presentActionSheet(item)">
+                <ion-label class='ion-text-wrap'>
+                    <p *ngIf='item.contact'>{{'promotion-add.contact' | translate}}:
+                        {{item.contact.fullName}}</p>
+                    <p *ngIf='item.amount'>{{'promotion.history-amount' | translate}}: {{item.amount}}
+                        {{'promotion-add.promotion' | translate}}</p>
+                    <p *ngIf="item.createdAt">
+                        {{'promotion.history-created-at' | translate}}: {{dateFormat(item.createdAt)}}
+                    </p>
+                    <p *ngIf="item.order">
+                        <ion-text color="secondary" (click)="viewOrder(item.order.id)">{{'promotion.order' |
+                            translate}}: #{{item.order.orderCode}}</ion-text>
+                    </p>
+                </ion-label>
+                <ion-avatar slot='end' *ngIf='item.contact'>
+                    <img [src]="contactImageOrPlaceholder(item.contact)" />
+                </ion-avatar>
+            </ion-item>
+            <ion-item class='ion-text-wrap' *ngIf="!promotionHistories || promotionHistories.length===0">
+                <div [innerHTML]="'promotion.no-histories' | translate">
+                </div>
+            </ion-item>
+        </ion-list>
+    </div>
+</ion-content>

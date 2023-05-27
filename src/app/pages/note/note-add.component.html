@@ -1,0 +1,75 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'note-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button *ngIf="!isInViewPictureMode" color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+            <ion-button *ngIf="isInViewPictureMode" color="primary" (click)='removePicture(0)'>
+                &nbsp;{{'note-add.delete-photo' | translate}}
+            </ion-button>
+            <ion-button *ngIf="isInViewPictureMode" color="primary" (click)='closeViewPicture()'>
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.close' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div *ngIf='!isInViewPictureMode'>
+        <ion-list>
+            <ion-item>
+                <ion-text color='primary'>{{'note-add.contact' | translate}}</ion-text>
+                <ion-text color='dark' slot='end' (click)='showSearchContact()' *ngIf="contactSelected && contactSelected.id > 0">
+                    {{contactSelected.fullName}}
+                </ion-text>
+                <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id === 0">
+                    {{'note-add.select-contact' | translate}}
+                </ion-text>
+                <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='outline' slot='end' (click)='removeContact()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+            </ion-item>
+            <ion-item>
+                <ion-label color='primary'>{{'note-add.VIP' | translate}}</ion-label>
+                <ion-toggle [(ngModel)]='note.important'></ion-toggle>
+            </ion-item>
+            <ion-item>
+                <ion-label color='primary'>{{'note-add.frequently' | translate}}</ion-label>
+                <ion-toggle [(ngModel)]='note.frequency'></ion-toggle>
+            </ion-item>
+        </ion-list>
+        <ion-segment [(ngModel)]="noteSegment">
+            <ion-segment-button value="content">
+                <ion-icon name="document"></ion-icon>
+                {{'note-detail.content' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="picture">
+                <ion-icon name="image"></ion-icon>
+                {{'note-detail.photos' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+        <ion-list *ngIf='noteSegment==="content"'>
+            <ion-item>
+                <ion-textarea type="text" placeholder="{{'note-add.enter-content' | translate}}" rows="11" [(ngModel)]='note.content'></ion-textarea>
+            </ion-item>
+        </ion-list>
+        <ion-item [hidden]='noteSegment!=="picture"'>
+            <ion-button color='secondary' (click)='upload()' *ngIf='!isNotCordova()'><ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}</ion-button>
+            <label *ngIf='isNotCordova()' color='primary' for="files">[<span *ngIf='!fileToUpload'>{{'note-add.select-photo' | translate}}</span><span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>]</label>
+            <input *ngIf='isNotCordova()' #fileUploadInput type="file" accept="image/*" id="files" (change)="rememberFile($event)" style='width: 0; height: 0; font-size: 0;'/>
+        </ion-item>
+        <ion-grid [hidden]='noteSegment!=="picture"'>
+            <ion-row *ngFor="let row of arr">
+                <ion-col width-33 *ngFor="let picture of row">
+                    <img [src]="picture.imageUrl" (click)='showImage(picture)'>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+</ion-content>

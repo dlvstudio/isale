@@ -1,0 +1,83 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'help.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <h3 style='padding-left: 20px'>{{'help-product.agenda' | translate}}:</h3>
+    <ion-list>
+        <ion-item button (click)="goHelpPage('product')" detail>
+            <ion-icon name="cart" slot="start" color='primary'></ion-icon>
+            <ion-label>
+                {{'help.add-product' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item button (click)="goHelpPage('order')" detail>
+            <ion-icon name="basket" slot="start" style="color: #f88962"></ion-icon>
+            <ion-label>
+                {{'help.add-order' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item button (click)="goHelpPage('table')" detail>
+            <ion-icon name="grid" slot="start" color='secondary'></ion-icon>
+            <ion-label>
+                {{'help.manage-tables' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item button (click)="goHelpPage('coffee')" detail>
+            <ion-icon name="cafe" slot="start" color='success'></ion-icon>
+            <ion-label>
+                {{'help.coffee' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item button (click)="goHelpPage('web')" detail>
+            <ion-icon name="globe" slot="start" style="color: #d9534f"></ion-icon>
+            <ion-label>
+                {{'help.web' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item button (click)="goPrintPage()" detail>
+            <ion-icon name="print" slot="start" color='success'></ion-icon>
+            <ion-label>
+                {{'help.connect-printer' | translate}}
+            </ion-label>
+        </ion-item>
+        <div class="ion-padding">
+            <support [neverHide]='true'></support>
+        </div>
+        <ion-item lines='none' style='padding-top: 0px !important;'>
+            <ion-label class='ion-text-wrap'>
+                {{'common.app-version' | translate}}
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important;' (click)='openWeb()' *ngIf='!navCtrl.isNotCordova()'>
+            <div style='width: 100px; background-color: #000000; color: #ffffff; border-radius: 5px; padding: 5px; text-align: left;  vertical-align: middle;'
+                slot='start'>
+                <ion-icon name='globe' color="success" style='float: left; font-size: 22px;'></ion-icon> <span
+                    style='font-size: 0.7em; font-weight: bold; margin-bottom: 5px;'>&nbsp;Trình duyệt</span>
+            </div>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.8em;">
+                https://isale.online/app
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important; cursor: pointer;' *ngIf='(navCtrl.isWeb() || navCtrl.isIos()) && !navCtrl.isIosReview()' (click)='openAppAndroid()'>
+            <ion-img src='./assets/android-app.png' style='width: 100px;' slot='start'></ion-img>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.8em;">
+                https://play.google.com/store/apps/details?id=com.dlv.isale
+            </ion-label>
+        </ion-item>
+        <ion-item lines='none' style='padding-top: 0px !important; cursor: pointer;'
+            *ngIf='!navCtrl.isIos() || navCtrl.isWeb()' (click)='openAppIos()'>
+            <ion-img src='./assets/ios-app.png' style='width: 100px;' slot='start'></ion-img>
+            <ion-label class='ion-text-wrap' color='primary' style="font-size: 0.8em;">
+                https://apps.apple.com/us/app/isale-management/id1485080690
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

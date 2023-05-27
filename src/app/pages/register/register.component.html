@@ -1,0 +1,49 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'register.title' | translate}}</ion-title>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+          <ion-label color='primary'>{{'language.language' | translate}}</ion-label>
+          <ion-buttons>
+            <ion-button *ngIf="language === 'vn'" color="primary" (click)='changeto("vn")' fill='solid'>
+              {{'language.vietnamese' | translate}}</ion-button>
+            <ion-button *ngIf="language === 'en'" color="primary" (click)='changeto("vn")' fill='clear'>
+              {{'language.vietnamese' | translate}}</ion-button>
+            <ion-button *ngIf="language === 'en'" color="primary" (click)='changeto("en")' fill='solid'>
+              {{'language.english' | translate}}</ion-button>
+            <ion-button *ngIf="language === 'vn'" color="primary" (click)='changeto("en")' fill='clear'>
+              {{'language.english' | translate}}</ion-button>
+          </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked'>{{'register.shop' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'register.enter-shop' | translate}}" [(ngModel)]='shop'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked'>{{'login.username' | translate}}
+            </ion-label>
+            <ion-input clearInput type="text" placeholder="{{'login.enter-username' | translate}}" [(ngModel)]='username'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked'>{{'login.password' | translate}}</ion-label>
+            <ion-input clearInput type="password" placeholder="{{'login.enter-password' | translate}}" [(ngModel)]='password'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked'>{{'register.confirm-password' | translate}}</ion-label>
+            <ion-input clearInput type="password" placeholder="{{'login.enter-password' | translate}}" [(ngModel)]='confirm'>
+            </ion-input>
+        </ion-item>
+    </ion-list>
+    <div padding>
+        <ion-button color="primary" expand='block' (click)='register()'>{{'register.register' | translate}}</ion-button>
+    </div>
+</ion-content>

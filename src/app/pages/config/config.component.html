@@ -1,0 +1,403 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='checkSaveAndHome()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'config.title' | translate}}</ion-title>
+        <ion-buttons slot="end" *ngIf='segment === "shop" || segment === "web" || segment === "language"'>
+            <ion-button size="large" color="success" (click)='saveShop()' [disabled]='saveDisabled' *ngIf='segment === "shop" || segment === "web"'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+            <ion-button size="large" color="success" (click)='saveShopConfig()' [disabled]='saveDisabled' *ngIf="segment === 'language' && hasDifferences">
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-segment [(ngModel)]="segment" color='primary' (ionChange)='changeSegment()'>
+        <ion-segment-button value="shop" class="ion-text-wrap">
+            {{'shop-add.tab-title' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="web" class="ion-text-wrap">
+            {{'config.web' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="language" class="ion-text-wrap">
+            {{'config.other-config' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding' *ngIf='segment === "shop" || segment === "web"'
+        style='background-color: #0275d8; margin: 20px; box-shadow: 5px 5px 3px #ccc; color: white;'>
+        <span [innerHTML]="'shop-add.shop-online-notice' | translate"></span>
+        <div style='margin-top: 10px;' *ngIf='shop && shop.webName'>
+            <p>
+                <ion-text color='light'>{{shop.webName}}</ion-text>
+            </p>
+            <ion-button (click)='openMyWeb()' color='success'>{{'shop-add.open-my-web' | translate}}</ion-button>
+        </div>
+    </div>
+    <ion-list *ngIf='segment === "shop"'>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.name' | translate}}</ion-label>
+            <ion-input type="text" placeholder='Vd: Flowers Shop' [(ngModel)]='shop.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.short-description' | translate}}</ion-label>
+            <ion-textarea type="text" placeholder='Vd: Chuyên cung cấp hàng gia dụng' [(ngModel)]='shop.shortDescription'></ion-textarea>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.phone' | translate}}</ion-label>
+            <ion-input clearInput type="tel" placeholder='Vd: 09123456789' [(ngModel)]='shop.phone'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' position='stacked'>{{'shop-add.photo' | translate}}</ion-label>
+            <br *ngIf='shop.iconUrl'>
+            <img [src]="contactImageOrPlaceholder()" *ngIf='shop.iconUrl' style="max-width: 150px;" />
+            <ion-button color='secondary' (click)='upload(uploadCallBack)' *ngIf='!isNotCordova()'>
+                <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+            </ion-button>
+            <label color='primary' for="files" *ngIf='isNotCordova()' style='margin-bottom: 10px; margin-top: 10px;'>
+                [<span *ngIf='!fileToUpload'>{{'note-add.select-photo' | translate}}</span>
+                <span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>]
+            </label>
+            <input *ngIf='isNotCordova()' #fileUploadInput type="file" accept="image/*" id="files"
+                style="width: 0; height: 0; font-size: 0;" (change)="rememberFile($event, uploadCallBack)" />
+            <ion-button (click)='removeShopPhoto()' slot='end' fill='clear' size='small' *ngIf='shop.iconUrl'>
+                <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.email' | translate}}</ion-label>
+            <ion-input clearInput type="email" placeholder='abc@email.com' [(ngModel)]="shop.email"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.address' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.address"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.facebook' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.facebook"
+                placeholder='Eg: https://www.facebook.com/dlv.isale'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.bankName" placeholder='Eg: Vietcombank, BIDV...'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-account-name' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.bankAccountName" placeholder='Eg: Johny Doe'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-account-number' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.bankAccountNumber" placeholder='Eg: 123-666-999'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'shop-add.bank-account-number' | translate}}</ion-label>
+            <ion-input clearInput type="text" [(ngModel)]="shop.bankAccountNumber" placeholder='Eg: 123-666-999'>
+            </ion-input>
+        </ion-item>
+    </ion-list>
+    <div class='ion-padding' *ngIf='segment === "shop"'
+        style='background-color: #cccccc; margin: 20px; box-shadow: 5px 5px 3px #ccc;'>
+        <span [innerHTML]="'shop-add.delete-shop-notice' | translate"></span>
+        <div style='margin-top: 10px;'>
+            <ion-button color="danger" (click)='deleteAccount()'>{{'shop-add.delete-shop' | translate}}</ion-button>
+        </div>
+    </div>
+    <ion-list *ngIf="segment === 'language'">
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">{{'language.language' | translate}}</ion-label>
+            <ion-select [(ngModel)]="language">
+                <ion-select-option value="en">{{'language.english' | translate}}</ion-select-option>
+                <ion-select-option value="vn">{{'language.vietnamese' | translate}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">{{'config.money' | translate}}</ion-label>
+            <ion-select [(ngModel)]="userConfig['current-currency'][0]">
+                <ion-select-option *ngFor="let c of currenciesList" [value]='c.code'>{{c.code}} -
+                    {{c.symbol_native}} - {{c.name}}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">{{'config.dateformat' | translate}}</ion-label>
+            <ion-select [(ngModel)]="userConfig['date-format'][0]">
+                <ion-select-option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2018)</ion-select-option>
+                <ion-select-option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2018)</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">{{'config.timeformat' | translate}}</ion-label>
+            <ion-select [(ngModel)]="userConfig['time-format'][0]">
+                <ion-select-option value="HH:mm">HH:mm (00-24:00-59)</ion-select-option>
+                <ion-select-option value="hh:mm A">hh:mm A (00-12:00-59 AM-PM)</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">{{'config.out-stock-cannot-sell' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]="userConfig['out-stock'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-materials' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-materials'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-tables-function' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-tables-function'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-calendar-function' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-calendar-function'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-promotion-function' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-promotion-function'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                <b>{{'config.hide-tax' | translate}}</b>
+                <p>{{'config.hide-tax-description' | translate}}</p>
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-tax'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                <b>{{'config.print-order-like-invoice' | translate}}</b>
+                <p>{{'config.print-order-like-invoice-description' | translate}}</p>
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['print-order-like-invoice'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="userConfig['print-order-like-invoice'][0]">
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.order-invoice-max-empty-rows' | translate}}
+            </ion-label>
+            <ion-input slot='end' type='number' [(ngModel)]="userConfig['order-invoice-max-empty-rows'][0]" style='text-align: right;'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-discount-column' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-discount-column'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.show-staff-phone' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['show-staff-phone'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.show-staff-name-under-sign' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['show-staff-name-under-sign'][0]"></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary' class="ion-text-wrap">
+                {{'config.order-print-note' | translate}}
+            </ion-label>
+            <ion-textarea rows="3" style="border: 1px solid #ccc" type="text" [(ngModel)]="userConfig['order-print-note'][0]"></ion-textarea>
+            <p>{{'config.order-print-note-description' | translate}}</p>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary' class="ion-text-wrap">
+                {{'config.hide-product-code-print' | translate}}
+            </ion-label>
+            <ion-toggle [(ngModel)]="userConfig['hide-product-code-print'][0]"></ion-toggle>
+        </ion-item>
+    </ion-list>
+    <div class="ion-padding" *ngIf="segment === 'language'">
+        <ion-button color="success" (click)='saveShopConfig()' [disabled]='saveDisabled'>
+            <ion-icon name="checkmark"></ion-icon>
+            &nbsp;{{'action.save' | translate}}
+        </ion-button>
+    </div>
+    <ion-grid *ngIf="segment === 'web'">
+        <ion-row>
+            <ion-col size='6'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.is-enable-web' | translate}}</ion-label>
+                    <ion-toggle [(ngModel)]="web.isEnableWeb" style='margin-bottom: 15px'></ion-toggle>
+                </ion-item>
+            </ion-col>
+            <ion-col size='6' style='padding-top: 25px'>
+                <ion-button (click)='openExampleWeb()' color='warning'>{{'shop-add.see-example-web' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.introduce' | translate}}</ion-label>
+                    <ion-textarea style='border: 1px solid #ccc; padding: 5px;' rows="5" [(ngModel)]="web.introduce"
+                        placeholder="{{'config.enter-introduce' | translate}}"></ion-textarea>
+                    <div style='justify-content: center; align-items: center; display: flex; line-height: 30px;'>
+                        <ion-icon name='help-circle' color='medium'></ion-icon>&nbsp;<ion-text color='medium'
+                            style='font-size: 0.8em;'>{{'config.enter-introduce-help' | translate}}</ion-text>
+                    </div>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.open-letter' | translate}}</ion-label>
+                    <ion-textarea style='border: 1px solid #ccc; padding: 5px;' rows="5" [(ngModel)]="web.openLetter"
+                        placeholder="{{'config.enter-open-letter' | translate}}"></ion-textarea>
+                    <div style='justify-content: center; align-items: center; display: flex; line-height: 30px;'>
+                        <ion-icon name='help-circle' color='medium'></ion-icon>&nbsp;<ion-text color='medium'
+                            style='font-size: 0.8em;'>{{'config.enter-open-letter-help' | translate}}</ion-text>
+                    </div>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.map-iframe-small' | translate}}</ion-label>
+                    <ion-textarea style='border: 1px solid #ccc; padding: 5px;' rows="5"
+                        [(ngModel)]="web.mapIframeSmall" placeholder="{{'config.enter-map-iframe-small' | translate}}">
+                    </ion-textarea>
+                    <div style='justify-content: center; align-items: center; display: flex; line-height: 30px;'
+                        (click)='navCtrl.openExternalUrl("https://support.google.com/maps/answer/144361")'>
+                        <ion-text color='medium' style='font-size: 0.8em;'>{{'config.enter-map-iframe-small-help' |
+                            translate}}</ion-text>
+                    </div>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.map-iframe-big' | translate}}</ion-label>
+                    <ion-textarea style='border: 1px solid #ccc; padding: 5px; margin-bottom: 15px;' rows="5"
+                        [(ngModel)]="web.mapIframeBig" placeholder="{{'config.enter-map-iframe-big' | translate}}">
+                    </ion-textarea>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label color='primary' position='stacked'>{{'config.banner-url1' | translate}}</ion-label>
+                    <br *ngIf='web.bannerUrl1'>
+                    <img [src]="web.bannerUrl1" *ngIf='web.bannerUrl1' style="max-width: 150px; max-height: 150px;" />
+                    <ion-grid style='width: 100%; margin: 0;'>
+                        <ion-row>
+                            <ion-col size='5' style="vertical-align: middle;">
+                                <ion-button color='secondary' (click)='upload(uploadBanner1CallBack)'
+                                    *ngIf='!isNotCordova()'>
+                                    <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+                                </ion-button>
+                                <label color='primary' for="files1" *ngIf='isNotCordova()'>
+                                    [<span *ngIf='!fileToUpload1'>{{'note-add.select-photo' | translate}}</span>
+                                    <span *ngIf='fileToUpload1'>{{fileToUpload1.name}}</span>]
+                                </label>
+                                <input *ngIf='isNotCordova()' #fileUploadInput1 type="file" accept="image/*"
+                                    id="files1" style="width: 0; height: 0; font-size: 0;"
+                                    (change)="rememberFile($event, uploadBanner1CallBack)" />
+                            </ion-col>
+                            <ion-col size='7'>
+                                <ion-button (click)='removeBanner1()' fill='clear' size='small' *ngIf='web.bannerUrl1'>
+                                    <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-item>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.banner-text1' | translate}}</ion-label>
+                    <ion-input clearInput type='text' [(ngModel)]="web.bannerText1"
+                        placeholder="{{'config.enter-banner-text1' | translate}}">
+                    </ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label color='primary' position='stacked'>{{'config.banner-url2' | translate}}</ion-label>
+                    <br *ngIf='web.bannerUrl2'>
+                    <img [src]="web.bannerUrl2" *ngIf='web.bannerUrl2' style="max-width: 150px; max-height: 150px;" />
+                    <ion-grid style='width: 100%; margin: 0;'>
+                        <ion-row>
+                            <ion-col size='5' style="vertical-align: middle;">
+                                <ion-button color='secondary' (click)='upload(uploadBanner2CallBack)'
+                                    *ngIf='!isNotCordova()'>
+                                    <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+                                </ion-button>
+                                <label color='primary' for="files2" *ngIf='isNotCordova()'
+                                    style='margin-bottom: 10px; margin-top: 10px;'>
+                                    [<span *ngIf='!fileToUpload2'>{{'note-add.select-photo' | translate}}</span>
+                                    <span *ngIf='fileToUpload2'>{{fileToUpload2.name}}</span>]
+                                </label>
+                                <input *ngIf='isNotCordova()' #fileUploadInput2 type="file" accept="image/*"
+                                    id="files2" style="width: 0; height: 0; font-size: 0;"
+                                    (change)="rememberFile($event, uploadBanner2CallBack)" />
+                            </ion-col>
+                            <ion-col size='7'>
+                                <ion-button (click)='removeBanner2()' fill='clear' size='small' *ngIf='web.bannerUrl2'>
+                                    <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-item>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.banner-text2' | translate}}</ion-label>
+                    <ion-input clearInput type='text' [(ngModel)]="web.bannerText2"
+                        placeholder="{{'config.enter-banner-text2' | translate}}">
+                    </ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col size-lg='6' size-md='6' size-sm='12' size-xs='12'>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label color='primary' position='stacked'>{{'config.banner-url3' | translate}}</ion-label>
+                    <br *ngIf='web.bannerUrl3'>
+                    <img [src]="web.bannerUrl3" *ngIf='web.bannerUrl1' style="max-width: 150px; max-height: 150px;" />
+                    <ion-grid style='width: 100%; margin: 0;'>
+                        <ion-row>
+                            <ion-col size='5' style="vertical-align: middle;">
+                                <ion-button color='secondary' (click)='upload(uploadBanner3CallBack)'
+                                    *ngIf='!isNotCordova()'>
+                                    <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+                                </ion-button>
+                                <label color='primary' for="files3" *ngIf='isNotCordova()'
+                                    style='margin-bottom: 10px; margin-top: 10px;'>
+                                    [<span *ngIf='!fileToUpload3'>{{'note-add.select-photo' | translate}}</span>
+                                    <span *ngIf='fileToUpload3'>{{fileToUpload3.name}}</span>]
+                                </label>
+                                <input *ngIf='isNotCordova()' #fileUploadInput3 type="file" accept="image/*"
+                                    id="files3" style="width: 0; height: 0; font-size: 0;"
+                                    (change)="rememberFile($event, uploadBanner3CallBack)" />
+                            </ion-col>
+                            <ion-col size='7'>
+                                <ion-button (click)='removeBanner3()' fill='clear' size='small' *ngIf='web.bannerUrl3'>
+                                    <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-item>
+                <ion-item class="ion-no-padding" lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'config.banner-text3' | translate}}</ion-label>
+                    <ion-input clearInput type='text' [(ngModel)]="web.bannerText3"
+                        placeholder="{{'config.enter-banner-text3' | translate}}">
+                    </ion-input>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list lines='none' *ngIf="segment === 'web'">
+        <ion-item button (click)="goHelpPage('web')" detail>
+            <ion-icon name="help" slot="start"></ion-icon>
+            <ion-label color='primary'>
+                {{'help-web.title' | translate}}
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

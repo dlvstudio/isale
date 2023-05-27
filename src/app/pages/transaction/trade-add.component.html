@@ -1,0 +1,171 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'trade-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item [hidden]='!trade.debt || trade.debt.id == 0'>
+            <p ion-text>{{'trade-add.debt-explain' | translate}}</p>
+        </ion-item>
+        <ion-item [hidden]='!trade.debt || trade.debt.id == 0'>
+            <ion-text color='primary'>{{'trade-add.debt-no' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{trade.debt ? '#' + trade.debt.id : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-item [hidden]='!trade.order || trade.order.id == 0'>
+            <ion-text color='primary'>{{'debt-add.order' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{trade.order ? '#' + trade.order.orderCode : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-item [hidden]='!trade.receivedNote || trade.receivedNote.id == 0'>
+            <ion-text color='primary'>{{'debt-add.received-note' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{trade.receivedNote ? '#' + trade.receivedNote.id : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'trade-add.contact' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchContact()'
+                *ngIf="contactSelected && contactSelected.id > 0">
+                {{contactSelected.fullName}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchContact()' *ngIf="!contactSelected || contactSelected.id == 0">
+                {{'trade-add.select-contact' | translate}}
+            </ion-text>
+            <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='outline' slot='end'
+                (click)='removeContact()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item [hidden]='trade.debtId' lines='none'>
+            <ion-label color='primary'>
+                {{'trade-add.product' | translate}}
+            </ion-label>
+            <ion-text color='dark' slot='end' (click)='showSearchProduct()'
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productName(productSelected.code, productSelected.title)}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id == 0">
+                {{'trade-add.select-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="productSelected && productSelected.id > 0" fill='outline' (click)='removeProduct()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+                <ion-button fill='outline' (click)='scan()'>
+                    <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item [hidden]='trade.debtId' style='--min-height: 0;'>
+            <ion-text style='font-size: 0.75em'>
+                {{'trade-add.product-description' | translate}}
+            </ion-text>
+        </ion-item>
+        <ion-item *ngIf="productSelected">
+            <ion-label color='primary'>{{'trade-add.is-purchase' | translate}}</ion-label>
+            <ion-toggle [(ngModel)]='trade.isPurchase' (ngModelChange)='changeIsPurchase()'></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="productSelected && trade.isPurchase">
+            <ion-label position='stacked' color='primary'>{{'trade-add.product-count' | translate}} <span
+                    *ngIf="productSelected.unit && productSelected.price && currency">({{productSelected.price |
+                    currency:currency.code:true:'1.0-2':translateService.currentLang}}/{{productSelected.unit}})</span>
+            </ion-label>
+            <ion-input type="number" placeholder="{{'trade-add.enter-product-count' | translate}}"
+                [(ngModel)]='trade.productCount' (ngModelChange)='changeProductCount()' (focus)='selectAll($event)'>
+            </ion-input>
+        </ion-item>
+        <ion-item lines='none'>
+            <ion-label position='stacked' color='primary'>{{'trade-add.money' | translate}} <span
+                    *ngIf="currency">({{currency.symbol_native}} - {{currency.code}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'trade-add.enter-money' | translate}}"
+                [(moneyValue)]='trade.value'>
+            </money-input>
+        </ion-item>
+        <ion-item>
+            <ion-buttons>
+                <ion-button [color]='trade.isReceived ? "primary" : "dark"'
+                    [fill]='trade.isReceived ? "outline" : "clear"' (click)='changeToMoneyIn()'>
+                    {{'trade-add.money-in' | translate}}
+                </ion-button>
+                <ion-button [color]='trade.isReceived ? "dark" : "primary"'
+                    [fill]='trade.isReceived ? "clear" : "outline"' (click)='changeToMoneyOut()'>
+                    {{'trade-add.money-out' | translate}}
+                </ion-button>
+            </ion-buttons>
+            <ion-buttons slot='end'>
+                <ion-button fill='clear' (click)='addZerosToNumber(2)'>.00</ion-button>
+                <ion-button fill='clear' (click)='addZerosToNumber(3)'>.000</ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'trade-add.short-description' | translate}}</ion-label>
+            <ion-textarea type="text" placeholder="{{'trade-add.short-description' | translate}}" rows="6"
+                [(ngModel)]='trade.note'></ion-textarea>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-list-header>
+            <ion-label>{{'trade-add.categories' | translate}}</ion-label>
+            <ion-button fill="outline" (click)='showSearchCategory()'>
+                <ion-icon name="add"></ion-icon>
+                {{'trade-add.add' | translate}}
+            </ion-button>
+        </ion-list-header>
+        <ion-item *ngFor="let category of categories">
+            <ion-text>{{category.tradeCategory.title}}</ion-text>
+            <ion-button fill='outline' slot='end' (click)='removeCategory(category)'>
+                <ion-icon name="remove"></ion-icon>
+                {{'trade-add.remove' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'trade-add.created-at' | translate}}</ion-text>
+            <div>
+                <date-picker [(date)]="trade.createdAt"
+                    pickerId="tradeAddPicker" min="2015-01-01" max="2025-12-31">
+                </date-picker>
+            </div>
+        </ion-item>
+        <ion-item *ngIf='!staffService.isStaff()'>
+            <ion-text color='primary'>{{'trade-add.money-account' | translate}}</ion-text>
+            <ion-text [hidden]='isDisableMoneyAccount()' ion-text color='dark' slot='end'
+                (click)='showSearchMoneyAccount()' *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0">
+                {{moneyAccountSelected.accountName}}
+            </ion-text>
+            <ion-text [hidden]='isDisableMoneyAccount()' slot='end' (click)='showSearchMoneyAccount()'
+                *ngIf="!moneyAccountSelected || moneyAccountSelected.id == 0">
+                {{'trade-add.select-money-account' | translate}}
+            </ion-text>
+            <span style='color: silver' slot='end' [hidden]='!isDisableMoneyAccount()'
+                *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0">
+                {{moneyAccountSelected.accountName}}
+            </span>
+            <ion-button [disabled]='isDisableMoneyAccount()' *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0"
+                fill='outline' slot='end' (click)='removeMoneyAccount()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='!staffService.isStaff() && moneyAccountSelected && moneyAccountSelected.id > 0'
+            [hidden]='!isDisableMoneyAccount()'>
+            <p>
+                <i>{{'trade-detail.having-order-note' | translate}}</i>
+            </p>
+        </ion-item>
+    </ion-list>
+</ion-content>

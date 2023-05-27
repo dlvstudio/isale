@@ -1,0 +1,7 @@
+<div style='padding: 10px; background-color: #886aea; color: white; border-radius: 10px;' *ngIf='!navCtrl.isNotCordova()'>
+    <p class='ion-text-wrap' [innerHTML]="'share.feel-interesting' | translate" style='font-size: 0.9em'></p>
+    <ion-button color="secondary" (click)='rate()'>
+        <ion-icon name="heart"></ion-icon>&nbsp;
+        {{'rating.rateButtonLabel' | translate}}
+    </ion-button>
+</div>

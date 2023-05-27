@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>701553846711-8pj4jgll1nc2ag65dus547kd2o7lmc4l.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.701553846711-8pj4jgll1nc2ag65dus547kd2o7lmc4l</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>701553846711-u0a7r1vr4450qjlgod9v3up1gdlsaqh6.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBKXSwgSDLO7XWvVRY__e34-gJy5N0DCBA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>701553846711</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.dlv.isale</string>
+	<key>PROJECT_ID</key>
+	<string>isale-c66e7</string>
+	<key>STORAGE_BUCKET</key>
+	<string>isale-c66e7.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<true/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:701553846711:ios:cab4c2e8ef7cd0e18c2032</string>
+	<key>DATABASE_URL</key>
+	<string>https://isale-c66e7.firebaseio.com</string>
+</dict>
+</plist>

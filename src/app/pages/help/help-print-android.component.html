@@ -1,0 +1,56 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'help-print-android.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content class='ion-padding'>
+    <p>{{'help-print-android.description' | translate}}</p>
+    <h2>{{'help-print-android.agenda' | translate}}:</h2>
+    <ol>
+        <li>
+            {{'help-print-android.install-print-service' | translate}}
+        </li>
+        <li>
+            {{'help-print-android.use-share-order-function' | translate}}
+        </li>
+    </ol>
+    <h3>1. {{'help-print-android.install-print-service' | translate}}:</h3>
+    <ion-label>{{'help-print-android.go-to-play-store-search-print-service' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-1.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-android.goto-app-to-connect-printer' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-2.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-android.in-the-print-review-select-installed-print-service' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-3.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-img src='./assets/help/print/print-4.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>2. {{'help-print-android.use-share-order-function' | translate}}:</h3>
+    <ion-label>{{'help-print-android.go-to-play-store-search-print-app' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-6.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-android.choose-the-share-order-function' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/print-5.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+     margin-top: 10px; margin-bottom: 10px;'></ion-img>
+    <br>
+    <ion-label>{{'help-print-android.select-the-app-on-share-dialog' | translate}}</ion-label>
+    <ion-img src='./assets/help/print/share-print.png' style='max-width: 500px; border: 5px solid #ccc; border-radius: 10px;
+ margin-top: 10px; margin-bottom: 10px;'></ion-img>
+
+    <h3>{{'help-print-android.finish' | translate}}.</h3>
+
+    <p>{{'ticket-add.send-ticket-note' | translate}}</p>
+    <ion-button color="secondary" (click)='sendTicket()'>
+        <ion-icon name="mail"></ion-icon>&nbsp;
+        {{'ticket-add.title' | translate}}
+    </ion-button>
+</ion-content>

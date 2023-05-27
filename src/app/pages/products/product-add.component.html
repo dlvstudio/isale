@@ -1,0 +1,478 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button color="primary" (click)='navCtrl.back()' [disabled]='saveDisabled'>
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'product-add.close' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'product-add.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button color="primary" (click)='viewTypes()' [disabled]='saveDisabled'>
+                <ion-icon name='options'></ion-icon>
+            </ion-button>
+            <ion-button size="large" color="success" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (!selectedStaff || (selectedStaff.hasFullAccess && !selectedStaff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'order-add.enter-barcode' | translate}}</ion-label>
+            <ion-input clearInput autofocus #barcodeInput type="text"
+                placeholder="{{'order-add.enter-barcode-placeholder' | translate}}" [(ngModel)]='product.barcode'
+                (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-button (click)='scan()'>
+                <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+            </ion-button>
+            <ion-button (click)='autoGenBarcode()' color="secondary">
+                <ion-icon name="barcode"></ion-icon> {{'product.auto-gen-barcode' | translate}}
+            </ion-button>
+            <ion-button (click)='addOtherBarcode()' color="success">
+                <ion-icon name="add-outline"></ion-icon> {{'product.add-other-barcode' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.code' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'product-add.enter-code' | translate}}"
+                [(ngModel)]='product.code'>
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label color='primary'>{{'trade-add.categories' | translate}}</ion-label>
+            <ion-button fill="outline" (click)='showSearchCategory()'>
+                <ion-icon name="add"></ion-icon>
+                {{'trade-add.add' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-grid>
+            <ion-row>
+                <ion-col *ngFor="let category of categories" size-xs='6' size-sm='6' size-md='3' size-lg='2'>
+                    <ion-item lines='none'>
+                        <ion-button fill='clear' (click)='removeCategory(category)'>
+                            <ion-icon name="close"></ion-icon>
+                        </ion-button>
+                        <ion-text color='dark' class="ion-text-wrap">
+                            {{category.tradeCategory.title}}
+                        </ion-text>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.product-title' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'product-add.enter-title' | translate}}"
+                [(ngModel)]='product.title'>
+            </ion-input>
+        </ion-item>
+        <ion-item *ngIf='canViewProductCostPrice && canUpdateProductCostPrice'>
+            <ion-label position="stacked" color='primary'>{{'product-add.cost-price' | translate}} <span
+                    *ngIf="currency">({{currency.symbol_native}} - {{currency.code}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'product-add.cost-price' | translate}}"
+                [(moneyValue)]='product.costPrice' [disabled]="canViewProductCostPrice && !canUpdateProductCostPrice">
+            </money-input>
+        </ion-item>
+        <ion-grid>
+            <ion-row>
+                <ion-col size="4" size-md>
+                    <ion-label position="stacked" color='primary'>{{'product-add.basic-unit' | translate}}</ion-label>
+                    <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;'
+                        type="text" placeholder="{{'product-add.enter-unit' | translate}}" [(ngModel)]='product.unit'
+                        (focus)='selectAll($event)'></ion-input>
+                    <p style="font-size: 0.65em;"><ion-text color="danger">{{'product-add.basic-unit-description' | translate}}</ion-text></p>
+                </ion-col>
+                <ion-col size="4" size-md>
+                    <ion-label position="stacked" color='primary'>{{'product-add.price' | translate}}</ion-label>
+                    <money-input placeholder="{{'product-add.enter-price' | translate}}" [(moneyValue)]='product.price'>
+                    </money-input>
+                    <ion-buttons>
+                        <ion-button expand='block' fill='solid' (click)='addZerosToNumber(2)'>.00</ion-button>
+                        <ion-button expand='block' fill='solid' (click)='addZerosToNumber(3)'>.000</ion-button>
+                    </ion-buttons>
+                </ion-col>
+                <ion-col size="4" size-md>
+                    <ion-label position="stacked" color='primary'>{{'product-add.count' | translate}}
+                    </ion-label>
+                    <ion-input clearInput
+                        style='background-color: #efefef; border-radius: 5px; color: #000; margin-bottom: 5px;'
+                        type="number" placeholder="{{'product-add.enter-count' | translate}}"
+                        [(ngModel)]='product.count' (focus)='selectAll($event)' tabindex="3"></ion-input>
+                    <ion-buttons>
+                        <ion-button expand='block' fill='solid' (click)='decrease()'>
+                            <ion-icon slot='icon-only' name='remove-outline'></ion-icon>
+                        </ion-button>
+                        <ion-button expand='block' fill='solid' (click)='increase()'>
+                            <ion-icon slot='icon-only' name='add-outline'></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-button size='small' fill='outline' (click)='addUnit()'>+ {{'product-add.add-unit' | translate}}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+            <ng-container *ngIf='product && product.units && product.units.length'>
+                <ion-row *ngFor='let unit of product.units; let j = index'>
+                    <ion-col size="3" size-md>
+                        <ion-label position="stacked" color='primary'>{{'product-add.unit' | translate}}
+                        </ion-label>
+                        <ion-input clearInput
+                            style='background-color: #efefef; border-radius: 5px; color: #000; margin-bottom: 5px;'
+                            type="text" placeholder="{{'product-add.enter-unit' | translate}}" [(ngModel)]='unit.unit'
+                            (focus)='selectAll($event)'></ion-input>
+                        <ion-buttons>
+                            <ion-checkbox color="primary" style='--size: 20px;' [(ngModel)]='unit.isDefault'
+                                (ngModelChange)='changeUnitDefault(unit)'></ion-checkbox><span
+                                style='font-size: 0.8em;'>&nbsp;{{'product-add.default-unit' |
+                                translate}}</span>
+                        </ion-buttons>
+                    </ion-col>
+                    <ion-col size="3" size-md>
+                        <ion-label position="stacked" color='primary'>{{'product-add.price' | translate}}
+                        </ion-label>
+                        <money-input placeholder="{{'product-add.enter-price' | translate}}"
+                            [(moneyValue)]='unit.price'>
+                        </money-input>
+                        <ion-buttons>
+                            <ion-button expand='block' fill='solid' (click)='addZerosToNumberToUnit(2, unit)'>
+                                .00
+                            </ion-button>
+                            <ion-button expand='block' fill='solid' (click)='addZerosToNumberToUnit(3, unit)'>
+                                .000
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-col>
+                    <ion-col size="3" size-md>
+                        <ion-label position="stacked" color='secondary'>{{'product-add.cost-price' | translate}}
+                        </ion-label>
+                        <money-input [(moneyValue)]='unit.costPrice' placeholder="{{'product-add.enter-price' | translate}}">
+                        </money-input>
+                        <ion-buttons>
+                            <ion-button expand='block' fill='solid' (click)='addZerosToNumberToUnitCostPrice(2, unit)'>
+                                .00
+                            </ion-button>
+                            <ion-button expand='block' fill='solid' (click)='addZerosToNumberToUnitCostPrice(3, unit)'>
+                                .000
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-col>
+                    <ion-col size="3" size-md>
+                        <ion-label position="stacked" color='primary'>{{'product-add.unit-exchange' |
+                            translate}}
+                        </ion-label>
+                        <ion-input clearInput
+                            style='background-color: #efefef; border-radius: 5px; color: #000; margin-bottom: 5px;'
+                            type="number" placeholder="{{'product-add.enter-unit-exchange' | translate}}"
+                            [(ngModel)]='unit.exchange' (focus)='selectAll($event)' tabindex="3"
+                            (ngModelChange)='changeUnit(unit)'></ion-input>
+                        <ion-buttons style='float: right;'>
+                            <ion-button size='small' expand='block' fill='clear' color='danger'
+                                (click)='removeUnit(unit, j)'>
+                                <ion-icon name='close-outline' slot='icon-only'></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-col>
+                </ion-row>
+            </ng-container>
+        </ion-grid>
+        <ion-item>
+            <ion-label position="stacked" color='primary' class="ion-text-wrap">
+                <h3>{{'product-add.is-added-option' | translate}}</h3>
+            </ion-label>
+            <ion-toggle [(ngModel)]='product.isOption' (ionChange)='changeIsOption()'></ion-toggle>
+            <ion-text style='font-size: 0.85em' color='dark'>{{'product-add.added-option-explain' | translate}}
+            </ion-text>
+        </ion-item>
+        <ion-item>
+            <ion-button fill='solid' expand='full' color="primary" (click)='viewTypes()' [disabled]='saveDisabled'
+                tabindex="5">
+                <ion-icon name='options'></ion-icon>&nbsp;
+                {{'product-add.types' | translate}}
+            </ion-button>
+            <ion-button fill='solid' expand='full' color="medium" (click)='viewAttributes()' [disabled]='saveDisabled'
+                tabindex="5">
+                <ion-icon name='cog'></ion-icon>&nbsp;
+                {{'product-add.attributes' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary' class="ion-text-wrap">
+                <h3>{{'product-add.is-combo' | translate}}</h3>
+            </ion-label>
+            <ion-toggle [(ngModel)]='product.isCombo'></ion-toggle>
+            <ion-text style='font-size: 0.85em' color='dark'>{{'product-add.combo-description' | translate}}
+            </ion-text>
+        </ion-item>
+        <ion-item *ngIf="product.isCombo">
+            <ion-list>
+                <ion-item-divider class='ion-no-padding' color="light">
+                    {{'product-add.select-products' | translate}}
+                </ion-item-divider>
+                <ion-item class='ion-no-padding' color="light">
+                    <ion-text color='primary' class='ion-text-wrap'>{{'product-add.enter-barcode' | translate}}
+                        {{'product-add.or' | translate}}...</ion-text>
+                    <ion-buttons>
+                        <ion-button fill='clear' color="primary" (click)='showProductSelector()'>
+                            <ion-icon name="add"></ion-icon>
+                            &nbsp;{{'product-add.add-manual' | translate}}
+                        </ion-button>
+                        <ion-button fill='clear' color="primary" (click)='scanItem()'>
+                            <ion-icon name="barcode"></ion-icon>
+                            &nbsp;{{'product-add.mobile-scan' | translate}}
+                        </ion-button>
+                    </ion-buttons>
+                </ion-item>
+                <ion-item class='ion-no-padding' color="light">
+                    <ion-input clearInput autofocus='true' #barcodeInput type="text"
+                        placeholder="{{'product-add.enter-barcode-placeholder' | translate}}" [(ngModel)]="barcode"
+                        (ngModelChange)="barcodeChanged()"></ion-input>
+                </ion-item>
+                <ion-item class='ion-text-wrap ion-no-padding' [hidden]='product.items && product.items.length > 0' color="light">
+                    <div [innerHTML]="'product-add.no-product' | translate"
+                        style='padding-top: 5px; padding-bottom: 5px;'>
+                    </div>
+                </ion-item>
+                <ng-container *ngIf='product.items && product.items.length'>
+                    <ng-container *ngFor="let item of product.items">
+                        <ion-item class="ion-no-padding" [lines]='hasOptionsOrAttributes(item) ? "none": "inset"' color="light">
+                            <ion-text style='padding-top: 8px; padding-bottom: 8px;'
+                                [style.fontWeight]='item.isExpand ? "bold": "normal"'>
+                                {{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}
+                                |
+                                {{item.count}}
+                                {{item.unit}}
+                            </ion-text>
+                            <ion-buttons slot='end'
+                                style='padding-left: 0; margin-left: 0; padding-right: 0; margin-right: 0;'>
+                                <ion-button fill='clear' size='large' (click)='decreaseItem(item)'>
+                                    <ion-icon slot='icon-only' name='remove'></ion-icon>
+                                </ion-button>
+                                <ion-button fill='clear' size='large' (click)='increaseItem(item)'>
+                                    <ion-icon slot='icon-only' name='add'></ion-icon>
+                                </ion-button>
+                                <ion-button fill='clear' size='small' color='medium' (click)='showOptions(item)'>
+                                    <ion-icon slot='icon-only' size="small" name='ellipsis-vertical'></ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                            <ion-buttons slot='end'
+                                style='padding-left: 0; margin-left: 0; padding-right: 0; margin-right: 0;'>
+                                <ion-button fill='clear' (click)='removeProduct(item)'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                        </ion-item>
+                        <ng-container *ngIf='hasOptionsOrAttributes(item)'>
+                            <ion-item lines='inset' color="light" size='12' class="ion-no-padding">
+                                <ion-text style='font-size: 0.8em;' [style.fontWeight]='"normal"' class="ion-text-wrap">
+                                    <ng-container *ngIf='item.attributes && item.attributes.length'>
+                                        {{getAttributesString(item)}}
+                                        <br>
+                                    </ng-container>
+                                    <ng-container *ngFor='let option of item.options'>
+                                        {{productName(option.code, option.title)}}
+                                        |
+                                        {{option.count}}
+                                        {{option.unit}}
+                                        <br>
+                                    </ng-container>
+                                </ion-text>
+                            </ion-item>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+            </ion-list>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary' class="ion-text-wrap">
+                <h3>{{'product-add.auto-materials' | translate}}</h3>
+            </ion-label>
+            <ion-toggle [(ngModel)]='product.autoMaterials'></ion-toggle>
+            <ion-text style='font-size: 0.85em' color='dark'>{{'product-add.auto-materials-explain' | translate}}
+            </ion-text>
+        </ion-item>
+        <ion-item *ngIf="product.autoMaterials">
+            <ion-list>
+                <ion-item-divider class='ion-no-padding' color="light">
+                    {{'product-add.select-materials' | translate}}
+                </ion-item-divider>
+                <ion-item color="light" class='ion-no-padding'>
+                    <ion-text color='primary' class='ion-text-wrap'>{{'product-add.enter-barcode' | translate}}
+                        {{'product-add.or' | translate}}...</ion-text>
+                    <ion-buttons>
+                        <ion-button fill='clear' color="primary" (click)='showMaterialSelector()'>
+                            <ion-icon name="add"></ion-icon>
+                            &nbsp;{{'product-add.add-manual' | translate}}
+                        </ion-button>
+                        <ion-button fill='clear' color="primary" (click)='scanMaterialItem()'>
+                            <ion-icon name="barcode"></ion-icon>
+                            &nbsp;{{'product-add.mobile-scan' | translate}}
+                        </ion-button>
+                    </ion-buttons>
+                </ion-item>
+                <ion-item color="light" class='ion-no-padding'>
+                    <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;'
+                        autofocus='true' #barcodeInputMaterial type="text"
+                        placeholder="{{'product-add.enter-barcode-placeholder' | translate}}"
+                        [(ngModel)]="barcodeMaterial"></ion-input>
+                </ion-item>
+                <ng-container *ngIf='product.materials && product.materials.length'>
+                    <ng-container *ngFor="let item of product.materials">
+                        <ion-item lines='inset' color="light" class='ion-no-padding'>
+                            <ion-buttons>
+                                <ion-button fill='clear' (click)='expandMaterial(item)'>
+                                    <ion-icon slot='icon-only' name="{{item.isExpand ? 'chevron-up-circle':'create'}}">
+                                    </ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                            <ion-text style='padding-top: 8px; padding-bottom: 8px;' (click)='expandMaterial(item)'
+                                [style.fontWeight]='item.isExpand ? "bold": "normal"'>
+                                {{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}}
+                                |
+                                {{item.count}}
+                                {{item.unit}}
+                            </ion-text>
+                            <ion-buttons slot='end'
+                                style='padding-left: 0; margin-left: 0; padding-right: 0; margin-right: 0;'>
+                                <ion-button fill='clear' size='large' (click)='decreaseItem(item)'>
+                                    <ion-icon slot='icon-only' name='remove'></ion-icon>
+                                </ion-button>
+                                <ion-button fill='clear' size='large' (click)='increaseItem(item)'>
+                                    <ion-icon slot='icon-only' name='add'></ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                            <ion-buttons slot='end'
+                                style='padding-left: 0; margin-left: 0; padding-right: 0; margin-right: 0;'>
+                                <ion-button fill='clear' (click)='removeMaterial(item)'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                        </ion-item>
+                        <ion-grid [hidden]='!item.isExpand' style='padding-left: 15px; padding-right: 15px; margin: 0;'
+                            color="light">
+                            <ion-row>
+                                <ion-col>
+                                    <ion-label position='stacked' color='primary'>
+                                        {{'order-add.product-count' | translate}}
+                                        <span *ngIf="item.unit">({{item.unit}})</span>
+                                    </ion-label>
+                                    <ion-input clearInput
+                                        style='background-color: #efefef; border-radius: 5px; color: #000;'
+                                        type="number" placeholder="{{'order-add.enter-product-count' | translate}}"
+                                        [(ngModel)]='item.count' (focus)='selectAll($event)'>
+                                    </ion-input>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ng-container>
+                </ng-container>
+                <ion-item class='ion-text-wrap ion-no-padding' [hidden]='product.materials && product.materials.length > 0'
+                    color="light">
+                    <div [innerHTML]="'product-add.no-product' | translate"
+                        style='padding-top: 5px; padding-bottom: 5px;'>
+                    </div>
+                </ion-item>
+            </ion-list>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary' class="ion-text-wrap">
+                <h3>{{'product-add.is-service' | translate}}</h3>
+            </ion-label>
+            <ion-toggle [(ngModel)]='product.isService'></ion-toggle>
+            <ion-text style='font-size: 0.85em' color='dark'>{{'product-add.service-description' | translate}}
+            </ion-text>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.expired-date' | translate}}
+            </ion-label>
+            <date-picker slot='end' *ngIf="product.expiredAt" [(date)]="product.expiredAt" pickerId="productAddPicker">
+            </date-picker>
+            <ion-text slot='end' (click)='showDatePopup()' *ngIf="!product.expiredAt">
+                {{'common.select-date' | translate}}
+            </ion-text>
+            <ion-button *ngIf="product.expiredAt" fill='outline' slot='end' (click)='removeDate()'>
+                <ion-icon slot='icon-only' name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.unit-foreign' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'product-add.unit-foreign' | translate}}"
+                [(ngModel)]='product.foreignCurrency' (focus)='selectAll($event)'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.cost-price-foreign' | translate}}
+            </ion-label>
+            <money-input placeholder="{{'product-add.cost-price-foreign' | translate}}"
+                [(moneyValue)]='product.costPriceForeign'>
+            </money-input>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-label color='primary'>{{'config.web' | translate}}</ion-label>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-toggle [(ngModel)]='product.showOnWeb'></ion-toggle>
+            <ion-label color='primary'>&nbsp;{{'product-add.show-on-web' | translate}}</ion-label>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-toggle [(ngModel)]='product.isHotProduct'></ion-toggle>
+            <ion-label color='primary'>&nbsp;{{'product-add.is-hot-product' | translate}}</ion-label>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-toggle [(ngModel)]='product.isNewProduct'></ion-toggle>
+            <ion-label color='primary'>&nbsp;{{'product-add.is-new-product' | translate}}</ion-label>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-toggle [(ngModel)]='product.showPriceOnWeb'></ion-toggle>
+            <ion-label color='primary'>&nbsp;{{'product-add.show-price-on-web' | translate}}</ion-label>
+        </ion-item>
+        <ion-item style='background-color: #efefef;'>
+            <ion-toggle [(ngModel)]='product.isSale'></ion-toggle>
+            <ion-label color='primary'>&nbsp;{{'product-add.is-sale' | translate}}</ion-label>
+        </ion-item>
+        <ion-item *ngIf="product.isSale" style='background-color: #efefef;'>
+            <ion-label position="stacked" color='primary'>{{'product-add.original-price' | translate}}</ion-label>
+            <money-input [clear]='true' placeholder="{{'product-add.enter-original-price' | translate}}"
+                [(moneyValue)]='product.originalPrice'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position="stacked" color='primary'>{{'product-add.description' | translate}}</ion-label>
+            <ion-textarea type="text" placeholder="{{'product-add.enter-description' | translate}}" rows="5"
+                [(ngModel)]='product.description'
+                style='background-color: #efefef; border-radius: 5px; color: #000; font-size: 0.8em'></ion-textarea>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+        <ion-item>
+            <ion-label color='primary'>{{'product-detail.photo' | translate}}</ion-label>
+            <ion-button ion-button color='secondary' (click)='upload()' *ngIf='!isNotCordova()'>
+                <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+            </ion-button>
+            <label color='primary' for="files">&nbsp;[{{'note-add.select-photos' | translate}}]</label>
+            <input #fileUploadInput type="file" multiple accept="image/*" id="files" (change)="rememberFile($event)"
+                style='width: 0; height: 0; font-size: 0;' />
+        </ion-item>
+    </ion-list>
+    <ion-grid>
+        <ion-row *ngFor="let row of arr; let i=index">
+            <ion-col style="max-width: 150px;" *ngFor="let picture of row; let j=index">
+                <img [src]="picture" (click)='showImage(i*3 + j)' style='max-width: 120px;'>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

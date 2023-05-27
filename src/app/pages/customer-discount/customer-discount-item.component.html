@@ -1,0 +1,22 @@
+<ion-item (press)="press()" (click)='click()'>
+    <ion-label class='ion-text-wrap'>
+        {{'customer-discount-add.discount' | translate}}: 
+        <ion-text *ngIf='customerDiscount.type===0' color="primary">{{customerDiscount.discountValue | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        <ion-text *ngIf='customerDiscount.type===1' color="primary">{{customerDiscount.discountValue}}%</ion-text>
+        <ion-text *ngIf='customerDiscount.conditionQuantity'> - {{'customer-discount-add.quantity-condition' | translate}}: {{customerDiscount.conditionQuantity}}</ion-text>
+        <br>
+        <ion-text *ngIf='customerDiscount.categoryId && customerDiscount.categoryId != 0 && customerDiscount.category && showCategory'>{{'customer-discount-add.category' | translate}}: {{customerDiscount.category.title}}<br></ion-text>
+        <ion-text *ngIf='customerDiscount.contactId && customerDiscount.contactId != 0 && customerDiscount.contact && showContact'>{{'customer-discount-add.contact' | translate}}: {{customerDiscount.contact.fullName}}<br></ion-text>
+        <ion-text *ngIf='customerDiscount.collaboratorId && customerDiscount.collaboratorId != 0 && customerDiscount.staff && showStaff'>{{'customer-discount-add.staff' | translate}}: {{customerDiscount.staff.name}}<br></ion-text>
+        <ion-text *ngIf='customerDiscount.productId && customerDiscount.productId != 0 && customerDiscount.product && showProduct' style='white-space: pre-wrap;'><b>{{productName(customerDiscount.product.code, customerDiscount.product.title)}}</b></ion-text>
+        <p *ngIf="customerDiscount.createdAt">
+            {{'customer-price-add.created-at' | translate}}: {{dateFormat(customerDiscount.createdAt)}}
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='customerDiscount.contactId && customerDiscount.contactId != 0 && customerDiscount.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(customerDiscount.contact)" />
+    </ion-avatar>
+    <ion-avatar slot='end' *ngIf='customerDiscount.productId && customerDiscount.productId != 0 && customerDiscount.product && customerDiscount.product.avatarUrl && showProduct'>
+        <img [src]="customerDiscount.product.avatarUrl" />
+    </ion-avatar>
+</ion-item>

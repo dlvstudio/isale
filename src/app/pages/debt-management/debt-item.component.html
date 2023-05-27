@@ -1,0 +1,49 @@
+<ion-item (press)="press()" (click)='click()'>
+    <ion-label class='ion-text-wrap'>
+        {{'#' + debt.id}} - 
+        <span *ngIf="debt.debtType === 0">{{'debt-add.you-borrowed' | translate}}</span>
+        <span *ngIf="debt.debtType === 1">{{'debt-add.borrowed-you' | translate}}</span>
+        <span *ngIf="debt.debtType === 2">{{'debt-add.you-owned' | translate}}</span>
+        <span *ngIf="debt.debtType === 3">{{'debt-add.owned-you' | translate}}</span>
+        <ion-text *ngIf='debt.isPaid' color='primary'> - {{'debt-detail.paid' | translate}}</ion-text>
+        <ion-text *ngIf='!debt.isPaid' color='danger'> - {{'debt-detail.not-yet-paid' | translate}}</ion-text>
+        <br>
+        {{'debt.total-amount-left' | translate}}: <ion-text color="danger">{{(debt.value - debt.valuePaid) | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        / {{'debt-detail.paid' | translate}}: <ion-text color="secondary">{{debt.valuePaid | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        / {{'common.total' | translate}}: <ion-text color="warning">{{debt.value | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+        <br>
+        <p [hidden]='!debt.order || debt.order.id == 0'>
+            <ion-text color='primary'>{{'debt-add.order' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{debt.order ? '#' + debt.order.orderCode : ''}}
+            </ion-text>
+        </p>
+        <p *ngIf='debt.contactId && debt.contactId != 0 && debt.contact && showContact'>{{debt.contact.fullName}}<br></p>
+        <p *ngIf='debt.productId && debt.productId != 0 && debt.product && showProduct' style='white-space: pre-wrap;'><b>{{productName(debt.product.code, debt.product.title)}}</b></p>
+        <p *ngIf='debt.productId && debt.productId != 0 && debt.product && debt.isPurchase'>
+            {{'debt.buy' | translate}} {{debt.productCount}} ({{debt.product.unit}})
+        </p>
+        <span style='white-space: pre-wrap;'>{{limitText(debt.note)}}</span>
+        <p *ngIf="debt.createdAt">
+            {{'debt-add.created-at' | translate}}: {{dateFormat(debt.createdAt)}}
+        </p>
+        <p *ngIf="debt.maturityDate">
+            {{'debt-add.maturity-date' | translate}}: {{dateFormat(debt.maturityDate)}}
+        </p>
+        <p *ngIf="debt.interestRate">
+            {{'debt-add.interest-rate' | translate}}: {{debt.interestRate}}%
+        </p>
+        <p *ngIf='debt.staffId && debt.staffId != 0 && debt.staff && !isStaff'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}} {{debt.staff.name}}<span *ngIf='debt.store'> - {{debt.store.name}}</span></i>
+        </p>
+        <p *ngIf='!(debt.staffId && debt.staffId != 0 && debt.staff && !isStaff) && debt.store'>
+            <i style="font-size: 11px;">{{'store.created-by' | translate}}: {{debt.store.name}}</i>
+        </p>
+    </ion-label>
+    <ion-avatar slot='end' *ngIf='debt.contactId && debt.contactId != 0 && debt.contact && showContact'>
+        <img [src]="contactImageOrPlaceholder(debt.contact)" />
+    </ion-avatar>
+    <ion-avatar slot='end' *ngIf='debt.productId && debt.productId != 0 && debt.product && debt.product.avatarUrl && showProduct'>
+        <img [src]="debt.product.avatarUrl" />
+    </ion-avatar>
+</ion-item>

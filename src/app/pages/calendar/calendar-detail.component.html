@@ -1,0 +1,107 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'calendar-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid style='margin: 0; padding: 0;' *ngIf='calendar'>
+        <ion-row>
+            <ion-col>
+                <ion-item lines='none' style='padding: 0; margin: 0'>
+                    <ion-label>
+                        {{'calendar-detail.code' | translate}}: #{{calendar.id}}
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col style='border-bottom: 1px solid #ccc; border-right: 1px solid #ccc;'>
+                <ion-item lines='none' style='padding: 0; margin: 0'>
+                    <ion-label position='stacked' color='primary'>{{'calendar-add.fullname' | translate}}</ion-label>
+                    <ion-input clearInput type="text" placeholder="{{'calendar-add.enter-name' | translate}}" readonly
+                        [(ngModel)]='calendar.fullname'></ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col style='border-bottom: 1px solid #ccc; border-right: 1px solid #ccc;'>
+                <ion-item lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'order-detail.status' | translate}}
+                    </ion-label>
+                    <ion-select [disabled]='true' [(ngModel)]="calendar.status" readonly>
+                        <ion-select-option [value]="0">{{'order-detail.status-draft' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="1">{{'order-detail.status-inprogress' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="2">{{'order-detail.status-shipping' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="3">{{'order-detail.status-done' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="4">{{'order-detail.status-cancel' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="5">{{'order-detail.status-has-debt' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="6">{{'order-detail.status-shipping-has-debt' | translate}}
+                        </ion-select-option>
+                        <ion-select-option [value]="7">{{'order-detail.status-deposit' | translate}}
+                        </ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size='6' style='border-bottom: 1px solid #ccc; border-right: 1px solid #ccc;'>
+                <ion-item lines='none' (click)='callPhone(calendar.phone)' class="ion-text-wrap">
+                    <ion-label position='stacked' color='primary'><ion-icon name='call'></ion-icon> {{'calendar-add.phone' | translate}}</ion-label>
+                    <ion-text *ngIf='calendar.phone' color='secondary' style='cursor: pointer;'>{{calendar.phone}}</ion-text>
+                </ion-item>
+            </ion-col>
+            <ion-col size='6' style='border-bottom: 1px solid #ccc'>
+                <ion-item lines='none' (click)='sendEmail(calendar.email)' class="ion-text-wrap">
+                    <ion-label position='stacked' color='primary'><ion-icon name='mail'></ion-icon> {{'calendar-add.email' | translate}}</ion-label>
+                    <ion-text *ngIf='calendar.email' color='secondary' style='cursor: pointer;'>{{calendar.email}}</ion-text>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm='12' size-xs='12' size-md='6' size-lg='6'
+                style='border-bottom: 1px solid #ccc; border-right: 1px solid #ccc;'>
+                <ion-item lines='none'>
+                    <ion-label position='stacked' color='primary'>{{'calendar-add.hour' | translate}}</ion-label>
+                    <ion-text>{{calendar.hour < 10 ? '0' + calendar.hour : calendar.hour}}H</ion-text>
+                </ion-item>
+            </ion-col>
+            <ion-col size-sm='12' size-xs='12' size-md='6' size-lg='6' style='border-bottom: 1px solid #ccc'>
+                <ion-item lines='none'>
+                    <ion-text color='primary'>{{'calendar-add.day' | translate}}</ion-text>
+                    <ion-text color='dark' *ngIf="calendar.day" slot='end'>
+                        {{dateFormat(calendar.day)}}
+                    </ion-text>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col style='border-bottom: 1px solid #ccc'>
+                <ion-item lines='none'>
+                    <ion-text color='primary'>{{'calendar-add.product' | translate}}</ion-text>
+                    <ion-text slot='end' *ngIf="calendar.productId == 0">
+                        {{'calendar-detail.no-product' | translate}}
+                    </ion-text>
+                    <ion-text slot='end' *ngIf="calendar.productId > 0 && calendar.product">
+                        {{productName(calendar.product.code, calendar.product.title)}}
+                    </ion-text>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

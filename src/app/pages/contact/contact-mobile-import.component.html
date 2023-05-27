@@ -1,0 +1,124 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'contact-add.import-title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'contact.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-item lines="none">
+        <ion-checkbox slot='start' color="primary" [(ngModel)]='isSelecteAll' (ngModelChange)="select()">
+        </ion-checkbox>
+        &nbsp;{{'contact-add.select-all' | translate}} {{totalSelected}}/{{total}}
+    </ion-item>
+    <ion-segment [(ngModel)]="tab">
+        <ion-segment-button value="all">
+            {{'contact-add.all-loaded-contacts' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="selected">
+            <span *ngIf="!totalSelected">{{'contact-add.selected' | translate}}</span>
+            <ion-text *ngIf="totalSelected" color="danger">{{'contact-add.selected' | translate}} ({{totalSelected}})</ion-text>
+        </ion-segment-button>
+    </ion-segment>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid *ngIf="tab==='all'">
+        <ion-row style='border-bottom: 1px solid #ccc'>
+            <ion-col [size]='isShowPaging && contacts && contacts.length ? 8 : 12'>
+                <ion-item class='ion-text-wrap ion-no-padding' lines='none'>
+                    {{'common.total' | translate}}: {{contacts && contacts.length ? contacts.length : 0}}
+                    {{'contact.contact(s)' | translate}}
+                </ion-item>
+            </ion-col>
+            <ion-col size='4' class="ion-text-right" *ngIf='isShowPaging && contacts && contacts.length'>
+                <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                    1}}
+                </ion-label>
+                <br>
+                <ion-buttons class="ion-float-right">
+                    <ion-button fill='solid' (click)='previousPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                    </ion-button>
+                    <ion-button fill='solid' (click)='nextPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list *ngIf="tab==='all'">
+        <ion-item *ngFor="let contact of contacts | slice:start:(end+1)">
+            <ion-checkbox slot='start' color="primary" [(ngModel)]='contact.selected'
+                (ngModelChange)="selectContact(contact)">
+            </ion-checkbox>
+            <ion-avatar slot='start'>
+                <img [src]="contactImageOrPlaceholder(contact.photoThumbnail)" />
+            </ion-avatar>
+            <ion-label class='ion-text-wrap'>
+                <h2>{{contact.displayName}}</h2>
+                <p><b>{{'contact-add.DOB' | translate}}:</b> {{dateFormat(contact.birthday)}}</p>
+                <p><b>{{'contact-add.phone' | translate}}:</b></p>
+                <p *ngFor='let mobile of contact.phoneNumbers'>
+                    {{mobile.label}}: {{mobile.number}}
+                </p>
+                <p><b>{{'contact-add.email' | translate}}:</b></p>
+                <p *ngFor='let email of contact.emails'>
+                    {{email.label}}: {{email.address}}
+                </p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+    <ion-grid *ngIf="tab==='all'">
+        <ion-row style='border-bottom: 1px solid #ccc'>
+            <ion-col [size]='isShowPaging && contacts && contacts.length ? 8 : 12'>
+                <ion-item class='ion-text-wrap ion-no-padding' lines='none'>
+                    {{'common.total' | translate}}: {{contacts && contacts.length ? contacts.length : 0}}
+                    {{'contact.contact(s)' | translate}}
+                </ion-item>
+            </ion-col>
+            <ion-col size='4' class="ion-text-right" *ngIf='isShowPaging && contacts && contacts.length'>
+                <ion-label class="ion-text-wrap ion-text-right">{{'common.page' | translate}} {{currentPage +
+                    1}}
+                </ion-label>
+                <br>
+                <ion-buttons class="ion-float-right">
+                    <ion-button fill='solid' (click)='previousPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-back-circle'></ion-icon>
+                    </ion-button>
+                    <ion-button fill='solid' (click)='nextPage()' size='small'>
+                        <ion-icon slot='icon-only' name='arrow-forward-circle'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list *ngIf="tab==='selected'">
+        <ion-item *ngFor="let contact of selectedContacts">
+            <ion-checkbox slot='start' color="primary" [(ngModel)]='contact.selected'
+                (ngModelChange)="deSelectContact(contact)">
+            </ion-checkbox>
+            <ion-avatar slot='start'>
+                <img [src]="contactImageOrPlaceholder(contact.photoThumbnail)" />
+            </ion-avatar>
+            <ion-label class='ion-text-wrap'>
+                <h2>{{contact.displayName}}</h2>
+                <p><b>{{'contact-add.DOB' | translate}}:</b> {{dateFormat(contact.birthday)}}</p>
+                <p><b>{{'contact-add.phone' | translate}}:</b></p>
+                <p *ngFor='let mobile of contact.phoneNumbers'>
+                    {{mobile.label}}: {{mobile.number}}
+                </p>
+                <p><b>{{'contact-add.email' | translate}}:</b></p>
+                <p *ngFor='let email of contact.emails'>
+                    {{email.label}}: {{email.address}}
+                </p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

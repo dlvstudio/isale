@@ -1,0 +1,53 @@
+import { IProduct } from './product.interface';
+import { Product } from './product.model';
+import { IOrder } from './order.interface';
+import { Order } from './order.model';
+import { IContact } from './contact.interface';
+import { Contact } from './contact.model';
+import { IProductNoteItem } from './product-note.interface';
+import { IReceivedNote } from './received-note.interface';
+import { ReceivedNote } from './received-note.model';
+import { ITrade } from './trade.interface';
+import { Trade } from './trade.model';
+
+export class ProductNoteItem implements IProductNoteItem  {
+    id = 0;
+    receivedNoteId = 0;
+    transferNoteId = 0;
+    productId = 0;
+    staffId = 0;
+    contactId = 0;
+    orderId = 0;
+    tradeId = 0;
+    storeId = 0;
+    product: IProduct = new Product();
+    order: IOrder = new Order();
+    contact: IContact = new Contact();
+    trade: ITrade = new Trade();
+    receivedNote: IReceivedNote = new ReceivedNote();
+    transferNote: any = {};
+    productCode = '';
+    productName = '';
+    quantity = 0;
+    unit = '';
+    basicUnit;
+    unitExchange;
+    unitPrice = 0;
+    unitCostPrice = 0;
+    unitPriceForeign: number;
+    foreignCurrency = '';
+    amount = 0;
+    amountForeign: number;
+    note = '';
+    isExpand = false;
+    onlineId = 0;
+    discount = 0;
+    // 0: %, 1: manual
+    discountType = 0;
+    createdAt = '';
+    modifiedAt = '';
+    store: any = null;
+    staff = null;
+    materials = null;
+    receivedDate = null;
+}

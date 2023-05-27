@@ -1,0 +1,92 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+            {{'type-selector.title' | translate}}
+        </ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='clear()'>
+                <ion-icon name="arrow-undo-outline"></ion-icon>
+            </ion-button>
+            <ion-button (click)='ok()'>
+                <ion-icon name="checkmark"></ion-icon>&nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='staffService.canAddUpdateProduct()'>
+        <ion-buttons>
+            <ion-button fill='clear' (click)='viewTypes()'>
+                <ion-icon slot='start' name='options'></ion-icon>
+                <ion-text >{{'type-selector.edit-types' | translate}}</ion-text>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-item text-wrap *ngIf='mainProduct' lines='none'>
+        <ion-text [color]='mainProduct.count > 0 ? "primary": "normal"' style='padding-top: 8px; padding-bottom: 8px;'>
+            <strong>{{productName(mainProduct.code, mainProduct.title)}}</strong>
+            <br>
+            {{'type-selector.price' | translate}}: {{mainProduct.price | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+            <ion-text *ngIf='mainProduct.changedPrice' color='danger'>
+                <br>
+                {{'type-selector.changed-price' | translate}}: {{mainProduct.changedPrice |
+                currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+            </ion-text>
+        </ion-text>
+        <ion-avatar slot='end' *ngIf="mainProduct.avatarUrl">
+            <img [src]="mainProduct.avatarUrl">
+        </ion-avatar>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ng-container *ngFor="let type of types">
+            <ion-item>
+                <ion-text>
+                    <strong>{{type.title}}</strong><span style='font-size: 0.8em;'
+                        *ngIf='type.multiChoice'><br>{{'product-type.allow-multi-choice' |
+                        translate}}</span>
+                </ion-text>
+            </ion-item>
+            <ion-item *ngFor='let value of type.values; let j = index' style='padding-bottom: 8px;'>
+                <ion-text [color]='value.count > 0 ? "primary": "normal"' style='font-size: 0.8em;'
+                    [style.fontWeight]='value.count > 0 ? "bold": "normal"' (click)='increase(value, type)'>
+                    {{value.title}}
+                    <span *ngIf='value.price'> - {{'type-selector.value-price' | translate}}: <span
+                            *ngIf='value.isAddedToPrice'>+</span>{{value.price |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+                    <span *ngIf='!value.selectOnly'>
+                        <br>
+                        {{'type-selector.quantity-selected' | translate}}: <span
+                            *ngIf='value.isAddedToPrice'>+</span>{{value.count}} {{value.unit}}
+                        <span *ngIf='value.price'>| {{'type-selector.amount' | translate}}: <span
+                                *ngIf='value.isAddedToPrice'>+</span>{{value.total |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span>
+                    </span>
+                    <span *ngIf='value.selectOnly && value.price'>
+                        <br>
+                        {{'type-selector.amount' | translate}}: <span *ngIf='value.isAddedToPrice'>+</span>{{value.total
+                        | currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                    </span>
+                </ion-text>
+                <ion-toggle slot='end' *ngIf='value.selectOnly' (ngModelChange)='changeSelected(value, type)'
+                    [(ngModel)]='value.selected'></ion-toggle>
+                <ion-buttons slot='end' *ngIf='!value.selectOnly'>
+                    <ion-button fill='clear' (click)='decrease(value, type)'>
+                        <ion-icon slot='icon-only' size="large" name='remove'></ion-icon>
+                    </ion-button>
+                    <ion-button fill='clear' (click)='increase(value, type)'>
+                        <ion-icon slot='icon-only' size="large" name='add'></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+        </ng-container>
+        <ion-item text-wrap *ngIf="!originalTypes || originalTypes.length===0">
+            <div [innerHTML]="'type-selector.no-types' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

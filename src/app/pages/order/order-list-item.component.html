@@ -1,0 +1,137 @@
+<ion-item-sliding>
+    <ion-item (press)="press()" (click)='click()' [color]="color">
+        <ion-checkbox color="primary" slot='start' *ngIf='selectMode' [(ngModel)]='order.isSelected'>
+        </ion-checkbox>
+        <ion-label class='ion-text-wrap'>
+            <span>#{{order.orderCode}}</span> -
+            <ion-text color='dark' *ngIf='order.status === 0'>{{'order-detail.status-draft' | translate}}</ion-text>
+            <ion-text color='secondary' *ngIf='order.status === 1'>{{'order-detail.status-inprogress' | translate}}
+            </ion-text>
+            <ion-text color='secondary' *ngIf='order.status === 2'>{{'order-detail.status-shipping' | translate}}
+            </ion-text>
+            <ion-text color='primary' *ngIf='order.status === 3'>{{'order-detail.status-done' | translate}}
+            </ion-text>
+            <ion-text color='danger' *ngIf='order.status === 4'>{{'order-detail.status-cancel' | translate}}
+            </ion-text>
+            <ion-text color='danger' *ngIf='order.status === 5'>{{'order-detail.status-has-debt' | translate}}
+            </ion-text>
+            <ion-text color='danger' *ngIf='order.status === 6'>{{'order-detail.status-shipping-has-debt' | translate}}
+            </ion-text>
+            <ion-text color='secondary' *ngIf='order.status === 7'>{{'order-detail.status-deposit' | translate}}
+            </ion-text>
+            - <span color="secondary">{{order.total |
+                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+            <br>
+            <p *ngIf='order.amountFromPoint && order.pointAmount'>
+                <ion-text color="secondary">{{'order-add.pay-by-point' | translate}}: {{order.amountFromPoint |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}} / {{order.pointAmount}}
+                    {{'point-add.point' | translate}}
+                </ion-text>
+            </p>
+            <div *ngIf='order.note'><i>{{limitText(order.note)}}</i></div>
+            <p *ngIf='order.contactId && order.contactId !== 0 && order.contact && showContact'>
+                {{order.contact.fullName}}
+            </p>
+            <p *ngIf='order.contactId === 0 && showContact && order.contactName'>{{order.contactName}}</p>
+            <p *ngIf='order.contactId === 0 && showContact && order.contactPhone'>{{order.contactPhone}}</p>
+            <p>
+                {{dateFormat(order.createdAt)}}
+            </p>
+            <p *ngFor="let item of order.items| slice:0:2; let i = index">
+                <ion-text>
+                    {{i+1}}.{{item.productCode ? item.productCode.toUpperCase() + '-' : ''}}{{item.productName}} |
+                    {{item.count}} {{item.unit}} | {{item.total |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    <p *ngIf='item.note' style="font-size: 0.8em; margin: 3px 0 0 0;">
+                        {{limitText(item.note)}}
+                    </p>
+                    <ng-container *ngIf='item.items && item.items.length'>
+                        <p style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            <strong>{{'order-add.combo-products' | translate}}</strong>
+                        </p>
+                        <p *ngFor='let option of item.items' style='padding: 0; margin: 0; font-size: 0.68em;'>
+                            {{productName(option.productCode, option.productName)}}
+                            |
+                            {{option.count}}
+                            {{option.unit}} &#215; {{option.price |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                        </p>
+                    </ng-container>
+                    <p style='padding: 0; margin: 0' *ngIf='item.typeAttributes && item.typeAttributes.length'>
+                        <ion-text [style.fontWeight]='"normal"'>
+                            {{getTypeAttributesString(item)}}
+                        </ion-text>
+                    </p>
+                    <ng-container *ngIf='item.typeOptions && item.typeOptions.length'>
+                        <ng-container *ngFor='let op of item.typeOptions'>
+                            <ng-container *ngFor='let val of op.values'>
+                                <p style='padding: 0; margin: 0'>
+                                    <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                        {{val.title}}<span *ngIf='!val.selectOnly'> | {{val.count}} &#215; {{val.price |
+                                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span> |
+                                        <span *ngIf='val.isAddedToPrice'>+</span>{{val.total |
+                                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                    </ion-text>
+                                </p>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf='item.options && item.options.length'>
+                        <ng-container *ngFor='let option of item.options| slice:0:2;'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                    {{option.code ? option.code.toUpperCase() + '-' : ''}}{{option.title}}
+                                    |
+                                    {{option.count}}
+                                    {{option.unit}} | {{option.total |
+                                    currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                </ion-text>
+                            </p>
+                        </ng-container>
+                        <ng-container *ngIf='item.options.length >= 3'>
+                            <p style='padding: 0; margin: 0'>
+                                <ion-text [style.fontWeight]='"normal"' style='font-size: 0.8em;'>
+                                    ...
+                                </ion-text>
+                            </p>
+                        </ng-container>
+                    </ng-container>
+                </ion-text>
+            </p>
+            <p *ngIf='order.items.length >= 3'>
+                <ion-text style="font-size: 12px;">...</ion-text>
+            </p>
+            <p *ngIf='order.staffId && order.staffId !== 0 && order.staff && !isStaff'>
+                <i style="font-size: 11px;">{{'trade.staff' | translate}} {{order.staff.name}}<span *ngIf='order.store'>
+                        -
+                        {{order.store.name}}</span></i>
+            </p>
+            <p *ngIf='!(order.staffId && order.staffId !== 0 && order.staff && !isStaff) && order.store'>
+                <i style="font-size: 11px;">{{'trade.staff' | translate}} {{order.store.name}}</i>
+            </p>
+            <p *ngIf='order.hasShipInfo && order.billOfLadingCode'>
+                {{'order-add.bill-of-lading-code' | translate}}: {{order.billOfLadingCode}}
+            </p>
+            <p *ngIf='order.hasShipInfo && order.shippingPartner'>
+                {{'order-add.shipping-partner' | translate}}: {{order.shippingPartner}}
+            </p>
+            <p *ngIf='order.hasShipInfo && order.shipperName'>
+                {{'order-add.shipper-name' | translate}}: {{order.shipperName}}
+            </p>
+            <p *ngIf='order.hasShipInfo && order.shipperPhone'>
+                {{'order-add.shipper-phone' | translate}}: {{order.shipperPhone}}
+            </p>
+            <p *ngIf='order.hasShipInfo && order.deliveryAddress'>
+                {{'order-add.delivery-address' | translate}}: {{order.deliveryAddress}}
+            </p>
+        </ion-label>
+        <ion-avatar slot='end' *ngIf='order.contactId && order.contactId !== 0 && order.contact && showContact'>
+            <img [src]="contactImageOrPlaceholder(order.contact)">
+        </ion-avatar>
+    </ion-item>
+    <ion-item-options side="end">
+        <ion-item-option (click)="press()">
+            <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+        </ion-item-option>
+    </ion-item-options>
+</ion-item-sliding>

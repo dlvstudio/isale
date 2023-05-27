@@ -1,0 +1,141 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button *ngIf="searchMode" (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+            <ion-menu-button *ngIf="!searchMode" menu="first"></ion-menu-button>
+            <ion-button *ngIf="!searchMode" color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'table.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='reload()'>
+                <ion-icon name="refresh"></ion-icon>
+            </ion-button>
+            <ion-button (click)='openTableAdd()' [hidden]='staffService.isStaff()'
+                *ngIf='!selectedStaff || selectedStaff.hasFullAccess'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (!selectedStaff || (selectedStaff.hasFullAccess && !selectedStaff.storeId))'
+        lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'table.search' | translate}}" [(ngModel)]='searchKey'></ion-searchbar>
+    <ion-segment *ngIf="regions && regions.length" [(ngModel)]='regionSelected' (ngModelChange)='changeRegion()' class="ion-no-padding" scrollable [scrollable]="true">
+        <ion-segment-button value="all" class="ion-text-wrap">
+            {{'table.all-regions' | translate}}
+        </ion-segment-button>
+        <ion-segment-button *ngFor="let region of regions" [value]="region" class="ion-text-wrap">
+            {{region}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-grid>
+        <ion-row>
+            <ion-col size-xs='12' size-sm='12' size-md='4' size-lg='4' *ngFor="let table of tables">
+                <ion-item lines='none' (press)="presentActionSheet(table)" [color]='table.order ? "primary" : "light"'
+                    style='border-radius: 10px; border-width: 1px !important; border-color: #ccc !important; height: 100%; box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;'
+                    [style.backgroundColor]='table.order ? "#3880ff" : "#f4f5f8"'>
+                    <ion-label class='ion-text-wrap' [color]='table.order ? "warning" : "primary"'>
+                        <span style='white-space: pre-wrap; cursor: pointer;'
+                            (click)='addOrder(table)'>{{limitText(table.name)}}
+                            <span *ngIf='table.position' style='white-space: pre-wrap;'> -
+                                {{limitText(table.position)}}</span>
+                        </span>
+                        <ion-text *ngIf='table.order' color='light'>
+                            <br>
+                            <span>#{{table.order.orderCode}}</span>
+                            - <span color="secondary">{{table.order.total |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+                            <br>
+                            <p *ngIf='table.order.contactId && table.order.contactId !== 0 && table.order.contact'>
+                                {{table.order.contact.fullName}}
+                            </p>
+                            <p *ngIf='table.order.contactId === 0 && table.order.contactName'>
+                                {{table.order.contactName}}
+                            </p>
+                            <p *ngIf='table.order.contactId === 0 && table.order.contactPhone'>
+                                {{table.order.contactPhone}}</p>
+                            <p>
+                                <span *ngFor="let item of table.order.items| slice:0:2;">
+                                    <ion-text style="font-size: 12px;">
+                                        {{item["productCode"] ? item["productCode"].toUpperCase() + '-' :
+                                        ''}}{{item["productName"]}}
+                                        |
+                                        {{item["count"]}} {{item["unit"]}} |
+                                        {{item["total"] |
+                                        currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                                        <ion-text *ngIf='item["options"] && item["options"].length'
+                                            style='font-size: 0.8em;' [style.fontWeight]='"normal"'
+                                            class="ion-text-wrap">
+                                            <ng-container *ngFor='let option of item["options"]'>
+                                                <br>
+                                                {{option.code ? option.code.toUpperCase() + '-' : ''}}{{option.title}}
+                                                |
+                                                {{option.count}}
+                                                {{option.unit}} | {{option.total |
+                                                currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                                            </ng-container>
+                                        </ion-text>
+                                    </ion-text>
+                                    <br>
+                                </span>
+                                <span *ngIf='table.order.items && table.order.items.length >= 3'>
+                                    <ion-text style="font-size: 12px;">...</ion-text>
+                                </span>
+                            </p>
+                            <p
+                                *ngIf='table.order.staffId && table.order.staffId !== 0 && table.order.staff && !staffService.isStaff()'>
+                                <i style="font-size: 11px;">{{'trade.staff' | translate}} {{table.order.staff.name}}</i>
+                            </p>
+                        </ion-text>
+                        <ion-text *ngIf='!table.order && !searchMode' color='dark'>
+                            <br>
+                            {{'table.no-order' | translate}}
+                            <br>
+                        </ion-text>
+                    </ion-label>
+                    <ion-buttons slot='end' *ngIf="!searchMode">
+                        <ion-button size='large' (click)='addOrder(table)' [color]='table.order ? "light" : "primary"'>
+                            <ion-icon slot='icon-only' name='receipt'></ion-icon>
+                        </ion-button>
+                        <ion-button size='small' (click)='selectTable(table)'
+                            *ngIf='!selectedStaff || selectedStaff.hasFullAccess'
+                            [color]='table.order ? "light" : "secondary"'>
+                            <ion-icon slot='icon-only' name='information-circle'></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-item class='ion-text-wrap' *ngIf="!originalTables || originalTables.length===0" lines='none'>
+            <div [innerHTML]="'table.no-table' | translate">
+            </div>
+        </ion-item>
+        <ion-item button (click)="goHelpPage('table')" detail *ngIf="!originalTables || originalTables.length===0"
+            lines='none'>
+            <ion-icon name="help" slot="start"></ion-icon>
+            <ion-label color='primary'>
+                {{'help-table.title' | translate}}
+            </ion-label>
+        </ion-item>
+    </ion-grid>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed"
+        *ngIf='!selectedStaff || selectedStaff.hasFullAccess'>
+        <ion-fab-button (click)='openTableAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>&nbsp;
+    </ion-fab>
+</ion-content>

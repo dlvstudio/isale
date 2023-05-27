@@ -1,0 +1,29 @@
+export interface IStaff {
+    id: number;
+    avatarUrl: string;
+    userName: string;
+    shopName: string;
+    name: string;
+    createdAt: string;
+    hasFullAccess: boolean;
+    canCreateOrder: boolean;
+    canUpdateDeleteOrder: boolean;
+    canCreateNewTransaction: boolean;
+    canUpdateDeleteTransaction: boolean;
+    canCreateUpdateNote: boolean;
+    canCreateUpdateDebt: boolean;
+    canUpdateDeleteProduct: boolean;
+    canViewProductCostPrice: boolean;
+    canUpdateProductCostPrice: boolean;
+    canViewAllContacts: boolean;
+    canManageContacts: boolean;
+    updateStatusExceptDone: boolean;
+    hourLimit: number;
+    storeId: number;
+    store: any;
+    isCollaborator: boolean;
+    shiftId: number;
+    shift: any;
+    blockViewingQuantity: boolean;
+    blockEditingOrderPrice: boolean;
+}

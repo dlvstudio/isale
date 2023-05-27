@@ -1,0 +1,82 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'excel-report-home.title' | translate}}</ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <p style='padding-left: 10px; padding-right: 10px'>{{'excel-report-home.sales-report' | translate}}</p>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportSalesReportByOrder()'>
+                    <ion-icon name="receipt"></ion-icon>&nbsp;
+                    {{'excel-report-home.sales-report-by-order' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportSalesReportByProduct()'>
+                    <ion-icon name="document"></ion-icon>&nbsp;
+                    {{'excel-report-home.sales-report-by-product' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportSalesReportByCustomer()'>
+                    <ion-icon name="person"></ion-icon>&nbsp;
+                    {{'excel-report-home.sales-report-by-customer' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportSalesReportByStaff()'>
+                    <ion-icon name="person"></ion-icon>&nbsp;
+                    {{'excel-report-home.sales-report-by-staff' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <p style='padding-left: 10px; padding-right: 10px'>{{'product.title' | translate}}</p>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductsReport()'>
+                    <ion-icon name="reader"></ion-icon>&nbsp;
+                    {{'product.export-to-excel' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(0)'>
+                    <ion-icon name="document"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-summary' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='exportProductNotesReport(1)'>
+                    <ion-icon name="newspaper"></ion-icon>&nbsp;
+                    {{'product-note-export.report-type-detail' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <p style='padding-left: 10px; padding-right: 10px'>{{'product.chart' | translate}}</p>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='gotoPage("report")'>
+                    <ion-icon name="bar-chart"></ion-icon>&nbsp;
+                    {{'report.title-all' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand='block' fill='outline' (click)='gotoPage("debt-report")'>
+                    <ion-icon name="bar-chart"></ion-icon>&nbsp;
+                    {{'debt-report.title' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

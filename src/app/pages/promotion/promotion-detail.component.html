@@ -1,0 +1,106 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'promotion-add.title-detail' | translate}}</ion-title>
+        <ion-buttons slot=end>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+                {{'common.edit' | translate}}
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content *ngIf='promotion'>
+    <ion-list lines='none'>
+        <ion-list>
+            <ion-item>
+                <ion-label class='ion-text-wrap'>
+                    {{promotion.name}}
+                    <p>
+                        {{'promotion-add.start-date' | translate}}: {{dateFormat(promotion.startDate)}}
+                    </p>
+                    <p>
+                        {{'promotion-add.end-date' | translate}}: {{dateFormat(promotion.endDate)}}
+                    </p>
+                    <p *ngIf="promotion.contact || promotion.product || promotion.category || promotion.store">
+                        <b>{{'promotion-add.apply-for' | translate}}:</b>
+                    </p>
+                    <p *ngIf='promotion.forAllCustomer'>{{'promotion-add.for-all-customer' | translate}}</p>
+                    <p *ngIf='promotion.contact'>{{'promotion-add.contact' | translate}}:
+                        {{promotion.contact.fullName}}</p>
+                    <p *ngIf='promotion.product'>{{'promotion-add.product' | translate}}:
+                        {{promotion.product.title}}</p>
+                    <p *ngIf='promotion.category'>{{'promotion-add.category' | translate}}:
+                        {{promotion.category.title}}</p>
+                    <p *ngIf='promotion.store'>{{'staff-add.store' | translate}}:
+                        {{promotion.store.name}}</p>
+
+                    <p *ngIf="promotion.conditionTotalAmount || promotion.conditionTotalQuantity">
+                        <b>{{'promotion-add.conditions' | translate}}:</b>
+                    </p>
+                    <p *ngIf='promotion.conditionTotalAmount'>
+                        {{'promotion-add.condition-total-amount' | translate}}: {{promotion.conditionTotalAmount |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                    </p>
+                    <p *ngIf='promotion.conditionTotalQuantity'>
+                        {{'promotion-add.condition-total-quantity' | translate}}: {{promotion.conditionTotalQuantity}}
+                    </p>
+                    <p>
+                        <b>{{'promotion-add.payment' | translate}}:</b>
+                    </p>
+                    <p>
+                        {{'promotion-add.promotion-value' | translate}}: <span
+                            *ngIf="!promotion.isPercent">{{promotion.promotionValue |
+                            currency:currency:'symbol':'1.0-2':translateService.currentLang}}</span><span
+                            *ngIf="promotion.isPercent">{{promotion.promotionValue}}%</span>
+                    </p>
+                    <p *ngIf='promotion.promotionMaxValue'>
+                        {{'promotion-add.promotion-max-value' | translate}}: {{promotion.promotionMaxValue |
+                        currency:currency:'symbol':'1.0-2':translateService.currentLang}}
+                    </p>
+
+                    <p *ngIf="(promotion.promotionProduct || promotion.promotionCategory) && promotion.maxPromotionQuantity">
+                        <b>{{'promotion-add.promotion-products' | translate}}:</b>
+                    </p>
+                    <p *ngIf='promotion.promotionProduct'>{{'promotion-add.product' | translate}}:
+                        {{promotion.promotionProduct.title}}</p>
+                    <p *ngIf='promotion.promotionCategory'>{{'promotion-add.category' | translate}}:
+                        {{promotion.promotionCategory.title}}</p>
+                    <p *ngIf='promotion.maxPromotionQuantity'>{{'promotion-add.max-promotion-quantity' | translate}}:
+                            {{promotion.maxPromotionQuantity}}</p>
+                </ion-label>
+                <ion-thumbnail slot='end' *ngIf="promotion.product">
+                    <img [src]="promotion.product.avatarUrl">
+                </ion-thumbnail>
+                <ion-avatar slot='end' *ngIf='promotion.contact'>
+                    <img [src]="contactImageOrPlaceholder(promotion.contact)" />
+                </ion-avatar>
+                <ion-toggle slot='end' [(ngModel)]="promotion.isActive" (ionChange)="changeActive()"></ion-toggle>
+            </ion-item>
+        </ion-list>
+    </ion-list>
+    <ion-list>
+        <ion-item-divider color="light">
+            {{'promotion-add.qr-code' | translate}}
+            <ion-button fill='clear' color="primary" slot='end' (click)='printBarcode()'>
+                <ion-icon slot="icon-only" name="print"></ion-icon>
+            </ion-button>
+        </ion-item-divider>
+        <ion-item>
+            <div style="text-align: center;">
+                {{'promotion-add.code' | translate}}: {{promotion.code}}
+                <ion-icon name="copy" (click)="copy(promotion.code)"></ion-icon>
+            </div>
+        </ion-item>
+        <ion-item style='text-align: center;' lines='none'>
+            <ion-label>
+                <img src="{{userService.apiUrl}}/qrcode?text={{this.promotion.code}}">
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

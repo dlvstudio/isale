@@ -1,0 +1,325 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'transfer-note-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid style='padding: 0 !important; margin: 0 !important;'>
+        <ion-row>
+            <ion-col size='12' size-sm>
+                <ion-grid>
+                    <ion-row>
+                        <ion-col>
+                            <ion-label position='stacked' color='primary'>{{'transfer-note-add.code' | translate}}
+                            </ion-label>
+                            <ion-input clearInput type="text" [(ngModel)]='note.code'></ion-input>
+                        </ion-col>
+                        <ion-col>
+                            <ion-label position='stacked' color='primary'>{{'transfer-note-add.date' | translate}}
+                            </ion-label>
+                            <div>
+                                <date-picker [(date)]="note.createdAt" type="datetime-local"
+                                    pickerId="noteAddPicker" min="2015-01-01" max="2025-12-31">
+                                </date-picker>
+                            </div>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col [size]='isMobile ? 6 : 4'>
+                            <ion-item lines='none' class="ion-no-padding" style='--min-height: 0px;'>
+                                <ion-label color='primary'>
+                                    {{'transfer-note-add.export-store' | translate}}
+                                    <p *ngIf="!isMainStoreForExport">
+                                        <ion-text color='dark' slot='end' (click)='showSearchExportStore()'
+                                            *ngIf="exportStore && exportStore.id > 0">
+                                            {{exportStore.name}}
+                                        </ion-text>
+                                        <ion-text slot='end' (click)='showSearchExportStore()'
+                                            *ngIf="!exportStore || exportStore.id === 0">
+                                            {{'transfer-note-add.select-export-store' | translate}}
+                                        </ion-text>
+                                    </p>
+                                </ion-label>
+                                <ion-button *ngIf="!isMainStoreForExport && exportStore && exportStore.id > 0" fill='clear' slot='end'
+                                    (click)='removeExportStore()'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                            <ion-item lines="none" class="ion-no-padding" style='--min-height: 0px;' *ngIf="!exportStore || exportStore.id === 0">
+                                <ion-checkbox slot="start" [(ngModel)]='isMainStoreForExport'></ion-checkbox>
+                                <span style="font-size: 0.8em;">{{'transfer-note-add.main-store' | translate}}</span>
+                            </ion-item>
+                        </ion-col>
+                        <ion-col [size]='isMobile ? 6 : 4'>
+                            <ion-item lines='none' class="ion-no-padding" style='--min-height: 0px;'>
+                                <ion-label color='primary'>
+                                    {{'transfer-note-add.import-store' | translate}}
+                                    <p *ngIf="!isMainStoreForImport">
+                                        <ion-text color='dark' slot='end' (click)='showSearchImportStore()'
+                                            *ngIf="importStore && importStore.id > 0">
+                                            {{importStore.name}}
+                                        </ion-text>
+                                        <ion-text slot='end' (click)='showSearchImportStore()'
+                                            *ngIf="!importStore || importStore.id === 0">
+                                            {{'transfer-note-add.select-export-store' | translate}}
+                                        </ion-text>
+                                    </p>
+                                </ion-label>
+                                <ion-button *ngIf="!isMainStoreForImport && importStore && importStore.id > 0" fill='clear' slot='end'
+                                    (click)='removeImportStore()'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                            <ion-item lines="none" class="ion-no-padding" style='--min-height: 0px;' *ngIf="!importStore || importStore.id === 0">
+                                <ion-checkbox slot="start" [(ngModel)]='isMainStoreForImport'></ion-checkbox>
+                                <span style="font-size: 0.8em;">{{'transfer-note-add.main-store' | translate}}</span>
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+                <ion-list>
+                    <ion-item-divider color="light">
+                        {{'transfer-note-add.product' | translate}}
+                    </ion-item-divider>
+                    <ion-item color="light">
+                        <ion-text color='primary' class='ion-text-wrap'>
+                            {{'transfer-note-add.enter-barcode' | translate}}
+                            {{'order-add.or' | translate}}...</ion-text>
+                        <ion-buttons>
+                            <ion-button fill='clear' color="primary" (click)='showSearchProduct()'>
+                                <ion-icon name="add"></ion-icon>
+                                &nbsp;{{'order-add.add-manual' | translate}}
+                            </ion-button>
+                            <ion-button fill='clear' color="primary" (click)='scan()'>
+                                <ion-icon name="barcode"></ion-icon>
+                                &nbsp;{{'order-add.mobile-scan' | translate}}
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                    <ion-item color="light">
+                        <ion-input clearInput autofocus='true' #barcodeInput type="text"
+                            placeholder="{{'transfer-note-add.enter-barcode-placeholder' | translate}}"
+                            [(ngModel)]="barcode" (ngModelChange)="barcodeChanged()"></ion-input>
+                    </ion-item>
+                </ion-list>
+                <ng-container *ngFor="let item of note.items" color='light'>
+                    <ion-item color='light'>
+                        <ion-buttons>
+                            <ion-button fill='clear' (click)='expand(item)' color='primary'>
+                                <fa-icon icon="{{item.isExpand ? 'compress-arrows-alt' : 'edit'}}" size="xs">
+                                </fa-icon>
+                            </ion-button>
+                        </ion-buttons>
+                        <ion-text color='primary' (click)='expand(item)'>
+                            <span *ngIf='item.productCode'>{{item.productCode}}-</span>{{item.productName}} <span *ngIf='item.unit'> ({{item.unit}})</span><br>
+                            <span style='font-size: 0.8em;'>{{'transfer-note-add.product-export-count' | translate}}:
+                                {{item.actualExport}} -
+                                {{'transfer-note-add.product-import-count' | translate}}: {{item.actualImport}} <span
+                                    *ngIf='note.hasPayment'>-
+                                    {{item.amount | currency:currency.code:"symbol":'1.0-2':translateService.currentLang}}</span>
+                            </span>
+                        </ion-text>
+                        <ion-buttons slot='end'>
+                            <ion-button fill='clear' color="primary" (click)='removeProduct(item)'>
+                                <ion-icon name="close"></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-item>
+                    <ion-grid [hidden]='!item.isExpand'>
+                        <ion-row>
+                            <ion-col *ngIf='note.hasPayment'>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.product-unit-price' | translate}}
+                                </ion-label>
+                                <money-input [clear]='true'
+                                    placeholder="{{'transfer-note-add.enter-product-unit-price' | translate}}"
+                                    [(moneyValue)]='item.unitPrice' (moneyValueChange)='reCalc(item)'></money-input>
+                            </ion-col>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.product-export-count' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="number"
+                                    placeholder="{{'transfer-note-add.enter-product-count' | translate}}"
+                                    [(ngModel)]='item.actualExport' (ngModelChange)='reCalc(item)'
+                                    (focus)='selectAll($event)'>
+                                </ion-input>
+                                <ion-buttons>
+                                    <ion-button expand='block' fill='solid' (click)='decrease(item)'>
+                                        <ion-icon slot='icon-only' name='remove'></ion-icon>
+                                    </ion-button>
+                                    <ion-button expand='block' fill='solid' (click)='increase(item)'>
+                                        <ion-icon slot='icon-only' name='add'></ion-icon>
+                                    </ion-button>
+                                </ion-buttons>
+                            </ion-col>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.product-export-count' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="number"
+                                    placeholder="{{'transfer-note-add.enter-product-count' | translate}}"
+                                    [(ngModel)]='item.actualImport' (ngModelChange)='reCalc(item)'
+                                    (focus)='selectAll($event)'>
+                                </ion-input>
+                                <ion-buttons>
+                                    <ion-button expand='block' fill='solid' (click)='decrease(item)'>
+                                        <ion-icon slot='icon-only' name='remove'></ion-icon>
+                                    </ion-button>
+                                    <ion-button expand='block' fill='solid' (click)='increase(item)'>
+                                        <ion-icon slot='icon-only' name='add'></ion-icon>
+                                    </ion-button>
+                                </ion-buttons>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col *ngIf='note.hasPayment'>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.product-total' | translate}}
+                                </ion-label>
+                                <money-input [clear]='true'
+                                    placeholder="{{'transfer-note-add.enter-product-total' | translate}}"
+                                    [(moneyValue)]='item.amount' (moneyValueChange)='applyItemTotal()'></money-input>
+                            </ion-col>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.product-note' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="text"
+                                    placeholder="{{'transfer-note-add.enter-product-note' | translate}}"
+                                    [(ngModel)]='item.note' (focus)='selectAll($event)'></ion-input>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ng-container>
+                <ion-item class='ion-text-wrap' [hidden]='note.items && note.items.length > 0'>
+                    <div [innerHTML]="'transfer-note-add.no-product' | translate">
+                    </div>
+                </ion-item>
+            </ion-col>
+            <ion-col size='12' size-sm>
+                <ion-list>
+                    <ion-item-divider color="light">
+                        <ion-label class="ion-text-wrap">
+                            {{'transfer-note-add.payment-info' | translate}}
+                            <p style='font-size: 0.8em;'>
+                                {{'transfer-note-add.payment-description' | translate}}
+                            </p>
+                        </ion-label>
+                    </ion-item-divider>
+                    <ion-item>
+                        <ion-label>
+                            {{'transfer-note-add.has-payment' | translate}}
+                        </ion-label>
+                        <ion-checkbox slot="start" [(ngModel)]="note.hasPayment" (ngModelChange)="hasPaymentChanged()">
+                        </ion-checkbox>
+                    </ion-item>
+                    <ion-grid *ngIf='note.hasPayment && !staffService.isStaff()'>
+                        <ion-row>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary' style='font-weight: bold'>
+                                    {{'transfer-note-add.total' | translate}}
+                                    ({{currency ? currency.code: ''}})</ion-label>
+                                <money-input [clear]='true'
+                                    placeholder="{{'transfer-note-add.enter-total' | translate}}"
+                                    [(moneyValue)]='note.total'>
+                                </money-input>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary' class='ion-text-wrap'>
+                                    {{'transfer-note-add.export-money-account' | translate}}
+                                </ion-label>
+                                <br>
+                                <ion-button color='dark' (click)='showSearchExportMoneyAccount()'
+                                    *ngIf="exportMoneyAccount && exportMoneyAccount.id > 0" size='small'>
+                                    {{exportMoneyAccount.accountName}}
+                                </ion-button>
+                                <ion-button (click)='showSearchExportMoneyAccount()'
+                                    *ngIf="!exportMoneyAccount || exportMoneyAccount.id === 0" size='small'>
+                                    {{'trade-add.select-money-account' | translate}}
+                                </ion-button>
+                                <ion-button *ngIf="exportMoneyAccount && exportMoneyAccount.id > 0"
+                                    (click)='removeExportMoneyAccount()' size='small'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary' class='ion-text-wrap'>
+                                    {{'transfer-note-add.import-money-account' | translate}}
+                                </ion-label>
+                                <br>
+                                <ion-button color='dark' (click)='showSearchImportMoneyAccount()'
+                                    *ngIf="importMoneyAccount && importMoneyAccount.id > 0" size='small'>
+                                    {{importMoneyAccount.accountName}}
+                                </ion-button>
+                                <ion-button (click)='showSearchImportMoneyAccount()'
+                                    *ngIf="!importMoneyAccount || importMoneyAccount.id === 0" size='small'>
+                                    {{'trade-add.select-money-account' | translate}}
+                                </ion-button>
+                                <ion-button *ngIf="importMoneyAccount && importMoneyAccount.id > 0"
+                                    (click)='removeImportMoneyAccount()' size='small'>
+                                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                    <ion-item-divider color="light">
+                        {{'transfer-note-add.delivery-info' | translate}}
+                    </ion-item-divider>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col [size]='isMobile ? 6 : 4'>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.delivery-person' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="text"
+                                    placeholder="{{'transfer-note-add.delivery-person' | translate}}"
+                                    [(ngModel)]='note.deliverer' (focus)='selectAll($event)'></ion-input>
+                            </ion-col>
+                            <ion-col [size]='isMobile ? 6 : 4'>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.transportation' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="text"
+                                    placeholder="{{'transfer-note-add.enter-transportation' | translate}}"
+                                    [(ngModel)]='note.transportation' (focus)='selectAll($event)'></ion-input>
+                            </ion-col>
+                            <ion-col [size]='isMobile ? 6 : 4'>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.receiver' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="text"
+                                    placeholder="{{'transfer-note-add.enter-receiver' | translate}}"
+                                    [(ngModel)]='note.receiver' (focus)='selectAll($event)'></ion-input>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-label position='stacked' color='primary'>
+                                    {{'transfer-note-add.delivery-address' | translate}}
+                                </ion-label>
+                                <ion-input clearInput type="text"
+                                    placeholder="{{'transfer-note-add.enter-delivery-address' | translate}}"
+                                    [(ngModel)]='note.deliveryAddress' (focus)='selectAll($event)'></ion-input>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-list>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <div class="ion-padding" style="padding-top: 0 !important;">
+        <support></support>
+    </div>
+</ion-content>

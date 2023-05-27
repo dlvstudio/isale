@@ -1,0 +1,27 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'table-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'table-add.name' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'table-add.enter-name' | translate}}" [(ngModel)]='table.name'></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'table-add.position' | translate}}</ion-label>
+            <ion-input clearInput type="text" placeholder="{{'table-add.enter-position' | translate}}" [(ngModel)]='table.position'></ion-input>
+        </ion-item>
+    </ion-list>
+</ion-content>

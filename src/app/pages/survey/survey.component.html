@@ -1,0 +1,53 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'survey.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button size="large" color="success" (click)='save()' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class="ion-padding">
+        <p style='padding-top: 0; margin-top: 0'>{{'survey.description' | translate}}</p>
+        <p style='margin-bottom: 3px;'><strong>1. {{'survey.question-1' | translate}}</strong></p>
+        <ion-list>
+            <ion-item *ngFor="let entry of question1" class="ion-no-padding">
+                <ion-label class="ion-text-wrap">{{entry.value | translate}}</ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="entry.isChecked"></ion-checkbox>
+            </ion-item>
+        </ion-list>
+        <p style='margin-bottom: 3px;'><strong>2. {{'survey.question-2' | translate}}</strong></p>
+        <ion-list>
+            <ion-item *ngFor="let entry of question2" class="ion-no-padding">
+                <ion-label class="ion-text-wrap">{{entry.value | translate}}</ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="entry.isChecked"></ion-checkbox>
+            </ion-item>
+        </ion-list>
+        <p style='margin-bottom: 3px;'><strong>3. {{'survey.question-3' | translate}}</strong></p>
+        <ion-textarea [(ngModel)]='featuresNeed' style='background-color: #efefef; border-radius: 5px; color: #000; padding-left: 5px;' rows="3"></ion-textarea>
+        <p style='margin-bottom: 3px;'><strong>4. {{'survey.question-4' | translate}}</strong></p>
+        <ion-textarea [(ngModel)]='errorDescription' style='background-color: #efefef; border-radius: 5px; color: #000; padding-left: 5px;' rows="3"></ion-textarea>
+        <p style='margin-bottom: 3px;'><strong>5. {{'survey.question-5' | translate}}</strong></p>
+        <ion-textarea [(ngModel)]='uiUxEnhance' style='background-color: #efefef; border-radius: 5px; color: #000; padding-left: 5px;' rows="3"></ion-textarea>
+        <p style='margin-bottom: 3px;'><strong>6. {{'survey.question-6' | translate}}</strong></p>
+        <ion-list>
+            <ion-item *ngFor="let entry of question6" class="ion-no-padding">
+                <ion-label class="ion-text-wrap">{{entry.value | translate}}</ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="entry.isChecked"></ion-checkbox>
+            </ion-item>
+        </ion-list>
+        <p><strong><i>{{'survey.finish' | translate}}</i></strong></p>
+        <div style='margin-top: 10px' *ngIf='!navCtrl.isIosReview()'>
+            <rate></rate>
+        </div>
+    </div>
+</ion-content>

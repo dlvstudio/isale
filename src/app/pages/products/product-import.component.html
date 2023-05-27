@@ -1,0 +1,80 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'product-import.title' | translate}}</ion-title>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div class='ion-padding'>
+        <p>{{'product-import.template-note' | translate}}</p>
+        <ion-button expand='block' fill='outline' (click)='downloadTemplate()' color='secondary'>
+            <ion-icon name="download"></ion-icon>&nbsp;
+            {{'product-import.download-template' | translate}}
+        </ion-button>
+        <p [innerHTML]="'product-import.note' | translate"></p>
+        <label color='primary' for="files"
+            style="border-radius: 10px; display: block; border: 1px solid #387ef5; text-transform: uppercase; text-align: center;">
+            <div style="color: #387ef5; height: 45px; display: flex;
+            align-items : center;
+            justify-content: center;
+            ">
+                <ion-icon name="cloud-upload" color='primary' style="zoom:1.5;"></ion-icon>
+                &nbsp;
+                <span *ngIf='!fileToUpload'>{{'product-import.upload-file' | translate}}</span>
+                <span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>
+            </div>
+        </label>
+        <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" #fileUploadInput id="files" style="width: 0; height: 0; font-size: 0;"
+            (change)="rememberFile($event)" />
+    </div>
+    <ion-list>
+        <ng-container *ngIf='isMobile'>
+            <ion-item *ngFor="let product of productsImported">
+                <ion-label class='ion-text-wrap'>
+                    <span style='white-space: pre-wrap; font-weight: bold'>
+                        {{limitText(productName(product.code, product.title))}}
+                    </span>
+                    <br>
+                    <span color="secondary">
+                        <ion-icon name="pricetag"></ion-icon>&nbsp;{{'product-detail.product-unit-price' | translate}}:
+                        {{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                    </span>
+                    <span> - {{'product-detail.product-quantity' | translate}}: {{product.count}}
+                        {{product.unit}}</span>
+                </ion-label>
+            </ion-item>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && productsImported && productsImported.length'>
+            <ion-row>
+                <ion-col><strong>{{'product-add.product-title' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'product-add.price' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'product-add.count' | translate}}</strong></ion-col>
+                <ion-col><strong>{{'product-add.unit' | translate}}</strong></ion-col>
+            </ion-row>
+            <ion-row *ngFor="let product of productsImported; let i = index"
+                style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'">
+                <ion-col>{{limitText(productName(product.code, product.title))}}</ion-col>
+                <ion-col>{{product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                <ion-col>{{product.count}}</ion-col>
+                <ion-col>{{product.unit}}</ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-list>
+    <div class='ion-padding' *ngIf='productsImported && productsImported.length'>
+        <ion-button (click)='navCtrl.back()'>
+            <ion-icon name='close'></ion-icon>&nbsp;
+            {{'product-add.close' | translate}}
+        </ion-button>
+    </div>
+</ion-content>

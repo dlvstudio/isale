@@ -1,0 +1,12 @@
+<div id='print-page'>
+    <ng-container *ngFor='let order of orders'>
+        <order-print [printOrderLikeInvoice]='printOrderLikeInvoice' [shop]='shop' [order]='order' [currency]='currency'
+            [isMobile]='isMobile' [totalProductsAmount]='order["totalProductsAmount"]'
+            [totalProductsQuantity]='order["totalProductsQuantity"]' [hideTax]='hideTax'
+            [orderInvoiceMaxEmptyRows]='orderInvoiceMaxEmptyRows' [hideDiscountColumn]='hideDiscountColumn'
+            [showStaffNameUnderSign]='showStaffNameUnderSign' [hideProductCodePrint]='hideProductCodePrint'
+            [showStaffPhone]='showStaffPhone' [orderPrintNote]='orderPrintNote'>
+        </order-print>
+        <div style="break-after:page"></div>
+    </ng-container>
+</div>

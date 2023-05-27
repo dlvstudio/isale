@@ -1,0 +1,286 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'product-note-export.title' | translate}}</ion-title>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='!report'>
+        <ion-item lines="none">
+            <ion-label ion-text color='primary'>{{'product-note-export.select-date-range' | translate}}:</ion-label>
+        </ion-item>
+        <ion-item text-wrap>
+            <ion-label *ngIf="dateFrom != '' || dateTo != ''" class='ion-text-wrap'>
+                {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                {{dateFormat(dateTo)}}</ion-label>
+            <ion-button fill='clear' (click)='selectDateRange()' slot='end'>
+                <ion-icon slot='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item lines="none">
+            <ion-label color='primary'>{{'product-note-export.select-report-type' | translate}}:</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-select [(ngModel)]="reportType"
+                style="width: 100% !important; max-width: 100% !important; padding-left: 0px !important; background-color: '#cccccc'">
+                <ion-select-option [value]="0">{{'product-note-export.report-type-summary' | translate}}
+                </ion-select-option>
+                <ion-select-option [value]="1">{{'product-note-export.report-type-detail' | translate}}
+                </ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item lines="none" *ngIf='reportType === 1'>
+            <ion-label color='primary'>{{'product-note-export.select-product' | translate}}:</ion-label>
+        </ion-item>
+        <ion-item lines="none" *ngIf='reportType === 1'>
+            <ion-buttons slot='start' *ngIf="productSelected && productSelected.id > 0">
+                <ion-button fill='clear' (click)='removeProduct()'>
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-text color='dark' (click)='showSearchProduct()'
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productName(productSelected.code, productSelected.title)}}
+            </ion-text>
+            <ion-text (click)='showSearchProduct()' *ngIf="!productSelected || productSelected.id == 0">
+                {{'product-note-export.all-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button fill='outline' (click)='scan()'>
+                    <ion-icon name="barcode"></ion-icon> {{'product.scan-barcode' | translate}}
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+    <div class='ion-padding' style='padding-top: 0; padding-bottom: 0'>
+        <ion-grid *ngIf='!report'>
+            <ion-row>
+                <ion-col>
+                    <ion-button color="primary" expand='block' (click)='generate()'>
+                        <ion-icon name="funnel"></ion-icon>
+                        &nbsp;{{'product-note-export.generate' | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button color="secondary" expand='block' (click)='export()'>
+                        <fa-icon icon="file-excel" size="lg"></fa-icon>
+                        &nbsp;{{'product-note-export.export' | translate}}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        <ion-grid *ngIf='report'>
+            <ion-row>
+                <ion-col>
+                    <ion-button color="primary" expand='block' (click)='resetReport()'>
+                        <ion-icon name="create"></ion-icon>
+                        &nbsp;{{'product-note-export.change' | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button color="secondary" expand='block' (click)='export()'>
+                        <fa-icon icon="file-excel" size="lg"></fa-icon>
+                        &nbsp;{{'product-note-export.export' | translate}}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+    <ion-list>
+        <ion-item class='ion-text-wrap' *ngIf='report'>
+            <ion-grid>
+                <ion-row>
+                    <ion-col size-sm='4' size-xs='4'>
+                        <ion-text>{{'common.from' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{dateFormat(dateFrom)}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        <ion-text>{{'common.to' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{dateFormat(dateTo)}}
+                        </ion-text>
+                    </ion-col>
+                    <ion-col>
+                        <ion-text>{{'product-note-export.report-type' | translate}}</ion-text>:<br>
+                        <ion-text color='primary'>
+                            {{reportName()}}</ion-text>
+                    </ion-col>
+                </ion-row>
+                <ion-row *ngIf='reportType === 0'>
+                    <ion-col size-sm='4' size-xs='4'>
+                        <ion-text color='danger'>{{'common.total' | translate}}</ion-text>:<br>
+                        <ion-text color="secondary">
+                            {{report.totalSale | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+                    </ion-col>
+                    <ion-col size-sm='4' size-xs='4'>
+                        {{'product-note-export.total-cost' | translate}}:<br>
+                        <ion-text color="danger">
+                            {{report.totalCost | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+                    </ion-col>
+                </ion-row>
+                <ion-row *ngIf='reportType === 1'>
+                    <ion-col size-sm='4' size-xs='4'>
+                        <ion-text color='danger'>{{'common.total' | translate}}</ion-text>:<br>
+                        <ion-text color="secondary">
+                            {{report.total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+        <ng-container *ngIf='isMobile && report'>
+            <ion-list-header>
+                <ion-label>{{'product-note-export.list' | translate}}</ion-label>
+            </ion-list-header>
+            <ng-container *ngIf='reportType === 0'>
+                <ion-item *ngFor="let product of report.items" (click)='selectProduct(product.id)'>
+                    <ion-label class='ion-text-wrap'>
+                        <strong>{{productName(product.code, product.name)}}</strong>
+                        <div>
+                            <ion-text color="primary">{{'product-note-export.total-sale' | translate}}:
+                                {{product.totalSale | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text> -
+                            {{'product-note-export.total-cost' | translate}}: {{product.totalCost |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </div>
+                        <div>
+                            {{'product-note-export.opening' | translate}}: {{product.opening ? product.opening : 0}}
+                            - {{'product-note-export.closing' | translate}}: {{product.closing ? product.closing : 0}}
+                        </div>
+                        <div>
+                            {{'product-note-export.received' | translate}}: <span
+                                *ngIf='product.received > 0'>+</span>{{product.received ? product.received : 0}}
+                            - {{'product-note-export.issued' | translate}}: {{product.issued ? product.issued : 0}}
+                        </div>
+                    </ion-label>
+                </ion-item>
+            </ng-container>
+            <ng-container *ngIf='reportType === 1'>
+                <ion-item *ngFor="let item of report.items" (click)='selectProduct(item.id)'>
+                    <ion-label class='ion-text-wrap'>
+                        <strong>{{item.description}}</strong>
+                        - <ion-text color="{{item.amount >= 0 ? 'secondary': 'danger'}}">{{item.amount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                        <div><strong>{{productName(item.code, item.name)}}</strong> - <ion-text>
+                                {{'product-note-export.unit-price' | translate}}: {{item.unitPrice |
+                                currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text><span
+                                *ngIf='item.unit'>/{{item.unit}}</span>
+                        </div>
+                        <div>
+                            {{'product-note-export.quantity' | translate}}: <span
+                                *ngIf='item.quantity > 0'>+</span>{{item.quantity}}
+                            <span *ngIf='item.discount'>- {{'product-note-export.discount' | translate}}:
+                                {{item.discount}}</span>
+                        </div>
+                        <div *ngIf='item.staff'>
+                            {{'product-note-export.staff' | translate}}: {{item.staff}} 
+                            <span *ngIf="item.staffUnitPrice">- {{'product-note-export.staff-price' | translate}}: {{item.staffUnitPrice | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+                            <span *ngIf="item.staffProfit">- {{'product-note-export.staff-profit' | translate}}: {{item.staffProfit | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</span>
+                        </div>
+                        <div *ngIf='item.contact'>
+                            {{'product-note-export.contact' | translate}}: {{item.contact}}
+                        </div>
+                        <p>
+                            {{dateFormat(item.createdAt)}}
+                        </p>
+                    </ion-label>
+                </ion-item>
+            </ng-container>
+        </ng-container>
+        <ion-grid *ngIf='!isMobile && report && report.items && report.items.length' class='ion-padding'>
+            <ng-container *ngIf='reportType === 0'>
+                <ion-row>
+                    <ion-col size="1"><strong>{{'product-note-export.product-code' | translate}}</strong></ion-col>
+                    <ion-col size="4"><strong>{{'product-note-export.product-name' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.product-unit' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.opening' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.received' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.issued' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.closing' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.total-sale' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.total-cost' | translate}}</strong></ion-col>
+                </ion-row>
+                <ion-row *ngFor="let product of report.items; let i = index"
+                    style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                    (click)='selectProduct(product.id)'>
+                    <ion-col size="1">{{product.code}}</ion-col>
+                    <ion-col size="4"class="ion-text-wrap">
+                        {{product.name}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.unit}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.opening}}
+                    </ion-col>
+                    <ion-col size="1">
+                        <span *ngIf='product.received > 0'>+</span>{{product.received}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.issued}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.closing}}
+                    </ion-col>
+                    <ion-col size="1">{{product.totalSale | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                    <ion-col size="1">{{product.totalCost | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-col>
+                </ion-row>
+            </ng-container>
+            <ng-container *ngIf='reportType === 1'>
+                <ion-row>
+                    <ion-col size="1"><strong>{{'product-note-export.description' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.product-code' | translate}}</strong></ion-col>
+                    <ion-col size="4"><strong>{{'product-note-export.product-name' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.product-unit' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.quantity' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.discount' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.contact' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.date' | translate}}</strong></ion-col>
+                    <ion-col size="1"><strong>{{'product-note-export.amount' | translate}}</strong></ion-col>
+                </ion-row>
+                <ion-row *ngFor="let product of report.items; let i = index"
+                    style='border-bottom: 1px solid #ccc;' [style.cursor]="'pointer'"
+                    (click)='selectProduct(product.id)'>
+                    <ion-col size="1">{{product.description}}</ion-col>
+                    <ion-col size="1">{{product.code}}</ion-col>
+                    <ion-col size="4">
+                        {{product.name}}
+                    </ion-col>
+                    <ion-col size="1">
+                        <ion-text>
+                            {{product.unitPrice |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text><span
+                            *ngIf='product.unit'>/{{product.unit}}</span>
+                    </ion-col>
+                    <ion-col size="1">
+                        <span *ngIf='product.quantity > 0'>+</span>{{product.quantity}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.discount}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{product.contact}}
+                    </ion-col>
+                    <ion-col size="1">
+                        {{dateFormat(product.createdAt)}}
+                    </ion-col>
+                    <ion-col size="1">
+                        <ion-text color="{{product.amount >= 0 ? 'secondary': 'danger'}}">{{product.amount |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    </ion-col>
+                </ion-row>
+            </ng-container>
+        </ion-grid>
+    </ion-list>
+</ion-content>

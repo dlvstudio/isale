@@ -1,0 +1,21 @@
+<ng-template #template>
+    <ion-item  class="ion-no-padding">
+        <ion-label color='primary' position='stacked'>
+            {{tableKebab + '.' + camelToKebab(field) | translate}}
+        </ion-label>
+        <br *ngIf='object[field]'>
+        <img [src]="imageOrPlaceholder(field)" *ngIf='object[field]' style="max-width: 150px;" />
+        <ion-button color='secondary' (click)='upload(uploadCallBack)' *ngIf='!isNotCordova()'>
+            <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+        </ion-button>
+        <label color='primary' for="filesStore" *ngIf='isNotCordova()' style='margin-bottom: 10px; margin-top: 10px;'>
+            [<span *ngIf='!fileToUpload'>{{'note-add.select-photo' | translate}}</span>
+            <span *ngIf='fileToUpload'>{{fileToUpload.name}}</span>]
+        </label>
+        <input *ngIf='isNotCordova()' #fileUploadInput type="file" accept="image/*" id="filesStore"
+            style="width: 0; height: 0; font-size: 0;" (change)="rememberFile($event, uploadCallBack)" />
+        <ion-button (click)='removePhoto()' slot='end' fill='clear' size='small' *ngIf='object[field]'>
+            <ion-icon size='small' name='trash-outline' slot='icon-only'></ion-icon>
+        </ion-button>
+    </ion-item>
+</ng-template>

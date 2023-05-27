@@ -1,0 +1,88 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'transfer-note-add.detail-title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='print()'>
+                <ion-icon name="print"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <div *ngIf='note'>
+        <ion-list>
+            <ion-item lines='none'>
+                <ion-text color='primary'>{{'transfer-note-add.code' | translate}}:</ion-text>
+                <ion-text slot='end'>#{{note.id}}</ion-text>
+            </ion-item>
+            <ion-item lines='none'>
+                <ion-text>{{'transfer-note-add.date' | translate}}:</ion-text>
+                <ion-text slot='end'>{{dateFormat(note.createdAt)}}</ion-text>
+            </ion-item>
+        </ion-list>
+        <ion-item-divider color="light">
+            {{'transfer-note-add.product' | translate}}
+        </ion-item-divider>
+        <ion-list [hidden]='!note.items || note.items.length == 0'>
+            <ion-item *ngFor="let item of note.items; let i = index">
+                <ion-label class='ion-text-wrap'>
+                    <ion-text>
+                        <span *ngIf='item.productCode'>{{i + 1}}. {{item.productCode}}-</span>{{item.productName}}
+                        <span style='font-size: 0.9em;'>
+                            <br>
+                            {{'transfer-note-add.product-export-count' | translate}}: {{item.actualExport}} -
+                            {{'transfer-note-add.product-import-count' | translate}}: {{item.actualImport}} -
+                            {{'transfer-note-add.product-unit' | translate}}: {{item.unit}}
+                            <br>
+                            {{'transfer-note-add.product-unit-price' | translate}}: {{item.unitPrice |
+                            currency:currency:"symbol":'1.0-2':translateService.currentLang}} - {{'transfer-note-add.product-total' | translate}}:
+                            {{item.amount | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                        </span>
+                    </ion-text>
+                    <p *ngIf='item.note'>{{item.note}}</p>
+                </ion-label>
+            </ion-item>
+        </ion-list>
+        <ion-list>
+            <ion-item-divider color="light">
+                {{'transfer-note-add.delivery-info' | translate}}
+            </ion-item-divider>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.export-store' | translate}}:</ion-text>
+                <ion-text slot='end' *ngIf='note.exportStore'>{{note.exportStore.name}}</ion-text>
+            </ion-item>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.import-store' | translate}}:</ion-text>
+                <ion-text slot='end' *ngIf='note.importStore'>{{note.importStore.name}}</ion-text>
+            </ion-item>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.delivery-person' | translate}}:</ion-text>
+                <ion-text slot='end'>{{note.deliverer}}</ion-text>
+            </ion-item>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.receiver' | translate}}:</ion-text>
+                <ion-text slot='end'>{{note.receiver}}</ion-text>
+            </ion-item>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.transportation' | translate}}:</ion-text>
+                <ion-text slot='end'>{{note.transportation}}</ion-text>
+            </ion-item>
+            <ion-item>
+                <ion-text>{{'transfer-note-add.delivery-address' | translate}}:</ion-text>
+                <ion-text slot='end'>{{note.deliveryAddress}}</ion-text>
+            </ion-item>
+        </ion-list>
+    </div>
+    <div *ngIf='!note' class='ion-padding'>
+        {{'common.record-deleted-alert' | translate}}
+    </div>
+</ion-content>

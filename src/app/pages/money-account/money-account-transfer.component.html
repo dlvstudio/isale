@@ -1,0 +1,45 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'money-account-detail.transfer' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{'money-account.name-header' | translate}}: {{productName(currentMoneyAccount)}}</span>
+                <br>
+                <ion-text color="secondary">{{currentMoneyAccount.total | currency:currencyCode:true:'1.0-2':translateService.currentLang}}</ion-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-transfer.money' | translate}} <span *ngIf="currency">({{currency.symbol_native}} - {{currency.code}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'money-account-transfer.enter-money' | translate}}" [(moneyValue)]='transferValue'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'money-account-transfer.transfer-fee' | translate}} <span *ngIf="currency">({{currency.symbol_native}} - {{currency.code}})</span></ion-label>
+            <money-input [clear]='true' placeholder="{{'money-account-transfer.enter-transfer-fee' | translate}}" [(moneyValue)]='transferFee'></money-input>
+        </ion-item>
+        <ion-item>
+            <ion-text color='primary'>{{'trade-add.money-account' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='showSearchMoneyAccount()' *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0">
+                {{moneyAccountSelected.accountName}}
+            </ion-text>
+            <ion-text slot='end' (click)='showSearchMoneyAccount()' *ngIf="!moneyAccountSelected || moneyAccountSelected.id == 0">
+                {{'trade-add.select-money-account' | translate}}
+            </ion-text>
+            <ion-button *ngIf="moneyAccountSelected && moneyAccountSelected.id > 0" fill='outline' slot='end' (click)='removeMoneyAccount()'>
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-item>
+    </ion-list>
+</ion-content>

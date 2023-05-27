@@ -1,0 +1,145 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'debt-detail.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='pay()'>
+                <ion-icon name="cash"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='debt'>
+        <ion-item lines='none'>
+            <ion-text color='primary'>{{'trade-add.debt-no' | translate}}</ion-text>
+            <ion-text color='dark' slot='end'>
+                {{debt ? '#' + debt.id : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-segment [(ngModel)]="tab">
+            <ion-segment-button value="info">
+                {{'order-detail.information' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="trade">
+                {{'debt-detail.debt-payments' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+        <ion-item [hidden]='tab != "info" || !debt.order || debt.order.id == 0'>
+            <ion-text color='primary'>{{'debt-add.order' | translate}}</ion-text>
+            <ion-text color='dark' slot='end' (click)='selectOrder()'>
+                {{debt.order ? '#' + debt.order.orderCode : ''}}
+            </ion-text>
+        </ion-item>
+        <ion-item-sliding *ngIf='debt && debt.contactId !== 0 && tab == "info" && debt.contact'>
+            <ion-item>
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder()" />
+                </ion-avatar>
+                <ion-label>
+                    <h2><b>{{debt.contact.fullName}}</b></h2>
+                    <p>{{debt.contact.mobile}}</p>
+                    <p *ngIf='debt.contact.address'>{{debt.contact.address}}</p>
+                </ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option color="primary" (click)='text()'>
+                    <ion-icon slot="start" name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option color="secondary" (click)='call()'>
+                    <ion-icon slot="start" name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item *ngIf='debt && debt.productId !== 0 && debt.product && tab == "info"'>
+            <ion-avatar slot='start' *ngIf="debt.product.avatarUrl">
+                <img [src]="debt.product.avatarUrl"/>
+            </ion-avatar>
+            <ion-label class='ion-text-wrap'>
+                <span
+                    style='white-space: pre-wrap;'><b>{{productName(debt.product.code, debt.product.title)}}</b></span>
+                <br>
+                <span color="secondary">
+                    <ion-icon name="pricetag"></ion-icon>&nbsp;{{debt.product.price | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </span>
+                <br>
+                <span>{{debt.productCount}} {{debt.product.unit}}</span>
+            </ion-label>
+        </ion-item>
+        <ion-item *ngIf='tab == "info"'>
+            <ion-label *ngIf='debt.isPaid' color='primary'>{{'debt-detail.paid' | translate}}</ion-label>
+            <ion-label *ngIf='!debt.isPaid' color='danger'>{{'debt-detail.not-yet-paid' | translate}}</ion-label>
+            <ion-toggle slot='end' [(ngModel)]="debt.isPaid" (ngModelChange)='isPaidChange()'></ion-toggle>
+        </ion-item>
+        <ion-item text-wrap *ngIf='tab == "info"'>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="debt.debtType === 0">{{'debt-add.you-borrowed' | translate}}</span>
+                <span *ngIf="debt.debtType === 1">{{'debt-add.borrowed-you' | translate}}</span>
+                <span *ngIf="debt.debtType === 2">{{'debt-add.you-owned' | translate}}</span>
+                <span *ngIf="debt.debtType === 3">{{'debt-add.owned-you' | translate}}</span>
+                <br>
+                {{'common.total' | translate}}: <ion-text color="danger">
+                    {{debt.value | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                    / {{'debt-detail.paid' | translate}}: <ion-text color="secondary">
+                        {{debt.valuePaid | currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                        <p *ngIf="debt.createdAt">
+                            {{'debt-add.created-at' | translate}}: {{dateFormat(debt.createdAt)}}
+                        </p>
+                        <p *ngIf="debt.maturityDate">
+                            {{'debt-add.maturity-date' | translate}}: {{dateFormat(debt.maturityDate)}}
+                        </p>
+                        <p *ngIf="debt.interestRate">
+                            {{'debt-add.interest-rate' | translate}}: {{debt.interestRate}}%
+                        </p>
+            </ion-label>
+        </ion-item>
+        <ion-item *ngIf="categories.length > 0 && tab == 'info'">
+            <ion-label>
+                {{'debt-detail.categories' | translate}}:
+            </ion-label>
+            <ion-button *ngFor="let category of categories" fill='outline' slot='end' icon-left
+                (click)='moveToCategory(category)'>
+                {{category.tradeCategory.title}}
+            </ion-button>
+        </ion-item>
+        <ion-item *ngIf='tab=="info" && debt.note'>
+            <ion-label class='ion-text-wrap'>{{debt.note}}</ion-label>
+        </ion-item>
+        <ion-item text-wrap *ngIf='tab=="trade"'>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}
+                    <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'danger': 'secondary'}}">
+                    {{total >=0 ? '+': ''}} {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="secondary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon class='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+            <ion-button fill='clear' color="primary" slot='end' (click)='pay()'>
+                <ion-icon class='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item [hidden]='tab !== "trade"' *ngFor="let trade of trades" [showContact]='false' [trade]='trade'
+            [currency]='currency' (onClick)='selectTrade(trade.id)'></trade-item>
+        <ion-item class='ion-text-wrap' [hidden]='tab !== "trade"' *ngIf="!trades || trades.length===0">
+            <div [innerHTML]="'debt-detail.no-payment' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+</ion-content>

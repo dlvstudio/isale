@@ -1,0 +1,172 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'contact-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button color="primary" (click)='save(true, false)' [disabled]='saveDisabled'>
+                <ion-icon name="checkmark"></ion-icon>
+                {{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-grid>
+        <ion-row>
+            <ion-col size="12" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.full-name' | translate}}</ion-label>
+                <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;' type="text"
+                    placeholder='Vd: John London' [(ngModel)]='contact.fullName'></ion-input>
+            </ion-col>
+            <ion-col size="12" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.phone' | translate}}</ion-label>
+                <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;' type="tel"
+                    placeholder='Vd: 09123456789' [(ngModel)]='contact.mobile' (ngModelChange)='changePhone()'>
+                </ion-input>
+            </ion-col>
+            <ion-col size="12" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.photo' | translate}}</ion-label>
+                <span *ngIf='contact.avatarUrl' style='padding-top: 10px'>
+                    <br>
+                    <img [src]="contactImageOrPlaceholder(contact)" style="max-width: 150px;" />
+                </span>
+                <br>
+                <ion-button color='secondary' (click)='upload()' *ngIf='!isNotCordova()' style='padding-top: 10px'>
+                    <ion-icon name="camera"></ion-icon>&nbsp;{{'note-add.select-photo' | translate}}
+                </ion-button>
+                <label color='primary' for="files" *ngIf='isNotCordova()' style='padding-top: 10px'>[<span
+                        *ngIf='!fileToUpload'>{{'note-add.select-photo' | translate}}</span><span
+                        *ngIf='fileToUpload'>{{fileToUpload.name}}</span>]</label>
+                <input *ngIf='isNotCordova()' #fileUploadInput type="file" accept="image/*" id="files"
+                    style="width: 0; height: 0; font-size: 0;" (change)="rememberFile($event)" />
+            </ion-col>
+            <ion-col size="12" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.address' | translate}}</ion-label>
+                <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;' type="text"
+                    placeholder='Vd: Ha Noi' [(ngModel)]="contact.address"></ion-input>
+            </ion-col>
+            <ion-col size="12" size-md *ngIf='isExtend'>
+                <ion-label position='stacked' color='primary'>{{'contact-add.email' | translate}}</ion-label>
+                <ion-input clearInput style='background-color: #efefef; border-radius: 5px; color: #000;' type="email"
+                    placeholder='abc@email.com' [(ngModel)]="contact.email"></ion-input>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-grid *ngIf='isExtend'>
+        <ion-row>
+            <ion-col size="4" size-md
+                *ngIf='!staffService.isStaff() || staffService.selectedStaff.hasFullAccess || staffService.selectedStaff.canViewAllContacts'>
+                <ion-text color='primary'>{{'contact-add.staff' | translate}}</ion-text>
+                <br>
+                <ion-text ion-text color='dark' (click)='showSearchStaff()'
+                    *ngIf="staffSelected && staffSelected.id > 0">
+                    {{staffSelected.name}}
+                </ion-text>
+                <ion-button size='small' (click)='showSearchStaff()' *ngIf="!staffSelected || staffSelected.id == 0">
+                    {{'order-add.select-collaborator' | translate}}
+                </ion-button>
+                <ion-button size='small' *ngIf="staffSelected && staffSelected.id > 0" fill='clear'
+                    (click)='removeStaff()'>
+                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                </ion-button>
+            </ion-col>
+            <ion-col size="4" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.gender' | translate}}</ion-label>
+                <ion-select [(ngModel)]="contact.gender">
+                    <ion-select-option value="">{{'contact-add.gender-na' | translate}}</ion-select-option>
+                    <ion-select-option value="male">{{'contact-add.gender-male' | translate}}</ion-select-option>
+                    <ion-select-option value="female">{{'contact-add.gender-female' | translate}}</ion-select-option>
+                </ion-select>
+            </ion-col>
+            <ion-col size="4" size-md>
+                <ion-label color='primary'>{{'contact-add.DOB' | translate}}</ion-label>
+                <br>
+                <date-picker *ngIf="contact.dateOfBirth"
+                    [(date)]="contact.dateOfBirth" pickerId="contactBd2Picker">
+                </date-picker>
+                <ion-text (click)='showDatePopup()' *ngIf="!contact.dateOfBirth">
+                    {{'common.select-date' | translate}}
+                </ion-text>
+                <ion-button *ngIf="contact.dateOfBirth" fill='outline' (click)='removeDate()'>
+                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                </ion-button>
+            </ion-col>
+            <ion-col size="4" size-md>
+                <ion-label position='stacked' color='primary'>{{'contact-add.VIP' | translate}}</ion-label>
+                <br>
+                <ion-toggle [(ngModel)]='contact.isImportant'></ion-toggle>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="4" size-md>
+                <ion-text color='primary'>{{'contact-add.business-type' | translate}}</ion-text>
+                <br>
+                <ion-text ion-text color='dark' (click)='showBusinessTypes()'
+                    *ngIf="businessTypeSelected && businessTypeSelected.id > 0">
+                    {{businessTypeSelected.title}}
+                </ion-text>
+                <ion-button size='small' (click)='showBusinessTypes()'
+                    *ngIf="!businessTypeSelected || businessTypeSelected.id == 0">
+                    {{'contact-add.select-business-type' | translate}}
+                </ion-button>
+                <ion-button size='small' *ngIf="businessTypeSelected && businessTypeSelected.id > 0" fill='clear'
+                    (click)='removeBusinessType()'>
+                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                </ion-button>
+            </ion-col>
+            <ion-col size="4" size-md>
+                <ion-text color='primary'>{{'contact-add.sales-line' | translate}}</ion-text>
+                <br>
+                <ion-text ion-text color='dark' (click)='showSalesLines()'
+                    *ngIf="salesLineSelected && salesLineSelected.id > 0">
+                    {{salesLineSelected.title}}
+                </ion-text>
+                <ion-button size='small' (click)='showSalesLines()'
+                    *ngIf="!salesLineSelected || salesLineSelected.id == 0">
+                    {{'contact-add.select-sales-line' | translate}}
+                </ion-button>
+                <ion-button size='small' *ngIf="salesLineSelected && salesLineSelected.id > 0" fill='clear'
+                    (click)='removeSalesLine()'>
+                    <ion-icon slot='icon-only' name="close"></ion-icon>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button fill='outline' expand='block' color="secondary" (click)='isExtend = !isExtend'>
+                    <ion-icon name='ellipsis-horizontal'></ion-icon>&nbsp;
+                    {{'product-add.extend' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button fill='outline' expand='block' color="primary" (click)='save(false, true)'
+                    [disabled]='saveDisabled' tabindex="5">
+                    <ion-icon name='checkmark'></ion-icon>&nbsp;
+                    {{'product-add.save-continue' | translate}}
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button fill='outline' expand='block' (click)='navCtrl.back()' tabindex="6">
+                    <ion-icon name='close'></ion-icon>&nbsp;
+                    {{'product-add.close' | translate}}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-list>
+        <ion-item *ngFor="let contact of contactsAdded">
+            <ion-avatar slot='start'>
+                <img [src]="contactImageOrPlaceholder(contact)" />
+            </ion-avatar>
+            <ion-label>
+                <h2>{{contact.fullName}} <span *ngIf='contact.code'> | {{contact.code}}</span></h2>
+                <p>{{contact.mobile}}</p>
+                <p *ngIf='contact.address'>{{contact.address}}</p>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

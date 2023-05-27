@@ -1,0 +1,83 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button menu="first"></ion-menu-button>
+            <ion-button color="primary" (click)='navCtrl.home()'>
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title *ngIf="page=='debts'">{{'debt.title' | translate}}</ion-title>
+        <ion-title *ngIf="page=='loans'">{{'loans.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='openDebtAdd()'>
+                <ion-icon name="add-circle"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-searchbar debounce="700" (ionClear)='clearSearch()' (ionChange)='search()'
+        placeholder="{{'debt.search' | translate}}" [(ngModel)]='searchKey'>
+    </ion-searchbar>
+    <ion-segment [(ngModel)]="debtType" (ngModelChange)='changeDeptType()'>
+        <ion-segment-button value="0" [hidden]='page !== "loans"'>
+            {{'debt-add.you-borrowed' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="1" [hidden]='page !== "loans"'>
+            {{'debt-add.borrowed-you' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="3" [hidden]='page !== "debts"'>
+            {{'debt-add.owned-you' | translate}}
+        </ion-segment-button>
+        <ion-segment-button value="2" [hidden]='page !== "debts"'>
+            {{'debt-add.you-owned' | translate}}
+        </ion-segment-button>
+    </ion-segment>
+    <ion-list>
+        <ion-item text-wrap lines='none'>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateOnlyFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateOnlyFormat(dateTo)}}
+                    <br>
+                </span>
+                {{'debt.total-amount-left' | translate}}: <ion-text color="danger">{{(total - totalPaid) |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+                / {{'debt-detail.paid' | translate}}: <ion-text color="secondary">{{totalPaid |
+                    currency:currency:"symbol":'1.0-2':translateService.currentLang}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForDebt()'>
+                <ion-icon name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item>
+            <ion-checkbox [(ngModel)]='showLeftOnly' (ngModelChange)='changeLeftOnly()'></ion-checkbox>
+            <ion-label class='ion-text-wrap' style="font-size: 0.9em">{{'debt.show-left-only' | translate}}</ion-label>
+        </ion-item>
+        <ng-container *ngFor="let debt of debts">
+            <debt-item *ngIf='!showLeftOnly || ((debt.value - debt.valuePaid) > 0)' [debt]='debt' [currency]='currency' (onPress)="presentActionSheet(debt)"
+                (onClick)='selectDebt(debt.id)' [showContact]='true' [showProduct]='true'></debt-item>
+        </ng-container>
+        <ion-item text-wrap *ngIf="!originalDebts || originalDebts.length===0">
+            <div [innerHTML]="'debt.no-debt' | translate">
+            </div>
+        </ion-item>
+    </ion-list>
+    <div *ngIf="!originalDebts || originalDebts.length===0" class="ion-padding" style="padding-top: 0 !important;">
+        <support></support>
+    </div>
+    <ion-fab [style]="navCtrl.hasAds() ? 'margin-bottom: 60px' : ''" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)='openDebtAdd()'>
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>

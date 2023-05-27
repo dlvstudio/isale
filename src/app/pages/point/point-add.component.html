@@ -1,0 +1,90 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot='start'>
+            <ion-button ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+                &nbsp;{{'common.cancel' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'point-add.title' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button *ngIf="config && config.id" color="danger" (click)='delete()'>
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='save()'>
+                <ion-icon name="checkmark"></ion-icon>
+                &nbsp;{{'action.save' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>
+                {{'point-add.exchange' | translate}}
+            </ion-label>
+            <ion-input clearInput type="number" [(ngModel)]='config.exchange' placeholder="{{'point-add.exchange-description' | translate}}"></ion-input>
+            <p *ngIf="config.exchange" style="font-size: 0.8em">
+                {{config.exchange | currency:currency:"symbol":'1.0-2':translateService.currentLang}} = 1 {{'point-add.point' | translate}}
+            </p>
+        </ion-item>
+        <ion-item>
+            <ion-label position='stacked' color='primary'>{{'point-add.for-all-customer' | translate}}</ion-label>
+            <ion-toggle color="primary" [(ngModel)]='config.forAllCustomer'>
+            </ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="!config.forAllCustomer">
+            <ion-label>{{'point-add.contact' | translate}}: &nbsp;</ion-label>
+            <ion-text color='dark' (click)='showSearchContact()'
+                *ngIf="contactSelected && contactSelected.id > 0">
+                {{contactSelected.fullName}}
+            </ion-text>
+            <ion-text (click)='showSearchContact()'
+                *ngIf="!contactSelected || contactSelected.id === 0">
+                {{'point-add.select-contact' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="contactSelected && contactSelected.id > 0" fill='clear'
+                    (click)='removeContact()'>
+                    <ion-icon name="close" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label color="primary">{{'point-add.product' | translate}} ({{'point-add.optional' | translate}}): &nbsp;</ion-label>
+            <ion-text color='dark' (click)='showSearchProduct()'
+                *ngIf="productSelected && productSelected.id > 0">
+                {{productSelected.title}}
+            </ion-text>
+            <ion-text (click)='showSearchProduct()'
+                *ngIf="!productSelected || productSelected.id === 0">
+                {{'point-add.select-product' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="productSelected && productSelected.id > 0" fill='clear'
+                    (click)='removeProduct()'>
+                    <ion-icon name="close" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+        <ion-item>
+            <ion-label color="primary">{{'point-add.category' | translate}} ({{'point-add.optional' | translate}}): &nbsp;</ion-label>
+            <ion-text color='dark' (click)='showSearchCategory()'
+                *ngIf="categorySelected && categorySelected.id > 0">
+                {{categorySelected.title}}
+            </ion-text>
+            <ion-text (click)='showSearchCategory()'
+                *ngIf="!categorySelected || categorySelected.id === 0">
+                {{'point-add.select-category' | translate}}
+            </ion-text>
+            <ion-buttons slot='end'>
+                <ion-button *ngIf="categorySelected && categorySelected.id > 0" fill='clear'
+                    (click)='removeCategory()'>
+                    <ion-icon name="close" slot='icon-only'></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+</ion-content>

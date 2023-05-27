@@ -1,0 +1,261 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'contact-detail.title' | translate}}</ion-title>
+        <ion-buttons slot=end>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create"></ion-icon>
+                {{'common.edit' | translate}}
+            </ion-button>
+            <ion-button color="primary" (click)='presentActionSheet()'>
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content *ngIf='contact'>
+    <ion-list lines='none'>
+        <ion-item-sliding>
+            <ion-item>
+                <ion-avatar slot='start'>
+                    <img [src]="contactImageOrPlaceholder()" style="max-width: 150px;">
+                </ion-avatar>
+                <ion-label class='ion-text-wrap'>
+                    <h2><b>{{contact.fullName}}<span *ngIf='contact && contact.code'> | {{contact.code}}</span></b></h2>
+                    <p>{{contact.mobile}}</p>
+                    <p class='ion-text-wrap' style='font-size: 0.8em'>
+                        <ion-icon *ngIf="contact.lastAction" name="{{actionIcon(contact.lastAction)}}"></ion-icon>
+                        <span *ngIf="contact.lastAction">&nbsp;</span>{{dateTimeFormat(contact.lastActive)}}
+                    </p>
+                </ion-label>
+                <ion-icon name="copy" (click)="copy(contact.fullName + '\n' + contact.mobile)"></ion-icon>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option color="primary" (click)='text()'>
+                    <ion-icon slot="start" name="send"></ion-icon>
+                    {{'action.text' | translate}}
+                </ion-item-option>
+                <ion-item-option ion-button color="secondary" (click)='call()'>
+                    <ion-icon slot="start" name="call"></ion-icon>
+                    {{'action.call' | translate}}
+                </ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+        <ion-item style="margin: 0; padding: 0">
+            <ion-label class='ion-text-wrap' style="margin: 0; padding: 0">
+                <p *ngIf='contact.level'>
+                    {{'contact.level' | translate}}: {{contact.level.title}}
+                </p>
+                <p *ngIf='contact.point'>
+                    {{'contact.point' | translate}}: {{contact.point}} {{'point-add.point' | translate}}
+                </p>
+                <p *ngIf='contact.address'>{{contact.address}}</p>
+                <p *ngIf='contact.staff'>
+                    <ion-icon name="person-outline" slot='start'></ion-icon>
+                    {{'contact-add.staff' | translate}}: {{contact.staff.name}}
+                </p>
+                <p *ngIf='contact.businessType'>
+                    {{'contact-add.business-type-short' | translate}}: {{contact.businessType.title}}
+                </p>
+                <p *ngIf='contact.salesLine'>
+                    {{'contact-add.sales-line' | translate}}: {{contact.salesLine.title}}
+                </p>
+            </ion-label>
+            <ion-label style="text-align: right;" slot="end"
+                *ngIf="!staffService.selectedStaff || staffService.selectedStaff.hasFullAccess">
+                <ion-button (click)="showEditPoint()">
+                    <ion-icon name="create"></ion-icon>
+                    {{'contact-add.edit-point-level' | translate}}
+                </ion-button>
+                <br>
+                <ion-button (click)="showBarcode()" color="secondary">
+                    <ion-icon name="barcode"></ion-icon>
+                    {{'contact-add.show-barcode' | translate}}
+                </ion-button>
+            </ion-label>
+        </ion-item>
+        <ion-item [hidden]='!isShowBarcode || !barcode64base' style='text-align: center;' lines='none'>
+            <ion-label>
+                <canvas #barcode id="barcode"></canvas>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+    <div class="ion-padding">
+        <ion-segment scrollable [(ngModel)]="tab" [scrollable]='true' class="ion-text-wrap">
+            <ion-segment-button value="info" class="ion-text-wrap">
+                {{'contact-detail.info' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="order" class="ion-text-wrap">
+                {{'contact-detail.order' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="trade" class="ion-text-wrap">
+                {{'contact-detail.trade' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="note" class="ion-text-wrap">
+                {{'contact-detail.note' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="debt" class="ion-text-wrap">
+                {{'contact-detail.debt-loan' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="prices" class="ion-text-wrap"
+                *ngIf="staffService.selectedStaff === null || staffService.selectedStaff.hasFullAccess">
+                {{'contact.prices' | translate}}
+            </ion-segment-button>
+            <ion-segment-button value="discounts" class="ion-text-wrap"
+                *ngIf="staffService.selectedStaff === null || staffService.selectedStaff.hasFullAccess">
+                {{'contact.discounts' | translate}}
+            </ion-segment-button>
+        </ion-segment>
+    </div>
+    <ion-list *ngIf='tab==="info"'>
+        <ion-item-divider color="light" [hidden]='!isShowBarcode || !barcode64base'>
+            {{'product-detail.barcode' | translate}}
+            <ion-button fill='clear' color="primary" slot='end' (click)='printBarcode()'>
+                <ion-icon slot="icon-only" name="print"></ion-icon>
+            </ion-button>
+        </ion-item-divider>
+        <ion-item *ngIf='contact.email' (click)='openEmail()'>
+            <ion-icon name="mail" slot='start'></ion-icon>
+            {{contact.email}}&nbsp;
+            <ion-icon name="copy" (click)="copy(contact.email)"></ion-icon>
+        </ion-item>
+        <ion-item *ngIf='contact.address'>
+            <ion-icon name="pin" slot='start'></ion-icon>
+            {{contact.address}}&nbsp;
+            <ion-icon name="copy" (click)="copy(contact.address)"></ion-icon>
+        </ion-item>
+        <ion-item *ngIf='contact.dateOfBirth'>
+            <ion-icon name="calendar" slot='start'></ion-icon>
+            {{dateFormat(contact.dateOfBirth)}}
+            <ion-icon *ngIf='contact.gender' name="{{contact.gender==='male' ? 'male' : 'female'}}" item-right>
+            </ion-icon>
+        </ion-item>
+        <ion-item *ngIf='contact.isImportant'>
+            <ion-icon name="star" slot='start'></ion-icon>
+            {{'contact-add.VIP' | translate}}
+        </ion-item>
+    </ion-list>
+    <ion-list *ngIf='tab==="note"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{notes && notes.length ? notes.length : 0}} {{'note.note(s)' | translate}}
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addNote()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <ion-item *ngFor="let note of notes" (click)='selectNote(note.id)'>
+            <ion-label class='ion-text-wrap'>
+                <span style='white-space: pre-wrap;'>{{limitText(note.content)}}</span>
+                <p>
+                    {{dateTimeFormat(note.modifiedAt)}}
+                </p>
+                <p *ngIf='note.staffId && note.staffId !== 0 && note.staff'>
+                    <i style="font-size: 11px;">{{'trade.staff' | translate}} {{note.staff.name}}</i>
+                </p>
+            </ion-label>
+            <ion-thumbnail slot='end' *ngIf="note.avatarUrl">
+                <img [src]="note.avatarUrl" />
+            </ion-thumbnail>
+            <ion-icon name="bookmark" *ngIf='note.frequency' slot='end'></ion-icon>
+            <ion-icon name="star" *ngIf='note.important' slot='end'></ion-icon>
+        </ion-item>
+        <div class="ion-padding" *ngIf='!notes || !notes.length'>{{'contact-detail.no-notes' | translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="trade"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateFrom != '' || dateTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateTo)}}
+                    <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{total >=0 ? 'secondary': 'danger'}}">{{total >=0 ? '+': ''}}
+                    {{total | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForTrade()'>
+                <ion-icon slot='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <trade-item *ngFor="let trade of trades" [showContact]='false' [trade]='trade' [currency]='currency'
+            (onClick)='selectTrade(trade.id)'></trade-item>
+        <div class="ion-padding" *ngIf='!trades || !trades.length'>{{'contact-detail.no-trades' | translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="order"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateOrderFrom != '' || dateOrderTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateOrderFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateOrderTo)}}
+                    <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="{{orderTotal >=0 ? 'secondary': 'danger'}}">{{orderTotal >=0 ? '+': ''}}
+                    {{orderTotal | currency:currency:"symbol":'1.0-2':translateService.currentLang}}.</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForOrder()'>
+                <ion-icon slot='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <order-list-item *ngFor="let order of orders" [showContact]='false' [order]='order' [currency]='currency'
+            (onClick)='selectOrder(order.id)'></order-list-item>
+        <div class="ion-padding" *ngIf='!orders || !orders.length'>{{'contact-detail.no-orders' | translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="debt"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                <span *ngIf="dateDebtFrom != '' || dateDebtTo != ''">
+                    {{'common.from' | translate}} {{dateFormat(dateDebtFrom)}} {{'common.to' | translate}}
+                    {{dateFormat(dateDebtTo)}}
+                    <br>
+                </span>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="danger">{{totalDebt | currency:currency:"symbol":'1.0-2':translateService.currentLang}}
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='selectDateRangeForDebt()'>
+                <ion-icon slot='icon-only' name="funnel"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <debt-item *ngFor="let debt of debts" [showContact]='false' [debt]='debt' [currency]='currency'
+            (onClick)='selectDebt(debt.id)'></debt-item>
+        <div class="ion-padding" *ngIf='!debts || !debts.length'>{{'contact-detail.no-debts' | translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="prices"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerPrices && customerPrices.length ? customerPrices.length : 0}}
+                </ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addPrice()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-price-item *ngFor="let customerPrice of customerPrices" [showContact]='false' [showProduct]='true'
+            [customerPrice]='customerPrice' [currency]='currency' (onClick)='selectCustomerPrice(customerPrice.id)'>
+        </customer-price-item>
+        <div class="ion-padding" *ngIf='!customerPrices || !customerPrices.length'>{{'contact-detail.no-prices' |
+            translate}}</div>
+    </ion-list>
+    <ion-list *ngIf='tab==="discounts"'>
+        <ion-item>
+            <ion-label class='ion-text-wrap'>
+                {{'common.total' | translate}}:&nbsp;
+                <ion-text color="primary">{{customerDiscounts && customerDiscounts.length ? customerDiscounts.length :
+                    0}}</ion-text>
+            </ion-label>
+            <ion-button fill='clear' color="primary" slot='end' (click)='addDiscount()'>
+                <ion-icon slot='icon-only' name="add"></ion-icon>
+            </ion-button>
+        </ion-item>
+        <customer-discount-item *ngFor="let customerDiscount of customerDiscounts" [showContact]='false'
+            [showProduct]='true' [customerDiscount]='customerDiscount' [currency]='currency'
+            (onClick)='selectCustomerDiscount(customerDiscount.id)'></customer-discount-item>
+        <div class="ion-padding" *ngIf='!customerDiscounts || !customerDiscounts.length'>{{'contact-detail.no-discounts'
+            | translate}}</div>
+    </ion-list>
+</ion-content>

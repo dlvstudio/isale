@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><dimension ref="A1:E15"/><sheetData><row r="1"><c r="A1" t="str"><v>name</v></c><c r="B1" t="str"><v>email</v></c><c r="C1" t="str"><v>dob</v></c></row><row r="2"><c r="A2" t="str"><v>John Smith</v></c><c r="B2" t="str"><v>j.smith@example.com</v></c><c r="C2" t="str"><v>1985-10-10</v></c><c r="D2" t="str"><v>1985-10-10</v></c></row></sheetData></worksheet>

@@ -1,0 +1,55 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'store.title-detail' | translate}}</ion-title>
+        <ion-buttons slot='end'>
+            <ion-button (click)='deleteStore()' color="danger">
+                <ion-icon name='trash' slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button color="primary" (click)='edit()'>
+                <ion-icon name="create" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-item *ngIf='checkStore && (selectedStaff == null || (selectedStaff.hasFullAccess && !selectedStaff.storeId))' lines='none' color='success'>
+        <ion-label class="ion-text-wrap">{{checkStore}}</ion-label>
+        <ion-buttons>
+            <ion-button (click)='exitStore()' size='small'>
+                <ion-icon name='exit' slot='start' size='small'></ion-icon>
+                {{'store.exit-store' | translate}}
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+
+</ion-header>
+<ion-content [style]="navCtrl.hasAds() ? '--padding-bottom: 60px' : ''">
+    <ion-list *ngIf='store'>
+        <ion-item lines='none' style='--padding-top: 0; --inner-padding-top: 0; --inner-padding-bottom: 0; --min-height: 0;'>
+            <ion-label class='ion-text-wrap' style='padding: 0; margin: 0;'>
+                {{limitText(store.name)}}
+            </ion-label>
+            <ion-button *ngIf='!storeLogined || storeLogined.id !== store.id' style='padding: 0; margin: 0;' slot='end' fill='clear' (click)='loginAsStore()'>
+                <ion-icon name='enter' slot='start'></ion-icon>&nbsp;{{'store.login' | translate}}
+            </ion-button>
+        </ion-item>
+        <ion-item  style='--padding-bottom: 10px; --inner-padding-top: 0; --inner-padding-bottom: 10px; --min-height: 0;'>
+            <ion-label class='ion-text-wrap' style='padding: 0; margin: 0;'>
+                <p>{{'shop-add.id' | translate}}: {{store.id}}</p>
+                <p *ngIf='store.phone'>{{'shop-add.phone' | translate}}: {{store.phone}}</p>
+                <p *ngIf='store.email'>{{'shop-add.email' | translate}}: {{store.email}}</p>
+                <p *ngIf='store.address'>{{'shop-add.address' | translate}}: {{store.address}}</p>
+                <p *ngIf='store.facebook'>{{'shop-add.facebook' | translate}}: {{store.facebook}}</p>
+                <p *ngIf='store.bankName'>{{'shop-add.bank-name' | translate}}: {{store.bankName}}</p>
+                <p *ngIf='store.bankAccountName'>{{'shop-add.bank-account-name' | translate}}:
+                    {{store.bankAccountName}}</p>
+                <p *ngIf='store.bankAccountNumber'>{{'shop-add.bank-account-number' | translate}}:
+                    {{store.bankAccountNumber}}</p>
+            </ion-label>
+            <ion-thumbnail slot='end' *ngIf="store.iconUrl">
+                <img [src]="store.iconUrl">
+            </ion-thumbnail>
+        </ion-item>
+    </ion-list>
+</ion-content>
